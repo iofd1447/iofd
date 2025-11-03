@@ -1,0 +1,25 @@
+{
+  "name": "IOFDD",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@mdi/font": "^7.4.47",
+    "@supabase/supabase-js": "^2.78.0",
+    "@zxing/library": "^0.21.3",
+    "aos": "^2.3.4",
+    "nuxt": "^4.2.0",
+    "vue": "^3.5.22",
+    "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "vite-plugin-vuetify": "^2.1.2",
+    "vuetify": "^3.10.8"
+  }
+}
