@@ -206,7 +206,6 @@ CREATE TRIGGER update_halal_certifications_updated_at BEFORE UPDATE ON halal_cer
 CREATE TRIGGER update_community_reviews_updated_at BEFORE UPDATE ON community_reviews
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Pré-remplissage table additives - E-numbers avec statuts Halal
 INSERT INTO additives (code, name, description, halal_status, origin_type, function, health_concerns)
 VALUES
 
