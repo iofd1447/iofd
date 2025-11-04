@@ -209,7 +209,7 @@ CREATE TRIGGER update_community_reviews_updated_at BEFORE UPDATE ON community_re
 -- Pré-remplissage table additives - E-numbers avec statuts Halal
 INSERT INTO additives (code, name, description, halal_status, origin_type, function, health_concerns)
 VALUES
--- Colorants (E100-E180)
+
 ('E100', 'Curcumine', 'Colorant jaune extrait du curcuma', 'mashbuh', 'végétal', 'colorant', NULL),
 ('E101', 'Riboflavine', 'Vitamine B2, colorant jaune', 'mashbuh', 'végétal/animal', 'colorant', NULL),
 ('E102', 'Tartrazine', 'Colorant jaune synthétique', 'mashbuh', 'synthétique', 'colorant', NULL),
