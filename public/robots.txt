@@ -1,2 +1,5 @@
-User-Agent: *
-Disallow:
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://iofd.netlify.app/sitemap.xml
