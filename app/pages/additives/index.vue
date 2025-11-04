@@ -1,69 +1,41 @@
 <template>
-  <v-app-bar elevation="0" class="px-4" color="surface">
+  <v-app-bar elevation="0" class="px-2 px-sm-4" color="surface">
     <v-btn icon="mdi-arrow-left" variant="text" @click="$router.push('/')" />
 
-    <v-app-bar-title class="text-h6 font-weight-bold">
+    <v-app-bar-title class="text-subtitle-1 text-sm-h6 font-weight-bold">
       <span class="text-primary">IOFD</span>
-      <span class="text-medium-emphasis ml-2">• Additifs alimentaires</span>
+      <span class="text-medium-emphasis ml-1 ml-sm-2 d-none d-sm-inline">• Additifs alimentaires</span>
+      <span class="text-medium-emphasis ml-1 d-sm-none">• Additifs</span>
     </v-app-bar-title>
 
-    <v-spacer />
-
-    <v-btn :icon="isDark ? 'mdi-weather-night' : 'mdi-weather-sunny'" variant="text" @click="toggleTheme" />
   </v-app-bar>
 
   <v-main class="bg-surface-variant">
-    <v-container class="py-6">
-      <!-- Hero Section -->
+    <v-container class="py-3 py-sm-6 px-3 px-sm-4">
       <v-row>
         <v-col cols="12">
-          <v-card elevation="4" rounded="xl" class="hero-card mb-6">
-            <v-card-text class="pa-8">
-              <div class="d-flex align-center mb-4">
-                <v-avatar color="warning" size="64" class="mr-4">
-                  <v-icon size="36" color="white">mdi-flask</v-icon>
+          <v-card elevation="4" rounded="xl" class="hero-card mb-4 mb-sm-6">
+            <v-card-text class="pa-4 pa-sm-8">
+              <div class="d-flex align-center mb-4 flex-column flex-sm-row">
+                <v-avatar color="warning" size="48" class="mr-0 mr-sm-4 mb-3 mb-sm-0 avatar-hero">
+                  <v-icon size="28" class="icon-hero" color="white">mdi-flask</v-icon>
                 </v-avatar>
-                <div>
-                  <h1 class="text-h4 font-weight-bold mb-2">
+                <div class="text-center text-sm-left">
+                  <h1 class="text-h5 text-sm-h4 font-weight-bold mb-2">
                     Base de données des additifs
                   </h1>
-                  <p class="text-body-1 text-medium-emphasis mb-0">
+                  <p class="text-body-2 text-sm-body-1 text-medium-emphasis mb-0">
                     {{ filteredAdditives.length }} additifs alimentaires référencés avec leur statut halal
                   </p>
                 </div>
               </div>
 
-              <!-- Stats rapides -->
               <v-row dense>
-                <v-col cols="6" sm="3">
-                  <v-card variant="tonal" color="success">
-                    <v-card-text class="text-center py-3">
-                      <div class="text-h5 font-weight-bold">{{ statsCount.halal }}</div>
-                      <div class="text-caption">Halal</div>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-                <v-col cols="6" sm="3">
-                  <v-card variant="tonal" color="warning">
-                    <v-card-text class="text-center py-3">
-                      <div class="text-h5 font-weight-bold">{{ statsCount.douteux }}</div>
-                      <div class="text-caption">Douteux</div>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-                <v-col cols="6" sm="3">
-                  <v-card variant="tonal" color="error">
-                    <v-card-text class="text-center py-3">
-                      <div class="text-h5 font-weight-bold">{{ statsCount.haram }}</div>
-                      <div class="text-caption">Haram</div>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-                <v-col cols="6" sm="3">
-                  <v-card variant="tonal" color="primary">
-                    <v-card-text class="text-center py-3">
-                      <div class="text-h5 font-weight-bold">{{ statsCount.variable }}</div>
-                      <div class="text-caption">Variable</div>
+                <v-col v-for="stat in statsItems" cols="4">
+                  <v-card variant="tonal" :color="stat.color">
+                    <v-card-text class="text-center py-2 py-sm-3">
+                      <div class="text-h6 text-sm-h5 font-weight-bold">{{ statsCount[stat.key] }}</div>
+                      <div class="text-caption text-xs-caption">{{ stat.name }}</div>
                     </v-card-text>
                   </v-card>
                 </v-col>
@@ -73,57 +45,60 @@
         </v-col>
       </v-row>
 
-      <!-- Filters Section -->
       <v-row>
         <v-col cols="12">
           <v-card elevation="2" rounded="xl" class="mb-4">
-            <v-card-text class="pa-4">
-              <!-- Search Bar -->
+            <v-card-text class="pa-3 pa-sm-4">
               <v-text-field v-model="searchQuery" placeholder="Rechercher par code (E471) ou nom d'additif..."
-                prepend-inner-icon="mdi-magnify" variant="solo" flat hide-details density="comfortable" class="mb-4">
+                prepend-inner-icon="mdi-magnify" variant="solo" flat hide-details density="comfortable"
+                class="mb-3 mb-sm-4">
                 <template #append-inner>
                   <v-btn v-if="searchQuery" icon="mdi-close" variant="text" size="small" @click="clearSearch" />
                 </template>
               </v-text-field>
 
-              <!-- Filters -->
-              <div class="d-flex flex-wrap gap-2 align-center mb-4">
-                <span class="text-subtitle-2 text-medium-emphasis mr-2">Statut halal:</span>
-                <v-chip v-for="filter in statusFilters" :key="filter.value"
-                  :color="selectedStatus === filter.value ? filter.color : 'default'"
-                  :variant="selectedStatus === filter.value ? 'flat' : 'tonal'"
-                  @click="toggleStatusFilter(filter.value)">
-                  <v-icon start size="small">{{ filter.icon }}</v-icon>
-                  {{ filter.label }}
-                </v-chip>
+              <div class="d-flex flex-column flex-sm-row flex-wrap gap-2 align-start align-sm-center mb-3 mb-sm-4">
+                <span class="text-subtitle-2 text-medium-emphasis mr-0 mr-sm-2 mb-1 mb-sm-0">Statut halal:</span>
+                <div class="d-flex flex-wrap gap-2">
+                  <v-chip v-for="filter in statusFilters" :key="filter.value"
+                    :color="selectedStatus === filter.value ? filter.color : 'default'"
+                    :variant="selectedStatus === filter.value ? 'flat' : 'tonal'" size="small" class="chip-filter"
+                    @click="toggleStatusFilter(filter.value)">
+                    <v-icon start size="x-small">{{ filter.icon }}</v-icon>
+                    {{ filter.label }}
+                  </v-chip>
+                </div>
               </div>
 
-              <div class="d-flex flex-wrap gap-2 align-center mb-4">
-                <span class="text-subtitle-2 text-medium-emphasis mr-2">Fonction:</span>
-                <v-chip v-for="func in functionFilters" :key="func.value"
-                  :variant="selectedFunction === func.value ? 'flat' : 'tonal'"
-                  :color="selectedFunction === func.value ? 'primary' : 'default'"
-                  @click="toggleFunctionFilter(func.value)">
-                  <v-icon start size="small">{{ func.icon }}</v-icon>
-                  {{ func.label }}
-                </v-chip>
+              <div class="d-flex flex-column flex-sm-row flex-wrap gap-2 align-start align-sm-center mb-3 mb-sm-4">
+                <span class="text-subtitle-2 text-medium-emphasis mr-0 mr-sm-2 mb-1 mb-sm-0">Fonction:</span>
+                <div class="d-flex flex-wrap gap-2">
+                  <v-chip v-for="func in functionFilters" :key="func.value"
+                    :variant="selectedFunction === func.value ? 'flat' : 'tonal'"
+                    :color="selectedFunction === func.value ? 'primary' : 'default'" size="small" class="chip-filter"
+                    @click="toggleFunctionFilter(func.value)">
+                    <v-icon start size="x-small">{{ func.icon }}</v-icon>
+                    {{ func.label }}
+                  </v-chip>
+                </div>
               </div>
 
-              <div class="d-flex flex-wrap gap-2 align-center">
-                <span class="text-subtitle-2 text-medium-emphasis mr-2">Origine:</span>
-                <v-chip v-for="origin in originFilters" :key="origin.value"
-                  :variant="selectedOrigin === origin.value ? 'flat' : 'tonal'"
-                  :color="selectedOrigin === origin.value ? 'secondary' : 'default'"
-                  @click="toggleOriginFilter(origin.value)">
-                  <v-icon start size="small">{{ origin.icon }}</v-icon>
-                  {{ origin.label }}
-                </v-chip>
+              <div class="d-flex flex-column flex-sm-row flex-wrap gap-2 align-start align-sm-center">
+                <span class="text-subtitle-2 text-medium-emphasis mr-0 mr-sm-2 mb-1 mb-sm-0">Origine:</span>
+                <div class="d-flex flex-wrap gap-2">
+                  <v-chip v-for="origin in originFilters" :key="origin.value"
+                    :variant="selectedOrigin === origin.value ? 'flat' : 'tonal'"
+                    :color="selectedOrigin === origin.value ? 'secondary' : 'default'" size="small" class="chip-filter"
+                    @click="toggleOriginFilter(origin.value)">
+                    <v-icon start size="x-small">{{ origin.icon }}</v-icon>
+                    {{ origin.label }}
+                  </v-chip>
+                </div>
               </div>
 
-              <v-divider class="my-4" />
+              <v-divider class="my-3 my-sm-4" />
 
-              <!-- Active filters display -->
-              <div v-if="hasActiveFilters" class="d-flex align-center gap-2">
+              <div v-if="hasActiveFilters" class="d-flex align-center gap-2 flex-wrap">
                 <span class="text-caption text-medium-emphasis">Filtres actifs:</span>
                 <v-btn size="small" variant="text" color="error" prepend-icon="mdi-close-circle"
                   @click="clearAllFilters">
@@ -135,30 +110,29 @@
         </v-col>
       </v-row>
 
-      <!-- Results Info -->
+
       <v-row>
         <v-col cols="12">
-          <div class="d-flex justify-space-between align-center mb-4">
-            <div class="text-h6 font-weight-bold">
+          <div class="d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center gap-3 mb-4">
+            <div class="text-h6 text-sm-h6 font-weight-bold">
               {{ filteredAdditives.length }} additif{{ filteredAdditives.length > 1 ? 's' : '' }}
             </div>
-            <v-select v-model="sortBy" :items="sortOptions" variant="outlined" density="compact" hide-details
-              style="max-width: 200px" />
+            <div class="d-flex flex-column flex-sm-row gap-2 w-100 w-sm-auto">
+              <v-select v-model="sortBy" :items="sortOptions" variant="outlined" density="compact" hide-details
+                class="sort-select" />
+              <v-select v-model="selectedRegion" :items="[
+                { title: 'Europe (E-code)', value: 'EU' },
+                { title: 'International (INS)', value: 'INT' },
+              ]" label="Format du code" variant="outlined" density="compact" hide-details class="sort-select" />
+            </div>
           </div>
-
-          <v-select v-model="selectedRegion" :items="[
-            { title: 'Europe (E-code)', value: 'EU' },
-            { title: 'International (INS)', value: 'INT' },
-          ]" label="Format du code" variant="outlined" density="compact" hide-details style="max-width: 200px" />
         </v-col>
       </v-row>
 
-      <!-- Additives List -->
       <v-row v-if="!loading">
         <v-col v-for="additive in paginatedAdditives" :key="additive.id" cols="12" sm="6" md="4">
           <v-card class="additive-card h-100" elevation="2" rounded="xl" hover @click="goToAdditive(additive.code)">
             <v-card-text class="pa-4">
-              <!-- Header -->
               <div class="d-flex justify-space-between align-center mb-3">
                 <v-chip :color="getStatusColor(additive.halal_status)" variant="flat" class="font-weight-bold">
                   {{ getRegionalCode(additive.code) }}
@@ -169,15 +143,12 @@
                 </v-chip>
               </div>
 
-              <!-- Name -->
               <h3 class="text-h6 mb-2">{{ additive.name }}</h3>
 
-              <!-- Description -->
               <p class="text-body-2 text-medium-emphasis mb-3 description-text">
                 {{ additive.description }}
               </p>
 
-              <!-- Details -->
               <v-divider class="my-3" />
 
               <div class="details-grid">
@@ -191,7 +162,6 @@
                 </div>
               </div>
 
-              <!-- Health concerns -->
               <v-alert v-if="additive.health_concerns" type="warning" variant="tonal" density="compact" class="mt-3">
                 <div class="text-caption">
                   <v-icon size="small" start>mdi-alert</v-icon>
@@ -203,14 +173,12 @@
         </v-col>
       </v-row>
 
-      <!-- Loading State -->
       <v-row v-else>
         <v-col v-for="i in 12" :key="i" cols="12" sm="6" md="4">
           <v-skeleton-loader type="card" />
         </v-col>
       </v-row>
 
-      <!-- Empty State -->
       <v-row v-if="!loading && filteredAdditives.length === 0">
         <v-col cols="12">
           <v-card elevation="0" class="text-center py-16" rounded="xl">
@@ -226,10 +194,10 @@
         </v-col>
       </v-row>
 
-      <!-- Pagination -->
       <v-row v-if="filteredAdditives.length > 0">
-        <v-col cols="12" class="d-flex justify-center mt-6">
-          <v-pagination v-model="page" :length="totalPages" :total-visible="7" rounded="circle" />
+        <v-col cols="12" class="d-flex justify-center mt-4 mt-sm-6">
+          <v-pagination v-model="page" :length="totalPages" :total-visible="$vuetify.display.mobile ? 5 : 7"
+            rounded="circle" />
         </v-col>
       </v-row>
     </v-container>
@@ -237,10 +205,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import { useTheme } from 'vuetify'
-import { useRouter } from 'vue-router'
 import { useSupabase } from '@/composables/useSupabase'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useTheme } from 'vuetify'
+
+useHead({
+  title: 'IOFD - Additifs catalogue'
+})
 
 const supabase = useSupabase()
 const theme = useTheme()
@@ -248,11 +220,12 @@ const router = useRouter()
 
 const isDark = computed(() => theme.global.current.value.dark)
 
+type StatsKey = 'halal' | 'mashbuh' | 'haram' | 'variable';
+
 const toggleTheme = () => {
   theme.global.name.value = isDark.value ? 'light' : 'dark'
 }
 
-// State
 const loading = ref(false)
 const searchQuery = ref('')
 const selectedStatus = ref<string | null>(null)
@@ -261,15 +234,12 @@ const selectedOrigin = ref<string | null>(null)
 const sortBy = ref('code')
 const page = ref(1)
 const itemsPerPage = 24
-const selectedRegion = ref<'EU' | 'INT' | null>('EU') // EU = E-code, INT = INS
+const selectedRegion = ref<'EU' | 'INT' | null>('EU')
 
-
-// Filters
 const statusFilters = [
   { label: 'Halal', value: 'halal', icon: 'mdi-check-circle', color: 'success' },
-  { label: 'Douteux', value: 'douteux', icon: 'mdi-alert-circle', color: 'warning' },
+  { label: 'Mashbuh', value: 'mashbuh', icon: 'mdi-alert-circle', color: 'warning' },
   { label: 'Haram', value: 'haram', icon: 'mdi-close-circle', color: 'error' },
-  { label: 'Variable', value: 'variable', icon: 'mdi-swap-horizontal-circle', color: 'primary' }
 ]
 
 const functionFilters = [
@@ -296,75 +266,30 @@ const sortOptions = [
   { title: 'Origine', value: 'origin' }
 ]
 
-// Mock data - À remplacer par appel API Supabase
-const allAdditives = ref([
-  {
-    id: '1',
-    code: 'E100',
-    name: 'Curcumine',
-    description: 'Colorant jaune extrait du curcuma',
-    halal_status: 'halal',
-    origin_type: 'végétal',
-    function: 'colorant',
-    health_concerns: null
-  },
-  {
-    id: '2',
-    code: 'E120',
-    name: 'Cochineal',
-    description: 'Colorant rouge d\'origine animale',
-    halal_status: 'haram',
-    origin_type: 'animal',
-    function: 'colorant',
-    health_concerns: 'allergies possibles'
-  },
-  {
-    id: '3',
-    code: 'E471',
-    name: 'Mono- et diglycérides d\'acides gras',
-    description: 'Émulsifiant',
-    halal_status: 'variable',
-    origin_type: 'animal/végétal',
-    function: 'émulsifiant',
-    health_concerns: null
-  },
-  {
-    id: '4',
-    code: 'E150d',
-    name: 'Caramel ammoniacal',
-    description: 'Colorant brun caramel',
-    halal_status: 'douteux',
-    origin_type: 'végétal',
-    function: 'colorant',
-    health_concerns: null
-  },
-  {
-    id: '5',
-    code: 'E441',
-    name: 'Gélatine',
-    description: 'Épaississant animal',
-    halal_status: 'haram',
-    origin_type: 'animal',
-    function: 'stabilisant',
-    health_concerns: null
-  },
-  {
-    id: '6',
-    code: 'E300',
-    name: 'Acide ascorbique',
-    description: 'Antioxydant',
-    halal_status: 'halal',
-    origin_type: 'végétal',
-    function: 'antioxydant',
-    health_concerns: null
-  }
+const statsItems = ref<Array<{ name: string; key: StatsKey; color: string }>>([
+  { name: 'Halal', key: 'halal', color: 'success' },
+  { name: 'Mashbuh', key: 'mashbuh', color: 'warning' },
+  { name: 'Haram', key: 'haram', color: 'error' },
 ])
 
-// Computed
+interface Additive {
+  id: string,
+  code: string,
+  name: string,
+  description: string,
+  halal_status: string,
+  origin_type: string,
+  function: string,
+  health_concerns: string
+}
+
+const allAdditives = ref<Additive[]>([
+])
+
 const filteredAdditives = computed(() => {
+
   let additives = [...allAdditives.value]
 
-  // Search filter
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     additives = additives.filter(a =>
@@ -374,22 +299,18 @@ const filteredAdditives = computed(() => {
     )
   }
 
-  // Status filter
   if (selectedStatus.value) {
     additives = additives.filter(a => a.halal_status === selectedStatus.value)
   }
 
-  // Function filter
   if (selectedFunction.value) {
     additives = additives.filter(a => a.function === selectedFunction.value)
   }
 
-  // Origin filter
   if (selectedOrigin.value) {
     additives = additives.filter(a => a.origin_type === selectedOrigin.value)
   }
 
-  // Sort
   additives = sortAdditives(additives)
 
   return additives
@@ -412,7 +333,7 @@ const hasActiveFilters = computed(() => {
 const statsCount = computed(() => {
   const counts = {
     halal: 0,
-    douteux: 0,
+    mashbuh: 0,
     haram: 0,
     variable: 0
   }
@@ -437,7 +358,6 @@ const getRegionalCode = (code: string) => {
   }
 }
 
-// Methods
 const sortAdditives = (additives: any[]) => {
   switch (sortBy.value) {
     case 'code':
@@ -459,8 +379,7 @@ const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
     halal: 'success',
     haram: 'error',
-    douteux: 'warning',
-    variable: 'primary'
+    mashbuh: 'warning'
   }
   return colors[status] || 'grey'
 }
@@ -469,8 +388,7 @@ const getStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
     halal: 'Halal',
     haram: 'Haram',
-    douteux: 'Douteux',
-    variable: 'Variable'
+    mashbuh: 'Mashbuh'
   }
   return labels[status] || status
 }
@@ -479,8 +397,7 @@ const getStatusIcon = (status: string) => {
   const icons: Record<string, string> = {
     halal: 'mdi-check-circle',
     haram: 'mdi-close-circle',
-    douteux: 'mdi-alert-circle',
-    variable: 'mdi-swap-horizontal-circle'
+    mashbuh: 'mdi-alert-circle'
   }
   return icons[status] || 'mdi-help-circle'
 }
@@ -528,7 +445,6 @@ const goToAdditive = (code: string) => {
   router.push(`/additives/${code}`)
 }
 
-// Watch for filters changes
 watch([selectedStatus, selectedFunction, selectedOrigin, sortBy], () => {
   page.value = 1
 })
@@ -606,9 +522,29 @@ onMounted(async () => {
   animation: fadeIn 0.4s ease-out;
 }
 
+.chip-filter {
+  min-width: auto;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.sort-select {
+  width: 100%;
+}
+
+@media (min-width: 600px) {
+  .sort-select {
+    width: 200px;
+  }
+}
+
 @media (max-width: 600px) {
   .additive-card:hover {
     transform: translateY(-4px);
+  }
+
+  .v-card-text {
+    padding: 12px !important;
   }
 }
 </style>

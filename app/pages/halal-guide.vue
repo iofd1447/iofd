@@ -21,34 +21,13 @@
       <v-card elevation="4" rounded="xl" class="mb-6">
         <v-card-text class="pa-8">
           <h2 class="text-h5 font-weight-bold mb-4">Les statuts Halal</h2>
-          <v-list>
+          <v-list v-for="value in values">
             <v-list-item>
               <template #prepend>
-                <v-chip color="success" class="mr-4">✓</v-chip>
+                <v-icon :color="value.color" class="mr-4">{{ value.icon }}</v-icon>
               </template>
-              <v-list-item-title>Halal</v-list-item-title>
-              <v-list-item-subtitle>Produit conforme aux principes islamiques</v-list-item-subtitle>
-            </v-list-item>
-            <v-list-item>
-              <template #prepend>
-                <v-chip color="error" class="mr-4">✗</v-chip>
-              </template>
-              <v-list-item-title>Haram</v-list-item-title>
-              <v-list-item-subtitle>Produit interdit selon les principes islamiques</v-list-item-subtitle>
-            </v-list-item>
-            <v-list-item>
-              <template #prepend>
-                <v-chip color="warning" class="mr-4">⚠</v-chip>
-              </template>
-              <v-list-item-title>Douteux</v-list-item-title>
-              <v-list-item-subtitle>Le statut halal est incertain ou débattu</v-list-item-subtitle>
-            </v-list-item>
-            <v-list-item>
-              <template #prepend>
-                <v-chip color="grey" class="mr-4">?</v-chip>
-              </template>
-              <v-list-item-title>Non vérifié</v-list-item-title>
-              <v-list-item-subtitle>Aucune information disponible pour le moment</v-list-item-subtitle>
+              <v-list-item-title>{{ value.title }}</v-list-item-title>
+              <v-list-item-subtitle>{{ value.subtitle }}</v-list-item-subtitle>
             </v-list-item>
           </v-list>
         </v-card-text>
@@ -60,15 +39,9 @@
           <p class="text-body-1 mb-4">
             Voici quelques organismes de certification halal reconnus :
           </p>
-          <v-list>
+          <v-list v-for="org in halalCheckingCompany">
             <v-list-item prepend-icon="mdi-certificate">
-              <v-list-item-title>AVS (Association Véritas)</v-list-item-title>
-            </v-list-item>
-            <v-list-item prepend-icon="mdi-certificate">
-              <v-list-item-title>SFCVH (Société Française de Contrôle Vérité Halal)</v-list-item-title>
-            </v-list-item>
-            <v-list-item prepend-icon="mdi-certificate">
-              <v-list-item-title>JAKIM (Malaisie)</v-list-item-title>
+              <v-list-item-title>{{ org }}</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-card-text>
@@ -78,6 +51,19 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
+const values = ref([
+  { title: 'Halal', subtitle: 'Produit conforme aux principes islamiques', icon: 'mdi-check-circle', color: 'success' },
+  { title: 'Haram', subtitle: 'Produit interdit selon les principes islamiques', icon: 'mdi-alert-circle', color: 'error' },
+  { title: 'Mashbuh', subtitle: 'Le statut halal est incertain ou débattu', icon: 'mdi-alert', color: 'warning' }
+])
+
+const halalCheckingCompany = ref([
+  'AVS',
+  'Halal Monitoring Committee',
+  'Taiwan Halal Integrity Development Association',
+])
 </script>
 
 <style scoped></style>

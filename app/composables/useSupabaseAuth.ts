@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useSupabase } from './useSupabase'
 
 const supabase = useSupabase()
@@ -21,6 +21,23 @@ export function useSupabaseAuth() {
     try {
       const { data, error } = await supabase.auth.signUp({ email, password })
       if (error) throw error
+
+      if (data.user) {
+        const username = email.split('@')[0]
+        const { error: userError } = await supabase
+          .from('users')
+          .insert([{
+            id: data.user.id,
+            email: data.user.email || email,
+            username: username,
+            role: 'user'
+          }])
+
+        if (userError) {
+
+        }
+      }
+
       return data
     } finally { loading.value = false }
   }
@@ -58,6 +75,26 @@ export function useSupabaseAuth() {
     await supabase.from('product_contributors').insert([{ product_id: productId, user_id: userId, change_type: changeType, change_data: changeData }])
   }
 
+  const deleteAccount = async () => {
+    if (!user.value) throw new Error('Aucun utilisateur connecté')
+
+    loading.value = true
+    try {
+      const { error: deleteUserError } = await supabase
+        .from('users')
+        .delete()
+        .eq('id', user.value.id)
+
+      if (deleteUserError) throw deleteUserError
+
+      await signOut()
+
+      user.value = null
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     user,
     loading,
@@ -67,6 +104,7 @@ export function useSupabaseAuth() {
     signIn,
     signOut,
     updateUserProfile,
-    logContribution
+    logContribution,
+    deleteAccount
   }
 }

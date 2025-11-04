@@ -14,13 +14,11 @@
   </v-app-bar>
 
   <v-main class="bg-surface-variant">
-    <!-- Search & Filters Header -->
     <v-container class="py-6">
       <v-row>
         <v-col cols="12">
           <v-card elevation="2" rounded="xl" class="mb-4">
             <v-card-text class="pa-4">
-              <!-- Search Bar -->
               <v-text-field v-model="searchQuery" placeholder="Rechercher un produit, marque ou code-barres..."
                 prepend-inner-icon="mdi-magnify" variant="solo" flat hide-details density="comfortable" class="mb-4"
                 @input="debouncedSearch">
@@ -29,8 +27,7 @@
                 </template>
               </v-text-field>
 
-              <!-- Quick Filters -->
-              <div class="d-flex flex-wrap gap-2 align-center">
+              <div class="d-flex flex-wrap ga-2 align-center">
                 <v-chip v-for="filter in quickFilters" :key="filter.value"
                   :color="selectedHalalFilter === filter.value ? filter.color : 'default'"
                   :variant="selectedHalalFilter === filter.value ? 'flat' : 'tonal'"
@@ -54,7 +51,6 @@
             </v-card-text>
           </v-card>
 
-          <!-- Results Info -->
           <div class="d-flex justify-space-between align-center mb-4">
             <div class="text-h6 font-weight-bold">
               {{ filteredProducts.length }} produit{{ filteredProducts.length > 1 ? 's' : '' }}
@@ -63,7 +59,7 @@
               </span>
             </div>
 
-            <div class="d-flex gap-2">
+            <div class="d-flex ga-2">
               <v-btn-toggle v-model="viewMode" mandatory density="compact" variant="outlined">
                 <v-btn value="grid" icon="mdi-view-grid" />
                 <v-btn value="list" icon="mdi-view-list" />
@@ -73,9 +69,7 @@
         </v-col>
       </v-row>
 
-      <!-- Products Grid/List -->
       <v-row v-if="!loading">
-        <!-- Grid View -->
         <template v-if="viewMode === 'grid'">
           <v-col v-for="product in paginatedProducts" :key="product.id" cols="12" sm="6" md="4" lg="3">
             <v-card class="product-card h-100" elevation="2" rounded="xl" hover @click="goToProduct(product.id)">
@@ -87,8 +81,6 @@
                     {{ getHalalLabel(product.halal_status) }}
                   </v-chip>
 
-                  <v-btn icon="mdi-heart-outline" size="small" variant="flat" color="white"
-                    @click.stop="toggleFavorite(product.id)" />
                 </div>
               </v-img>
 
@@ -212,7 +204,6 @@
         </v-col>
       </v-row>
 
-      <!-- Empty State -->
       <v-row v-if="!loading && filteredProducts.length === 0">
         <v-col cols="12">
           <v-card elevation="0" class="text-center py-16" rounded="xl">
@@ -228,7 +219,6 @@
         </v-col>
       </v-row>
 
-      <!-- Pagination -->
       <v-row v-if="filteredProducts.length > 0">
         <v-col cols="12" class="d-flex justify-center mt-6">
           <v-pagination v-model="page" :length="totalPages" :total-visible="7" rounded="circle" />
@@ -237,7 +227,6 @@
     </v-container>
   </v-main>
 
-  <!-- Advanced Filters Drawer -->
   <v-navigation-drawer v-model="filterDrawer" location="right" temporary width="400">
     <v-card flat>
       <v-card-title class="d-flex align-center justify-space-between pa-4">
@@ -248,7 +237,6 @@
       <v-divider />
 
       <v-card-text class="pa-4">
-        <!-- Categories -->
         <div class="mb-6">
           <h3 class="text-subtitle-1 font-weight-bold mb-3">Catégories</h3>
           <v-chip-group v-model="selectedCategories" multiple column>
@@ -260,7 +248,6 @@
 
         <v-divider class="my-4" />
 
-        <!-- Certifications -->
         <div class="mb-6">
           <h3 class="text-subtitle-1 font-weight-bold mb-3">Certifications</h3>
           <v-checkbox v-model="filters.certified" label="Produits certifiés uniquement" hide-details
@@ -271,7 +258,6 @@
 
         <v-divider class="my-4" />
 
-        <!-- Labels -->
         <div class="mb-6">
           <h3 class="text-subtitle-1 font-weight-bold mb-3">Labels</h3>
           <v-chip-group v-model="selectedLabels" multiple column>
@@ -284,7 +270,6 @@
 
         <v-divider class="my-4" />
 
-        <!-- Additives -->
         <div class="mb-6">
           <h3 class="text-subtitle-1 font-weight-bold mb-3">Additifs</h3>
           <v-select v-model="filters.additivesFilter" :items="additivesOptions" label="Filtrer par additifs"
@@ -293,7 +278,6 @@
 
         <v-divider class="my-4" />
 
-        <!-- Rating -->
         <div class="mb-6">
           <h3 class="text-subtitle-1 font-weight-bold mb-3">
             Note minimale: {{ filters.minRating }}
@@ -308,7 +292,6 @@
 
         <v-divider class="my-4" />
 
-        <!-- Allergens -->
         <div class="mb-6">
           <h3 class="text-subtitle-1 font-weight-bold mb-3">Exclure allergènes</h3>
           <v-chip-group v-model="excludedAllergens" multiple column>
@@ -333,7 +316,6 @@
     </v-card>
   </v-navigation-drawer>
 
-  <!-- Sort Menu -->
   <v-menu v-model="sortMenu" :close-on-content-click="false">
     <v-card min-width="300">
       <v-list>
@@ -373,7 +355,6 @@ const toggleTheme = () => {
   theme.global.name.value = isDark.value ? 'light' : 'dark'
 }
 
-// State
 const loading = ref(false)
 const searchQuery = ref('')
 const viewMode = ref('grid')
@@ -394,7 +375,6 @@ const filters = ref({
   minRating: 0
 })
 
-// Quick Filters
 const quickFilters = [
   { label: 'Halal', value: 'halal', icon: 'mdi-check-circle', color: 'success' },
   { label: 'Douteux', value: 'douteux', icon: 'mdi-alert-circle', color: 'warning' },
@@ -402,7 +382,6 @@ const quickFilters = [
   { label: 'Non vérifié', value: 'non_verifie', icon: 'mdi-help-circle', color: 'grey' }
 ]
 
-// Categories
 const categories = [
   { label: 'Boissons', value: 'boissons', emoji: '🥤' },
   { label: 'Snacks', value: 'snacks', emoji: '🍿' },
@@ -414,7 +393,6 @@ const categories = [
   { label: 'Sauces', value: 'sauces', emoji: '🍯' }
 ]
 
-// Labels
 const labels = [
   { label: 'Bio', value: 'bio', icon: 'mdi-leaf' },
   { label: 'Sans OGM', value: 'sans-ogm', icon: 'mdi-dna' },
@@ -424,7 +402,6 @@ const labels = [
   { label: 'Vegan', value: 'vegan', icon: 'mdi-sprout' }
 ]
 
-// Allergens
 const allergens = [
   { label: 'Gluten', value: 'gluten' },
   { label: 'Lactose', value: 'lactose' },
@@ -436,7 +413,6 @@ const allergens = [
   { label: 'Crustacés', value: 'crustaces' }
 ]
 
-// Additives Options
 const additivesOptions = [
   { title: 'Tous les produits', value: 'all' },
   { title: 'Sans additifs', value: 'none' },
@@ -444,7 +420,6 @@ const additivesOptions = [
   { title: 'Avec additifs douteux', value: 'has-doubtful' }
 ]
 
-// Sort Options
 const sortOptions = [
   { label: 'Plus récents', value: 'recent', icon: 'mdi-clock-outline' },
   { label: 'Mieux notés', value: 'rating', icon: 'mdi-star' },
@@ -511,48 +486,40 @@ const fetchProducts = async () => {
 
 watch(page, () => fetchProducts())
 
-// Computed
 const filteredProducts = computed(() => {
   let products = [...allProducts.value]
 
-  // Search filter
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     products = products.filter(p =>
-      p.name.toLowerCase().includes(query) ||
-      p.brand.toLowerCase().includes(query) ||
-      p.barcode.includes(query)
+      (p.name || '').toLowerCase().includes(query) ||
+      (p.brand || '').toLowerCase().includes(query) ||
+      (p.barcode || '').toLowerCase().includes(query)
     )
   }
 
-  // Halal status filter
   if (selectedHalalFilter.value) {
     products = products.filter(p => p.halal_status === selectedHalalFilter.value)
   }
 
-  // Categories filter
   if (selectedCategories.value.length > 0) {
     products = products.filter(p =>
       selectedCategories.value.includes(p.category.toLowerCase().replace(/\s+/g, '-'))
     )
   }
 
-  // Certified filter
   if (filters.value.certified) {
     products = products.filter(p => p.certified)
   }
 
-  // Rating filter
   if (filters.value.minRating > 0) {
     products = products.filter(p => p.rating >= filters.value.minRating)
   }
 
-  // Additives filter
   if (filters.value.additivesFilter === 'none') {
     products = products.filter(p => p.additives_count === 0)
   }
 
-  // Sort
   products = sortProducts(products)
 
   return products
@@ -580,7 +547,6 @@ const activeFiltersCount = computed(() => {
   return count
 })
 
-// Methods
 const sortProducts = (products: any[]) => {
   switch (sortBy.value) {
     case 'recent':
@@ -695,13 +661,8 @@ const openScanner = () => {
   router.push('/products/scan')
 }
 
-const toggleFavorite = (id: string) => {
-  console.log('Toggle favorite:', id)
-  // TODO: Implement favorite logic
-}
-
-// Debounced search
 let searchTimeout: NodeJS.Timeout
+
 const debouncedSearch = () => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
@@ -709,19 +670,16 @@ const debouncedSearch = () => {
   }, 300)
 }
 
-// Watch for route query params
 watch(() => route.query.q, (newQuery) => {
   if (newQuery) {
     searchQuery.value = newQuery as string
   }
 }, { immediate: true })
 
-// Reset page when filters change
 watch([selectedHalalFilter, selectedCategories, filters], () => {
   page.value = 1
 }, { deep: true })
 
-// Simulate API call on mount
 onMounted(async () => {
   loading.value = true
   await fetchProducts()

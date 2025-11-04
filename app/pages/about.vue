@@ -35,18 +35,10 @@
       <v-card elevation="4" rounded="xl" class="mb-6">
         <v-card-text class="pa-8">
           <h2 class="text-h5 font-weight-bold mb-4">Nos valeurs</h2>
-          <v-list>
-            <v-list-item prepend-icon="mdi-shield-check">
-              <v-list-item-title>Transparence</v-list-item-title>
-              <v-list-item-subtitle>Informations vérifiables et sourcées</v-list-item-subtitle>
-            </v-list-item>
-            <v-list-item prepend-icon="mdi-account-group">
-              <v-list-item-title>Communauté</v-list-item-title>
-              <v-list-item-subtitle>Construire ensemble une ressource collective</v-list-item-subtitle>
-            </v-list-item>
-            <v-list-item prepend-icon="mdi-globe">
-              <v-list-item-title>Accessibilité</v-list-item-title>
-              <v-list-item-subtitle>Gratuit et ouvert à tous</v-list-item-subtitle>
+          <v-list v-for="value in values">
+            <v-list-item :prepend-icon="value.icon">
+              <v-list-item-title>{{ value.title }}</v-list-item-title>
+              <v-list-item-subtitle>{{ value.subtitle }}</v-list-item-subtitle>
             </v-list-item>
           </v-list>
         </v-card-text>
@@ -59,7 +51,7 @@
             Vous avez des questions ou des suggestions ? Contactez-nous :
           </p>
           <v-btn color="primary" prepend-icon="mdi-email" href="mailto:contact@iofd.org">
-            contact@iofd.org
+            iofd1447@gmail.com
           </v-btn>
         </v-card-text>
       </v-card>
@@ -68,6 +60,13 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
+const values = ref([
+  { title: 'Transparence', subtitle: 'Informations vérifiables et sourcées', icon: 'mdi-shield-check' },
+  { title: 'Communauté', subtitle: 'Construire ensemble une ressource collective', icon: 'mdi-account-group' },
+  { title: 'Accessibilité', subtitle: 'Gratuit et ouvert à tous', icon: 'mdi-web' }
+])
 </script>
 
 <style scoped></style>

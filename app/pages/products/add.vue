@@ -1,11 +1,17 @@
 <template>
   <v-app-bar elevation="0" class="px-4" color="surface">
+
     <v-btn icon="mdi-arrow-left" variant="text" @click="goBack" />
+
     <v-app-bar-title class="text-h6 font-weight-bold">
-      Ajouter un produit
+      <span class="text-primary">IOFD</span>
+      <span class="text-medium-emphasis ml-2">• Nouveau produit</span>
     </v-app-bar-title>
+
     <v-spacer />
+
     <v-btn icon="mdi-help-circle-outline" variant="text" @click="showHelp = true" />
+
   </v-app-bar>
 
   <v-main>
@@ -30,6 +36,27 @@
     </section>
 
     <v-container style="max-width: 900px;" class="py-4">
+      <v-alert v-if="!user" type="warning" variant="tonal" rounded="xl" class="mb-4" prominent>
+        <template #prepend>
+          <v-icon size="32">mdi-alert-circle</v-icon>
+        </template>
+        <div class="d-flex flex-column flex-md-row align-center justify-space-between">
+          <div class="mb-2 mb-md-0">
+            <div class="text-h6 font-weight-bold mb-1">Connexion requise</div>
+            <div class="text-body-2">
+              Vous devez être connecté pour ajouter un produit à la base de données.
+            </div>
+          </div>
+          <div class="d-flex ga-2">
+            <v-btn color="primary" variant="flat" prepend-icon="mdi-login" to="/auth/login">
+              Se connecter
+            </v-btn>
+            <v-btn color="primary" variant="outlined" prepend-icon="mdi-account-plus" to="/auth/signup">
+              Créer un compte
+            </v-btn>
+          </div>
+        </div>
+      </v-alert>
       <v-card v-show="step === 1" class="mb-4 card-enhanced" elevation="4" rounded="xl">
         <v-card-text class="pa-8">
           <div class="d-flex align-center mb-6">
@@ -49,8 +76,9 @@
                 placeholder="301 7620 42200 3" hint="13 chiffres" persistent-hint :rules="[rules.barcode]"
                 @input="onBarcodeInput" maxlength="16">
                 <template #append-inner>
-                  <!-- Bouton Scanner -->
+                  <!-- Bouton Scanner 
                   <v-btn icon="mdi-barcode-scan" variant="text" color="primary" size="small" @click="openScanner" />
+                -->
                 </template>
               </v-text-field>
             </v-col>
@@ -283,37 +311,6 @@
         </v-card-actions>
       </v-card>
 
-      <v-card class="preview-card card-enhanced" elevation="4" rounded="xl">
-        <v-card-text class="pa-6">
-          <div class="text-overline mb-2 text-medium-emphasis">Aperçu</div>
-          <div class="text-h6 font-weight-bold mb-2">{{ form.name || 'Nom du produit' }}</div>
-
-          <div class="d-flex flex-wrap align-center mb-4 text-body-2 text-medium-emphasis">
-            <v-chip v-if="form.portion_description" class="mr-2" color="info">{{ form.portion_description }}</v-chip>
-            <v-chip v-if="selectedCategory" small color="primary" class="ma-0">
-              {{ selectedCategory.name }}
-            </v-chip>
-          </div>
-
-          <v-img v-if="imagePreview" :src="imagePreview" height="180" cover rounded="lg" class="mb-4" />
-
-          <v-list density="compact" class="bg-transparent">
-            <v-list-item v-if="form.brand" prepend-icon="mdi-store" class="px-0">
-              <v-list-item-title class="text-body-2">{{ form.brand }}</v-list-item-title>
-            </v-list-item>
-            <v-list-item v-if="form.barcode" prepend-icon="mdi-barcode" class="px-0">
-              <v-list-item-title class="text-body-2">{{ form.barcode }}</v-list-item-title>
-            </v-list-item>
-            <v-list-item v-if="form.halal_status" prepend-icon="mdi-shield-check" class="px-0">
-              <v-list-item-title>
-                <v-chip :color="getHalalStatusColor(form.halal_status)" size="small">
-                  {{ getHalalStatusLabel(form.halal_status) }}
-                </v-chip>
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-card-text>
-      </v-card>
     </v-container>
   </v-main>
 
@@ -377,58 +374,19 @@
     </v-card>
   </v-dialog>
 
-  <v-dialog v-model="showAuthDialog" max-width="500">
-    <v-card rounded="xl">
-      <v-card-title class="pa-6 d-flex align-center">
-        <v-icon class="mr-3" color="primary">mdi-account-plus</v-icon>
-        <span class="text-h6">Créer un compte rapide</span>
-        <v-spacer />
-        <v-btn icon="mdi-close" variant="text" @click="showAuthDialog = false" />
-      </v-card-title>
-
-      <v-card-text class="pa-6 pt-0">
-        <v-stepper v-model="authStep" vertical>
-          <!-- Step 1 : Formulaire inscription -->
-          <v-stepper-step :complete="authStep > 1" step="1">
-            Informations du compte
-          </v-stepper-step>
-          <v-stepper-content step="1">
-            <v-text-field v-model="authEmail" label="Email" type="email" :rules="[emailRule]" />
-            <v-text-field v-model="authPassword" label="Mot de passe" type="password" :rules="[passwordRule]" />
-            <v-btn color="primary" class="mt-4" :loading="authLoading" @click="handleSignUpStep1">
-              Créer mon compte
-            </v-btn>
-          </v-stepper-content>
-
-          <!-- Step 2 : Confirmation email -->
-          <v-stepper-step :complete="authStep > 2" step="2">
-            Confirmez votre email
-          </v-stepper-step>
-          <v-stepper-content step="2">
-            <p>
-              Un email de confirmation a été envoyé à <strong>{{ authEmail }}</strong>.
-              Cliquez sur le lien dans cet email pour activer votre compte.
-            </p>
-            <v-btn color="success" class="mt-4" :loading="authLoading" @click="checkEmailConfirmed">
-              J’ai confirmé, continuer
-            </v-btn>
-          </v-stepper-content>
-        </v-stepper>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
-
-  <BarcodeScanner v-model="showScanner" @detected="handleBarcodeDetected" />
 </template>
 
 <script setup lang="ts">
 import { useSupabase } from '@/composables/useSupabase'
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
 import { computed, onMounted, ref } from 'vue'
-import BarcodeScanner from '@/components/BarcodeScanner.vue'
+
+useHead({
+  title: 'IOFD - Add a product to the database'
+})
 
 const supabase = useSupabase()
-const supabaseAuth = useSupabaseAuth()
+const { user, fetchUser, logContribution } = useSupabaseAuth()
 
 const step = ref(1)
 const steps = [
@@ -540,15 +498,15 @@ const selectedCategory = computed(() => {
 
 const halalStatuses = [
   { value: 'halal', label: 'Halal', icon: 'mdi-check-circle', color: 'success' },
+  { value: 'haram', label: 'Haraml', icon: 'mdi-check-circle', color: 'error' },
+  { value: 'mashbuh', label: 'Mashbuh', icon: 'mdi-check-circle', color: 'warning' },
   { value: 'non_verifie', label: 'Non vérifié', icon: 'mdi-help-circle', color: 'grey' },
 ]
 
 const certificationBodies = [
-  'AVS (Achterhoekse Vereniging voor Slachtveebedrijven)',
-  'SFCVH (Société Française de Contrôle de Viande Halal)',
-  'HMC (Halal Monitoring Committee)',
-  'HFA (Halal Food Authority)',
-  'GIMDES',
+  'AVS',
+  'Halal Monitoring Committee',
+  'Taiwan Halal Integrity Development Association',
   'Autre'
 ]
 
@@ -621,6 +579,8 @@ async function uploadImage(file: File): Promise<string | null> {
 const getHalalStatusColor = (status: string) => {
   const colors: Record<string, string> = {
     halal: 'success',
+    haram: 'error',
+    mashbuh: 'warning',
     non_verifie: 'grey',
   }
   return colors[status] || 'grey'
@@ -628,8 +588,10 @@ const getHalalStatusColor = (status: string) => {
 
 const getHalalStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
-    halal: '✓ Halal',
-    non_verifie: '? Non vérifié',
+    halal: 'Halal',
+    haram: 'Haram',
+    mashbuh: 'Mashbuh',
+    non_verifie: 'Non vérifié',
   }
   return labels[status] || 'Non vérifié'
 }
@@ -656,80 +618,16 @@ const getAdditiveColor = (additive: any) => {
   return 'secondary'
 }
 
-const showAuthDialog = ref(false)
-const authStep = ref(1)
-const authEmail = ref('')
-const authPassword = ref('')
-const authLoading = ref(false)
-
-const emailRule = (v: string) => !!v || 'Email requis'
-const passwordRule = (v: string) => (!!v && v.length >= 6) || 'Mot de passe ≥ 6 caractères'
-
-const handleSignUpStep1 = async () => {
-  authLoading.value = true
-  try {
-    const { data, error } = await supabase.auth.signUp({
-      email: authEmail.value,
-      password: authPassword.value
-    })
-
-    if (error) throw error
-
-    // Si session existe, email confirmé automatiquement (rare)
-    if (data.session) {
-      await signInAndSubmit()
-      showAuthDialog.value = false
-      return
-    }
-
-    // Sinon, passer à l'étape confirmation email
-    authStep.value = 2
-  } catch (err: any) {
-    console.error(err)
-    alert(err.message || 'Erreur lors de la création du compte')
-  } finally {
-    authLoading.value = false
-  }
-}
-
-const checkEmailConfirmed = async () => {
-  authLoading.value = true
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user?.email_confirmed_at) {
-      // Email confirmé -> continuer publication
-      await signInAndSubmit()
-      showAuthDialog.value = false
-    } else {
-      alert('Email non confirmé. Vérifiez votre boîte mail.')
-    }
-  } catch (err: any) {
-    console.error(err)
-    alert(err.message || 'Erreur lors de la vérification')
-  } finally {
-    authLoading.value = false
-  }
-}
-
-const signInAndSubmit = async () => {
-  await supabase.auth.signInWithPassword({
-    email: authEmail.value,
-    password: authPassword.value
-  })
-  await submitProduct()
-}
 
 const submitProduct = async () => {
   loading.value = true
   try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      showAuthDialog.value = true
+    const { data: { user: currentUser } } = await supabase.auth.getUser()
+    if (!currentUser) {
       loading.value = false
       return
     }
 
-    // --- Upload image ---
     let imageUrl = form.value.image_url
     if (imageFile.value) {
       const uploadedUrl = await uploadImage(imageFile.value)
@@ -828,7 +726,9 @@ const submitProduct = async () => {
       await supabase.from('product_labels').upsert(labelMappings, { ignoreDuplicates: true })
     }
 
-    await supabaseAuth.logContribution(product.id, user.id, isUpdate ? 'update' : 'create', { ...form.value })
+    if (currentUser) {
+      await logContribution(product.id, currentUser.id, isUpdate ? 'update' : 'create', { ...form.value })
+    }
 
     successDialog.value = true
   } catch (error: any) {
@@ -973,12 +873,6 @@ const loadLabels = async () => {
   }
 }
 
-const showScanner = ref(false)
-
-const openScanner = () => {
-  showScanner.value = true
-}
-
 const handleBarcodeDetected = async (barcode: string) => {
   form.value.barcode = barcode
   displayBarcode.value = formatBarcode(barcode)
@@ -1033,6 +927,7 @@ const searchProductInfo = async (barcode: string) => {
 }
 
 onMounted(async () => {
+  await fetchUser()
   await Promise.all([
     loadCategories(),
     loadIngredients(),

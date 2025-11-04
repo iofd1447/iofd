@@ -98,6 +98,8 @@ export default defineNuxtPlugin((nuxtapp) => {
             accent: '#c6ff00',            // Lime fluo
             'on-accent': '#2e3300',
 
+            bonus: '#800080',
+
             // États - Néon et vibrants
             error: '#ff5252',             // Rouge néon
             'on-error': '#2d0000',

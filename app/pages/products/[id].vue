@@ -8,14 +8,11 @@
 
     <v-spacer />
 
-    <v-btn icon="mdi-share-variant" variant="text" @click="shareProduct" />
-    <v-btn icon="mdi-heart-outline" variant="text" @click="toggleFavorite" />
     <v-btn :icon="isDark ? 'mdi-weather-night' : 'mdi-weather-sunny'" variant="text" @click="toggleTheme" />
   </v-app-bar>
 
   <v-main class="bg-surface-variant">
     <v-container class="py-6">
-      <!-- Hero Section -->
       <v-row>
         <v-col cols="12" md="5">
           <v-card elevation="4" rounded="xl" class="sticky-card">
@@ -37,9 +34,10 @@
                 </span>
               </div>
 
-              <v-btn block size="large" color="primary" variant="flat" rounded="lg" class="mb-3">
-                <v-icon start>mdi-barcode-scan</v-icon>
-                Scanner un autre produit
+              <v-btn block size="large" color="primary" variant="flat" rounded="lg" class="mb-3"
+                @click="reviewDialog = true">
+                <v-icon start>mdi-star</v-icon>
+                Ajoutez un avis
               </v-btn>
 
               <v-btn block size="large" variant="outlined" rounded="lg">
@@ -51,10 +49,9 @@
         </v-col>
 
         <v-col cols="12" md="7">
-          <!-- Product Info -->
           <v-card elevation="2" rounded="xl" class="mb-4">
             <v-card-text class="pa-6">
-              <div class="d-flex align-center gap-2 mb-3">
+              <div class="d-flex align-center ga-2 mb-3">
                 <v-chip v-if="product.category" size="small" variant="tonal" color="primary">
                   {{ product.category }}
                 </v-chip>
@@ -78,10 +75,9 @@
                 <p class="text-body-1">{{ product.portion_description || 'Non spécifié' }}</p>
               </div>
 
-              <!-- Labels -->
               <div v-if="product.labels?.length" class="mb-4">
                 <div class="text-subtitle-2 text-medium-emphasis mb-2">Labels & Certifications</div>
-                <div class="d-flex flex-wrap gap-2">
+                <div class="d-flex flex-wrap ga-2">
                   <v-chip v-for="label in product.labels" :key="label" color="success" variant="tonal">
                     <v-icon start size="small">mdi-check-decagram</v-icon>
                     {{ label }}
@@ -91,7 +87,6 @@
             </v-card-text>
           </v-card>
 
-          <!-- Halal Certification Details -->
           <v-card v-if="product.certification" elevation="2" rounded="xl" class="mb-4">
             <v-card-text class="pa-6">
               <div class="d-flex align-center mb-4">
@@ -143,7 +138,7 @@
             </v-card-text>
           </v-card>
 
-          <!-- Nutrition Facts -->
+
           <v-card elevation="2" rounded="xl" class="mb-4">
             <v-card-text class="pa-6">
               <div class="d-flex align-center mb-4">
@@ -154,22 +149,33 @@
                 </div>
               </div>
 
-              <div class="nutrition-grid">
-                <div v-for="nutrient in nutrients" :key="nutrient.key" class="nutrition-item">
-                  <div class="d-flex justify-space-between align-center">
-                    <span class="text-body-2">{{ nutrient.label }}</span>
-                    <span class="text-body-1 font-weight-bold">
-                      {{ product.nutrition[nutrient.key] || '-' }} {{ nutrient.unit }}
-                    </span>
+              <v-row>
+                <v-col v-for="nutrient in nutrients" :key="nutrient.key" cols="6" sm="4" md="3">
+                  <div class="nutrition-card">
+                    <div class="d-flex align-center justify-center mb-2">
+                      <v-avatar :color="nutrient.color" size="48" class="elevation-2">
+                        <v-icon size="24" color="white">{{ nutrient.icon }}</v-icon>
+                      </v-avatar>
+                    </div>
+                    <div class="text-center">
+                      <div class="text-h6 font-weight-bold" :style="{ color: `rgb(var(--v-theme-${nutrient.color}))` }">
+                        {{ product.nutrition[nutrient.key] || '0' }}
+                        <span class="text-caption">{{ nutrient.unit }}</span>
+                      </div>
+                      <div class="text-caption text-medium-emphasis mt-1">{{ nutrient.label }}</div>
+                    </div>
                   </div>
-                  <v-progress-linear :model-value="getNutrientPercentage(product.nutrition[nutrient.key], nutrient.max)"
-                    :color="nutrient.color" height="4" rounded class="mt-1" />
-                </div>
+                </v-col>
+              </v-row>
+
+              <v-divider class="my-4" />
+
+              <div class="text-caption text-medium-emphasis text-center">
+                Les valeurs sont indicatives et peuvent varier selon les lots
               </div>
             </v-card-text>
           </v-card>
 
-          <!-- Ingredients -->
           <v-card elevation="2" rounded="xl" class="mb-4">
             <v-card-text class="pa-6">
               <div class="d-flex align-center mb-4">
@@ -181,25 +187,12 @@
                 </div>
               </div>
 
-              <div class="ingredients-list">
-                <v-chip v-for="(ingredient, i) in product.ingredients" :key="i"
-                  :color="getIngredientColor(ingredient.halal_status)" variant="tonal" size="small" class="ma-1">
-                  {{ ingredient.name }}
-                  <v-tooltip activator="parent" location="top">
-                    <div class="pa-2">
-                      <div class="font-weight-bold mb-1">{{ ingredient.name }}</div>
-                      <div class="text-caption">{{ ingredient.description }}</div>
-                      <v-chip size="x-small" :color="getIngredientColor(ingredient.halal_status)" class="mt-1">
-                        {{ ingredient.halal_status }}
-                      </v-chip>
-                    </div>
-                  </v-tooltip>
-                </v-chip>
+              <div>
+                {{product.ingredients.map((i: any) => i.name || 'Ingrédient inconnu').join(', ')}}
               </div>
             </v-card-text>
           </v-card>
 
-          <!-- Additives -->
           <v-card v-if="product.additives?.length" elevation="2" rounded="xl" class="mb-4">
             <v-card-text class="pa-6">
               <div class="d-flex align-center mb-4">
@@ -235,7 +228,6 @@
             </v-card-text>
           </v-card>
 
-          <!-- Allergens -->
           <v-card v-if="product.allergens?.length" elevation="2" rounded="xl" class="mb-4">
             <v-card-text class="pa-6">
               <div class="d-flex align-center mb-4">
@@ -248,18 +240,20 @@
 
               <v-alert v-for="allergen in product.allergens" :key="allergen.name"
                 :type="getAllergenType(allergen.presence_type)" variant="tonal" class="mb-2">
-                <div class="d-flex align-center">
-                  <v-icon start>{{ getAllergenIcon(allergen.presence_type) }}</v-icon>
-                  <div>
+                <div class="d-flex flex-column">
+                  <div class="d-flex align-center justify-space-between">
                     <strong>{{ allergen.name }}</strong>
                     <div class="text-caption">{{ getAllergenText(allergen.presence_type) }}</div>
                   </div>
+                  <div v-if="allergen.description" class="text-caption text-secondary">
+                    {{ allergen.description }}
+                  </div>
                 </div>
               </v-alert>
+
             </v-card-text>
           </v-card>
 
-          <!-- Community Reviews -->
           <v-card elevation="2" rounded="xl">
             <v-card-text class="pa-6">
               <div class="d-flex align-center justify-space-between mb-4">
@@ -308,18 +302,48 @@
       </v-row>
     </v-container>
   </v-main>
+
+  <v-dialog v-model="reviewDialog" max-width="600px">
+    <v-card rounded="xl">
+      <v-card-title class="font-weight-bold">
+        <v-icon start color="primary">mdi-star</v-icon>
+        Ajouter un avis
+      </v-card-title>
+
+      <v-card-text class="pt-4">
+        <v-form ref="reviewForm" @submit.prevent="submitReview">
+          <v-rating v-model="newReview.rating" color="amber" size="large" half-increments class="mb-4" />
+
+          <v-text-field v-model="newReview.user_name" label="Votre nom" variant="outlined" required class="mb-3" />
+          <v-text-field v-model="newReview.user_email" label="Votre email" variant="outlined" type="email"
+            class="mb-3" />
+
+          <v-select v-model="newReview.halal_vote" label="Statut halal"
+            :items="['halal', 'haram', 'douteux', 'non_verifie']" variant="outlined" class="mb-3" />
+
+          <v-textarea v-model="newReview.comment" label="Commentaire" variant="outlined" rows="3" />
+
+          <v-btn color="primary" block type="submit" class="mt-4">
+            <v-icon start>mdi-send</v-icon>
+            Envoyer
+          </v-btn>
+        </v-form>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useTheme } from 'vuetify'
 import { useSupabase } from '#imports'
+import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
 
 const supabase = useSupabase()
+const { user, fetchUser } = useSupabaseAuth()
+
 const route = useRoute()
 const product = ref<any>({
-  rating: 0,
-  reviews_count: 0,
   certification: null,
   nutrition: {},
   ingredients: [],
@@ -327,8 +351,20 @@ const product = ref<any>({
   allergens: [],
   labels: [],
   reviews: [],
+  rating: 0,
+  reviews_count: 0
 })
+
 const loading = ref(true)
+const reviewDialog = ref(false)
+const reviewForm = ref()
+const newReview = ref({
+  rating: 0,
+  user_name: '',
+  user_email: '',
+  halal_vote: 'non_verifie',
+  comment: ''
+})
 
 const theme = useTheme()
 const isDark = computed(() => theme.global.current.value.dark)
@@ -339,7 +375,7 @@ const toggleTheme = () => {
 
 const fetchProduct = async () => {
   loading.value = true
-  const productId = route.params.id as string // ✅ Correction ici
+  const productId = route.params.id as string
 
   try {
     const { data, error } = await supabase
@@ -347,13 +383,13 @@ const fetchProduct = async () => {
       .select(`
         *,
         category:categories(name),
-        nutrition:nutrition_facts(*),
+        nutrition:nutrition_facts!nutrition_facts_product_id_fkey(*),
         halal_certification:halal_certifications(*),
         product_ingredients(ingredient:ingredients(name, description, halal_status)),
         product_additives(additive:additives(code, name, halal_status, origin_type, function)),
         product_allergens(allergen:allergens(name, description)),
         product_labels(label:labels(name)),
-        community_reviews(halal_vote, comment, helpful_count, created_at)
+        community_reviews(rating, user_name, user_email, halal_vote, comment, helpful_count, created_at)
       `)
       .eq('id', productId)
       .single()
@@ -361,7 +397,20 @@ const fetchProduct = async () => {
     if (error) throw error
     if (!data) throw new Error('Produit non trouvé')
 
-    // 🧩 Remappage cohérent avec ta DB
+    const reviews = (data.community_reviews || []).map((r: any) => ({
+      rating: r.rating ?? 0,
+      user_name: r.user_name ?? 'Utilisateur',
+      user_email: r.user_email ?? '',
+      halal_vote: r.halal_vote ?? 'non_verifie',
+      comment: r.comment ?? '',
+      helpful_count: r.helpful_count ?? 0,
+      created_at: r.created_at
+    }))
+
+    const avgRating = reviews.length
+      ? (reviews.reduce((a: any, b: any) => a + (b.rating || 0), 0) / reviews.length).toFixed(1)
+      : 0
+
     product.value = {
       id: data.id,
       name: data.name,
@@ -381,11 +430,14 @@ const fetchProduct = async () => {
           verification_count: data.halal_certification[0].verification_count
         }
         : null,
-      ingredients: (data.product_ingredients || []).map((i: any) => ({
-        name: i.ingredient?.name,
-        description: i.ingredient?.description,
-        halal_status: i.ingredient?.halal_status
-      })),
+      nutrition: data.nutrition?.[0] || data.nutrition || {},
+      ingredients: (data.product_ingredients || [])
+        .filter((i: any) => i.ingredient?.name)
+        .map((i: any) => ({
+          name: i.ingredient.name,
+          description: i.ingredient.description,
+          halal_status: i.ingredient.halal_status
+        })),
       additives: (data.product_additives || []).map((a: any) => ({
         code: a.additive?.code,
         name: a.additive?.name,
@@ -398,37 +450,52 @@ const fetchProduct = async () => {
         description: a.allergen?.description
       })),
       labels: (data.product_labels || []).map((l: any) => l.label?.name),
-      reviews: (data.community_reviews || []).map((r: any) => ({
-        halal_vote: r.halal_vote,
-        comment: r.comment,
-        helpful_count: r.helpful_count,
-        created_at: r.created_at
-      })),
-      rating: Math.random() * 2 + 3,
-      reviews_count: Math.floor(Math.random() * 200)
+      reviews,
+      rating: Number(avgRating),
+      reviews_count: reviews.length
     }
   } catch (err) {
     console.error('Erreur de récupération du produit:', err)
   } finally {
     loading.value = false
   }
-};
+}
 
-onMounted(async () => {
+const submitReview = async () => {
+  const productId = product.value.id
+  const reviewData = {
+    product_id: productId,
+    rating: newReview.value.rating,
+    user_name: newReview.value.user_name,
+    user_email: newReview.value.user_email,
+    halal_vote: newReview.value.halal_vote,
+    comment: newReview.value.comment,
+    helpful_count: 0
+  }
+
+  const { error } = await supabase.from('community_reviews').insert([reviewData])
+  if (error) {
+    console.error('Erreur lors de l’ajout de l’avis:', error)
+    return
+  }
+
+  reviewDialog.value = false
+  newReview.value = { rating: 0, user_name: '', user_email: '', halal_vote: 'non_verifie', comment: '' }
+
   await fetchProduct()
-})
+}
 
 type NutrientKey = keyof typeof product.value.nutrition
 
-const nutrients: { key: NutrientKey; label: string; unit: string; max: number; color: string }[] = [
-  { key: 'calories_kcal', label: 'Calories', unit: 'kcal', max: 2000, color: 'primary' },
-  { key: 'protein_g', label: 'Protéines', unit: 'g', max: 50, color: 'success' },
-  { key: 'carbs_g', label: 'Glucides', unit: 'g', max: 300, color: 'warning' },
-  { key: 'sugars_g', label: 'Sucres', unit: 'g', max: 90, color: 'error' },
-  { key: 'fats_g', label: 'Lipides', unit: 'g', max: 70, color: 'orange' },
-  { key: 'saturated_fats_g', label: 'Graisses saturées', unit: 'g', max: 20, color: 'deep-orange' },
-  { key: 'fibres_g', label: 'Fibres', unit: 'g', max: 25, color: 'teal' },
-  { key: 'sodium_mg', label: 'Sodium', unit: 'mg', max: 2300, color: 'purple' }
+const nutrients: { key: NutrientKey; label: string; unit: string; icon: string; color: string }[] = [
+  { key: 'calories_kcal', label: 'Calories', unit: 'kcal', icon: 'mdi-fire', color: 'primary' },
+  { key: 'protein_g', label: 'Protéines', unit: 'g', icon: 'mdi-egg', color: 'success' },
+  { key: 'carbs_g', label: 'Glucides', unit: 'g', icon: 'mdi-pasta', color: 'warning' },
+  { key: 'sugars_g', label: 'Sucres', unit: 'g', icon: 'mdi-candy', color: 'error' },
+  { key: 'fats_g', label: 'Lipides', unit: 'g', icon: 'mdi-oil', color: 'secondary' },
+  { key: 'saturated_fats_g', label: 'Graisses saturées', unit: 'g', icon: 'mdi-food-drumstick', color: 'tertiary' },
+  { key: 'fibres_g', label: 'Fibres', unit: 'g', icon: 'mdi-barley', color: 'accent' },
+  { key: 'sodium_mg', label: 'Sodium', unit: 'mg', icon: 'mdi-shaker', color: 'bonus' },
 ]
 
 const getHalalColor = (status: string) => {
@@ -468,11 +535,6 @@ const getIngredientColor = (status: string) => {
   return getHalalColor(status)
 }
 
-const getNutrientPercentage = (value: number, max: number) => {
-  if (!value || !max) return 0
-  return Math.min((value / max) * 100, 100)
-}
-
 const getAllergenType = (presence: string): 'success' | 'warning' | 'error' | 'info' => {
   const types: Record<string, 'success' | 'warning' | 'error' | 'info'> = {
     contient: 'error',
@@ -480,15 +542,6 @@ const getAllergenType = (presence: string): 'success' | 'warning' | 'error' | 'i
     peut_contenir: 'info'
   }
   return types[presence] || 'info'
-}
-
-const getAllergenIcon = (presence: string) => {
-  const icons: Record<string, string> = {
-    contient: 'mdi-alert-circle',
-    traces: 'mdi-information',
-    peut_contenir: 'mdi-help-circle'
-  }
-  return icons[presence] || 'mdi-help-circle'
 }
 
 const getAllergenText = (presence: string) => {
@@ -524,15 +577,34 @@ const shareProduct = async () => {
   }
 }
 
-const toggleFavorite = () => {
-  // Logique favoris
-  console.log('Toggle favorite')
-}
-
 const openReviewDialog = () => {
   // Ouvrir dialog d'ajout d'avis
   console.log('Ouvrir dialog avis')
 }
+
+useHead({
+  title: 'Chargement...',
+  meta: [{ name: 'description', content: 'Chargement du produit...' }]
+})
+
+watch(product, (newProduct) => {
+  if (newProduct?.name) {
+    useHead({
+      title: newProduct.name,
+      meta: [{ name: 'description', content: newProduct.name }]
+    })
+  }
+})
+
+onMounted(async () => {
+  await fetchProduct()
+  const u = await fetchUser()
+
+  if (u) {
+    newReview.value.user_name = u.user_metadata?.full_name || u.email?.split('@')[0] || ''
+    newReview.value.user_email = u.user_metadata?.email || u.email || ''
+  }
+})
 </script>
 
 <style scoped>
