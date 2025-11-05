@@ -1,77 +1,206 @@
-# Nuxt Minimal Starter
+# IOFD - Islamic Open Food Database
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+<div align="center">
 
-## Setup
+![IOFD Logo](public/logo.png)
 
-Make sure to install dependencies:
+**Base de données collaborative pour identifier et vérifier les produits alimentaires conformes aux principes halal**
 
-```bash
-# npm
-npm install
+[![Nuxt](https://img.shields.io/badge/Nuxt-4.2.0-00DC82?style=flat-square&logo=nuxt.js)](https://nuxt.com)
+[![Vue](https://img.shields.io/badge/Vue-3.5.22-4FC08D?style=flat-square&logo=vue.js)](https://vuejs.org)
+[![Vuetify](https://img.shields.io/badge/Vuetify-3.10.8-1867C0?style=flat-square&logo=vuetify)](https://vuetifyjs.com)
+[![Supabase](https://img.shields.io/badge/Supabase-2.78.0-3ECF8E?style=flat-square&logo=supabase)](https://supabase.com)
 
-# pnpm
-pnpm install
+</div>
 
-# yarn
-yarn install
+## 📖 À propos
 
-# bun
-bun install
+IOFD (Islamic Open Food Database) est une application web collaborative dédiée à l'identification et à la vérification des produits alimentaires conformes aux principes halal. Notre mission est de fournir aux consommateurs musulmans une ressource fiable, accessible et gratuite pour faire des choix éclairés dans leur alimentation quotidienne.
+
+### Nos valeurs
+
+- **Transparence** : Informations vérifiables et sourcées
+- **Communauté** : Construire ensemble une ressource collective
+- **Accessibilité** : Gratuit et ouvert à tous
+
+## ✨ Fonctionnalités principales
+
+### 🔍 Recherche de produits
+- Recherche par nom, code-barres (EAN-13), ou catégorie
+- Scanner de code-barres intégré
+- Filtrage avancé par statut halal, labels, allergènes
+
+### 📊 Informations détaillées
+- **Statut Halal** : Halal, Haram, Douteux (Mashbuh), Non vérifié
+- **Certifications** : Organismes certificateurs, numéros de certificat
+- **Valeurs nutritionnelles** : Calories, protéines, glucides, lipides, etc.
+- **Composition** : Ingrédients, additifs, allergènes
+- **Labels et certifications** : Bio, équitable, etc.
+
+### 👥 Contribution communautaire
+- **Ajout de produits** : Formulaire complet avec stepper multi-étapes
+- **Modification de produits** : Édition complète des informations
+- **Avis et commentaires** : Notation et commentaires sur les produits
+- **Historique des contributions** : Suivi de toutes vos contributions
+
+### 📱 Responsive Design
+- Interface optimisée pour mobile, tablette et desktop
+- Navigation intuitive avec menu adaptatif
+- Design moderne avec Vuetify 3
+
+### 🔐 Authentification
+- Système d'authentification sécurisé avec Supabase
+- Gestion de profil utilisateur
+- Suivi des contributions personnelles
+
+## 🛠️ Technologies utilisées
+
+### Frontend
+- **[Nuxt 4](https://nuxt.com)** - Framework Vue.js pour applications universelles
+- **[Vue 3](https://vuejs.org)** - Framework JavaScript progressif
+- **[Vuetify 3](https://vuetifyjs.com)** - Framework Material Design pour Vue
+- **[TypeScript](https://www.typescriptlang.org)** - Typage statique pour JavaScript
+
+### Backend & Base de données
+- **[Supabase](https://supabase.com)** - Backend as a Service (PostgreSQL, Auth, Storage)
+- **PostgreSQL** - Base de données relationnelle
+
+### Utilitaires
+- **[Moment Hijri](https://github.com/xsoh/moment-hijri)** - Support du calendrier hijri
+- **[AOS](https://michalsnik.github.io/aos/)** - Animations au scroll
+
+## 🚀 Installation
+
+### Prérequis
+
+- Node.js 18+ 
+- npm, yarn, pnpm ou bun
+- Compte Supabase (pour la base de données)
+
+
+L'application sera accessible sur `http://localhost:3000`
+
+## 📁 Structure du projet
+
+```
+IOFD/
+├── app/                    # Code source de l'application
+│   ├── components/         # Composants Vue réutilisables
+│   ├── composables/       # Composable functions (Vue 3)
+│   ├── pages/             # Pages de l'application
+│   │   ├── products/      # Pages produits
+│   │   ├── additives/     # Pages additifs
+│   │   ├── auth/          # Authentification
+│   │   └── contributions/ # Contributions utilisateur
+│   ├── plugins/           # Plugins Nuxt
+│   └── utils/             # Fonctions utilitaires
+├── db/                    # Scripts SQL
+│   └── IOFD.sql          # Schéma de base de données
+├── public/                # Fichiers statiques
+├── server/                # Routes serveur Nuxt
+│   └── routes/           # Sitemaps XML
+├── nuxt.config.ts        # Configuration Nuxt
+├── package.json          # Dépendances npm
+└── README.md            # Ce fichier
 ```
 
-## Development Server
+## 🎯 Fonctionnalités détaillées
 
-Start the development server on `http://localhost:3000`:
+### Gestion des produits
+
+- **Recherche avancée** : Par nom, code-barres, catégorie
+- **Scanner de code-barres** : Utilisation de la caméra pour scanner
+- **Fiche produit complète** : Toutes les informations en un coup d'œil
+- **Édition** : Modification complète via dialogue avec stepper
+
+### Système de contribution
+
+- **Ajout de produits** : Formulaire en 4 étapes
+  1. Informations de base
+  2. Statut Halal
+  3. Composition (ingrédients, additifs, allergènes, labels)
+  4. Valeurs nutritionnelles
+- **Historique** : Suivi de toutes vos contributions
+- **Avis** : Laisser des commentaires et notes sur les produits
+
+### Base de données d'additifs
+
+- **Recherche d'additifs** : Par code E ou nom
+- **Informations détaillées** : Statut halal, origine, fonction
+- **Filtrage** : Par statut halal
+
+## 🗄️ Base de données
+
+La base de données PostgreSQL comprend les tables suivantes :
+
+- `products` - Produits alimentaires
+- `categories` - Catégories de produits
+- `halal_certifications` - Certifications halal
+- `nutrition_facts` - Valeurs nutritionnelles
+- `ingredients` - Ingrédients
+- `additives` - Additifs alimentaires
+- `allergens` - Allergènes
+- `labels` - Labels et certifications
+- `community_reviews` - Avis de la communauté
+- `product_contributors` - Historique des contributions
+- `users` - Utilisateurs
+
+Voir `db/IOFD.sql` pour le schéma complet.
+
+## 📝 Scripts disponibles
 
 ```bash
-# npm
-npm run dev
+# Développement
+npm run dev          # Lance le serveur de développement
 
-# pnpm
-pnpm dev
+# Production
+npm run build        # Build pour la production
+npm run preview      # Prévisualise le build de production
+npm run generate     # Génère une version statique
 
-# yarn
-yarn dev
-
-# bun
-bun run dev
+# Utilitaires
+npm run git          # Git add, commit et push (alias)
 ```
 
-## Production
+## 🤝 Contribution
 
-Build the application for production:
+Les contributions sont les bienvenues ! Pour contribuer :
 
-```bash
-# npm
-npm run build
+1. Fork le projet
+2. Créez une branche pour votre fonctionnalité (`git checkout -b feature/AmazingFeature`)
+3. Committez vos changements (`git commit -m 'Add some AmazingFeature'`)
+4. Push vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrez une Pull Request
 
-# pnpm
-pnpm build
+### Guidelines de contribution
 
-# yarn
-yarn build
+- Suivez les conventions de code existantes
+- Ajoutez des tests si applicable
+- Documentez les nouvelles fonctionnalités
+- Assurez-vous que le code est responsive
 
-# bun
-bun run build
-```
+## 📄 Licence
 
-Locally preview production build:
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
-```bash
-# npm
-npm run preview
+## 📧 Contact
 
-# pnpm
-pnpm preview
+Pour toute question ou suggestion :
 
-# yarn
-yarn preview
+- **Email** : iofd1447@gmail.com
+- **Site web** : [À venir]
 
-# bun
-bun run preview
-```
+##  Remerciements
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+- À tous les contributeurs qui enrichissent la base de données
+- À la communauté musulmane pour son soutien
+- Aux technologies open-source qui rendent ce projet possible
+
+---
+
+<div align="center">
 
 
+**IOFD - Islamic Open Food Database**
+
+</div>
