@@ -2,8 +2,6 @@
 
 <div align="center">
 
-**Base de données collaborative pour identifier et vérifier les produits alimentaires conformes aux principes halal**
-
 [![Nuxt](https://img.shields.io/badge/Nuxt-4.2.0-00DC82?style=flat-square&logo=nuxt.js)](https://nuxt.com)
 [![Vue](https://img.shields.io/badge/Vue-3.5.22-4FC08D?style=flat-square&logo=vue.js)](https://vuejs.org)
 [![Vuetify](https://img.shields.io/badge/Vuetify-3.10.8-1867C0?style=flat-square&logo=vuetify)](https://vuetifyjs.com)
