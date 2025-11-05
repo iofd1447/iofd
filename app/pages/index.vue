@@ -470,22 +470,32 @@ const fetchRecentProducts = async () => {
         brand,
         image_url,
         created_at,
-        halal_info:halal_certifications(halal_status)
+        halal_info:halal_certifications(halal_status),
+        community_reviews(rating, user_name, user_email, halal_vote, comment, helpful_count, created_at)
       `)
       .order('created_at', { ascending: false })
       .limit(4)
 
     if (error) throw error
 
-    recentProducts.value = data.map((p: any) => ({
-      id: p.id,
-      name: p.name,
-      brand: p.brand,
-      image_url: p.image_url || 'https://via.placeholder.com/400x400?text=Produit',
-      halal_status: p.halal_info?.[0]?.halal_status || 'non_verifie',
-      rating: Math.random() * 2 + 3,
-      reviews_count: Math.floor(Math.random() * 200) + 10
-    }))
+    recentProducts.value = data.map((p: any) => {
+      const ratings = p.community_reviews?.map((r: any) => r.rating) || []
+      const reviews_count = ratings.length
+      const rating = reviews_count
+        ? ratings.reduce((sum: number, r: number) => sum + r, 0) / reviews_count
+        : 0
+
+      return {
+        id: p.id,
+        name: p.name,
+        brand: p.brand,
+        image_url: p.image_url || '',
+        halal_status: p.halal_info?.halal_status,
+        rating,
+        reviews_count,
+        reviews: p.community_reviews || []
+      }
+    })
   } catch (err) {
     console.error('Erreur lors du chargement des produits récents:', err)
   } finally {
@@ -498,7 +508,6 @@ const getHalalColor = (status: string) => {
     halal: 'success',
     haram: 'error',
     douteux: 'warning',
-    non_verifie: 'grey',
   }
   return colors[status] || 'grey'
 }
@@ -508,7 +517,6 @@ const getHalalLabel = (status: string) => {
     halal: 'Halal',
     haram: 'Haram',
     douteux: 'Douteux',
-    non_verifie: 'Non vérifié',
   }
   return labels[status] || 'Non vérifié'
 }
@@ -517,8 +525,7 @@ const getHalalIcon = (status: string) => {
   const icons: Record<string, string> = {
     halal: 'mdi-check-circle',
     haram: 'mdi-close-circle',
-    douteux: 'mdi-alert-circle',
-    non_verifie: 'mdi-help-circle'
+    douteux: 'mdi-alert-circle'
   }
   return icons[status] || 'mdi-help-circle'
 }

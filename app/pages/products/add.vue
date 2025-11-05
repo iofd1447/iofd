@@ -185,8 +185,8 @@
           </v-row>
         </v-card-text>
 
-        <v-card-actions class="pa-6 pt-0">
-          <v-btn size="large" variant="text" prepend-icon="mdi-arrow-left" @click="prevStep">
+        <v-card-actions class="pa-6 pt-0 d-flex flex-column flex-sm-row">
+          <v-btn size="large" variant="text" prepend-icon="mdi-arrow-left" @click="prevStep" class="mb-2 mb-sm-0">
             Retour
           </v-btn>
           <v-spacer />
@@ -249,8 +249,8 @@
           </v-row>
         </v-card-text>
 
-        <v-card-actions class="pa-6 pt-0">
-          <v-btn size="large" variant="text" prepend-icon="mdi-arrow-left" @click="prevStep">
+        <v-card-actions class="pa-6 pt-0 d-flex flex-column flex-sm-row">
+          <v-btn size="large" variant="text" prepend-icon="mdi-arrow-left" @click="prevStep" class="mb-2 mb-sm-0">
             Retour
           </v-btn>
           <v-spacer />
@@ -281,15 +281,17 @@
 
         </v-card-text>
 
-        <v-card-actions class="pa-6 pt-0">
-          <v-btn size="large" variant="text" prepend-icon="mdi-arrow-left" @click="prevStep">
+        <v-card-actions class="pa-6 pt-0 d-flex flex-column flex-sm-row">
+          <v-btn size="large" variant="text" prepend-icon="mdi-arrow-left" @click="prevStep" class="mb-2 mb-sm-0">
             Retour
           </v-btn>
           <v-spacer />
-          <v-btn size="large" color="success" variant="flat" @click="submitProduct" :loading="loading">
+          <v-btn size="large" color="primary" variant="flat" append-icon="mdi-arrow-right" @click="submitProduct"
+            :loading="loading">
             Publier le produit
           </v-btn>
         </v-card-actions>
+
       </v-card>
 
     </v-container>
@@ -684,9 +686,11 @@ const submitProduct = async () => {
       await supabase.from('product_labels').upsert(labelMappings, { ignoreDuplicates: true })
     }
 
-    if (currentUser) {
-      await logContribution(product.id, currentUser.id, isUpdate ? 'update' : 'create', { ...form.value })
+    if (!currentUser.email) {
+      throw new Error("L'utilisateur n'a pas d'email, impossible de loguer la contribution");
     }
+
+    await logContribution(product.id, currentUser.email, isUpdate ? 'update' : 'create', { ...form.value });
 
     successDialog.value = true
   } catch (error: any) {
@@ -755,7 +759,6 @@ const loadCategories = async () => {
       .order('name')
 
     if (error) throw error
-    console.log(data)
     categories.value = data || []
   } catch (error) {
     console.error('Error loading categories:', error)

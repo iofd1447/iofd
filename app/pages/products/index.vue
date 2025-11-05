@@ -7,10 +7,6 @@
       <span class="text-medium-emphasis ml-2">• Catalogue</span>
     </v-app-bar-title>
 
-    <v-spacer />
-
-    <v-btn icon="mdi-barcode-scan" variant="text" @click="openScanner" />
-    <v-btn :icon="isDark ? 'mdi-weather-night' : 'mdi-weather-sunny'" variant="text" @click="toggleTheme" />
   </v-app-bar>
 
   <v-main class="bg-surface-variant">
@@ -440,7 +436,16 @@ type SupabaseProductRow = {
   created_at: string
   category?: { name: string }[] | null
   halal_info?: { halal_status: string; certification_body: string }[] | null
-  additives?: { count: number }[] | null
+  additives?: { count: number }[] | null,
+  community_reviews?: {
+    rating: number
+    user_name: string
+    user_email: string
+    halal_vote: string
+    comment: string
+    helpful_count: number
+    created_at: string
+  }[]
 }
 
 const fetchProducts = async () => {
@@ -459,7 +464,8 @@ const fetchProducts = async () => {
       created_at,
       category:categories(name),
       halal_info:halal_certifications(halal_status, certification_body),
-      additives:product_additives(count)
+      additives:product_additives(count),
+      community_reviews:community_reviews(rating, user_name, user_email, halal_vote, comment, helpful_count, created_at)
     `, { count: 'exact' })
     .range(from, to)
     .order('created_at', { ascending: false })
@@ -469,19 +475,29 @@ const fetchProducts = async () => {
     return
   }
 
-  allProducts.value = (data as SupabaseProductRow[]).map(p => ({
-    id: p.id,
-    barcode: p.barcode,
-    name: p.name,
-    brand: p.brand,
-    category: p.category?.[0]?.name || 'Autre',
-    image_url: p.image_url,
-    halal_status: p.halal_info?.[0]?.halal_status || 'non_verifie',
-    certified: !!p.halal_info?.[0]?.certification_body,
-    rating: Math.random() * 2 + 3,
-    reviews_count: Math.floor(Math.random() * 300),
-    additives_count: p.additives?.length || 0
-  }))
+  allProducts.value = (data as SupabaseProductRow[]).map(p => {
+    const reviews = p.community_reviews || []
+    const reviews_count = reviews.length
+    const rating = reviews_count
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews_count
+      : 0
+
+    return {
+      id: p.id,
+      barcode: p.barcode,
+      name: p.name,
+      brand: p.brand,
+      category: p.category?.[0]?.name || 'Autre',
+      image_url: p.image_url || 'https://via.placeholder.com/400x400?text=Produit',
+      // @ts-ignore
+      halal_status: p.halal_info?.halal_status || 'non_verifie',
+      certified: !!p.halal_info?.[0]?.certification_body,
+      rating,
+      reviews_count,
+      reviews,
+      additives_count: p.additives?.length || 0
+    }
+  })
 }
 
 watch(page, () => fetchProducts())

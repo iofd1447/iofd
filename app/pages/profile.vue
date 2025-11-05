@@ -287,15 +287,37 @@ const fetchStats = async () => {
   if (!user.value) return
 
   try {
-    const { count: contributions } = await supabase
-      .from('product_contributors')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.value.id)
 
-    const { count: reviews } = await supabase
-      .from('community_reviews')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.value.id)
+    let userIdInDB: string | null = null
+
+    if (user.value?.email) {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', user.value.email)
+        .single()
+
+      if (data) userIdInDB = data.id
+    }
+
+    let contributions = 0
+    let reviews = 0
+
+    if (userIdInDB) {
+      const { count: contribCount } = await supabase
+        .from('product_contributors')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userIdInDB)
+
+      const { count: reviewCount } = await supabase
+        .from('community_reviews')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userIdInDB)
+
+      contributions = contribCount || 0
+      reviews = reviewCount || 0
+
+    }
 
     stats.value = [
       { label: 'Produits ajoutés', value: contributions || 0, icon: 'mdi-plus-circle', color: 'primary', iconColor: 'white' },

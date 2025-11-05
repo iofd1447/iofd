@@ -417,13 +417,6 @@ const newReview = ref({
   comment: ''
 })
 
-const theme = useTheme()
-const isDark = computed(() => theme.global.current.value.dark)
-
-const toggleTheme = () => {
-  theme.global.name.value = isDark.value ? 'light' : 'dark'
-}
-
 const fetchProduct = async () => {
   loading.value = true
   const productId = route.params.id as string
@@ -470,7 +463,7 @@ const fetchProduct = async () => {
       category: data.category?.name || 'Autre',
       image_url: data.image_url || 'https://via.placeholder.com/600x400?text=Image+indisponible',
       portion_description: data.portion_description || 'Non spécifiée',
-      halal_status: data.halal_certification?.[0]?.halal_status || 'non_verifie',
+      halal_status: data.halal_info?.halal_status,
       certification: data.halal_certification?.[0]
         ? {
           body: data.halal_certification[0].certification_body,
