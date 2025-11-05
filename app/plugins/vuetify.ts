@@ -71,51 +71,44 @@ export default defineNuxtPlugin((nuxtapp) => {
         },
         dark: {
           colors: {
-            background: '#0a0e0a',        // Noir pur avec pointe verte
-            surface: '#121212',           // Gris anthracite
-            'surface-variant': '#1e1e1e', // Gris plus clair
-            'surface-bright': '#2a2a2a',  // Gris moyen pour élévation
+            background: '#0a0e0a',
+            surface: '#121212',
+            'surface-variant': '#1e1e1e',
+            'surface-bright': '#2a2a2a',
 
-            // Primary - Vert néon électrique
-            primary: '#69f0ae',           // Vert néon intense
+            primary: '#69f0ae',
             'primary-darken-1': '#00e676',
             'primary-lighten-1': '#b9f6ca',
             'on-primary': '#003d1a',
 
-            // Secondary - Cyan/Turquoise brillant
-            secondary: '#18ffff',         // Cyan néon
+            secondary: '#18ffff',
             'secondary-darken-1': '#00e5ff',
             'secondary-lighten-1': '#84ffff',
             'on-secondary': '#002e33',
 
-            // Tertiary - Rose/Magenta vibrant
-            tertiary: '#ff4081',          // Rose électrique
+            tertiary: '#ff4081',
             'tertiary-darken-1': '#f50057',
             'tertiary-lighten-1': '#ff80ab',
             'on-tertiary': '#4a0013',
 
-            // Accent - Jaune/Lime électrique
-            accent: '#c6ff00',            // Lime fluo
+            accent: '#c6ff00',
             'on-accent': '#2e3300',
 
             bonus: '#800080',
 
-            // États - Néon et vibrants
-            error: '#ff5252',             // Rouge néon
+            error: '#ff5252',
             'on-error': '#2d0000',
-            warning: '#ffc107',           // Jaune/orange vif
+            warning: '#ffc107',
             'on-warning': '#2e1f00',
-            info: '#40c4ff',              // Bleu clair néon
+            info: '#40c4ff',
             'on-info': '#002633',
-            success: '#69f0ae',           // Vert néon
+            success: '#69f0ae',
             'on-success': '#003d1a',
 
-            // Textes - Lumineux
-            'on-background': '#e8f5e9',   // Blanc verdâtre clair
+            'on-background': '#e8f5e9',
             'on-surface': '#f5f5f5',
             'on-surface-variant': '#b0bec5',
 
-            // Bordures - Visibles et modernes
             outline: '#37474f',
             'outline-variant': '#263238',
           },
@@ -139,15 +132,13 @@ export default defineNuxtPlugin((nuxtapp) => {
       },
     },
     defaults: {
-      // Styles par défaut plus dynamiques
       VBtn: {
         style: [
           'text-transform: none;',
           'font-weight: 600;',
           'letter-spacing: 0.3px;'
         ].join(' '),
-        rounded: 'lg',
-        elevation: 2,
+        rounded: 'lg'
       },
       VCard: {
         rounded: 'xl',

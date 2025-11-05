@@ -62,6 +62,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+useHead({
+  title: 'IFOD - About'
+})
+
 const values = ref([
   { title: 'Transparence', subtitle: 'Informations vérifiables et sourcées', icon: 'mdi-shield-check' },
   { title: 'Communauté', subtitle: 'Construire ensemble une ressource collective', icon: 'mdi-account-group' },

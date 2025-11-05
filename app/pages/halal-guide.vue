@@ -53,6 +53,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
+useHead({
+  title: 'IFOD - halal guide'
+})
+
 const values = ref([
   { title: 'Halal', subtitle: 'Produit conforme aux principes islamiques', icon: 'mdi-check-circle', color: 'success' },
   { title: 'Haram', subtitle: 'Produit interdit selon les principes islamiques', icon: 'mdi-alert-circle', color: 'error' },

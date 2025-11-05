@@ -1,71 +1,74 @@
 <template>
-  <v-app-bar elevation="0" class="px-4" color="surface">
+  <v-app-bar elevation="0" :class="['px-2 px-sm-4']" color="surface">
+    <v-btn icon="mdi-arrow-left" variant="text" size="small" @click="goBack" />
 
-    <v-btn icon="mdi-arrow-left" variant="text" @click="goBack" />
-
-    <v-app-bar-title class="text-h6 font-weight-bold">
+    <v-app-bar-title :class="['text-subtitle-1 text-sm-h6 font-weight-bold']">
       <span class="text-primary">IOFD</span>
-      <span class="text-medium-emphasis ml-2">• Nouveau produit</span>
+      <span class="text-medium-emphasis ml-1 ml-sm-2 d-none d-sm-inline">• Nouveau produit</span>
     </v-app-bar-title>
 
     <v-spacer />
-
-    <v-btn icon="mdi-help-circle-outline" variant="text" @click="showHelp = true" />
-
+    <v-btn icon="mdi-help-circle-outline" variant="text" size="small" @click="showHelp = true" />
   </v-app-bar>
 
   <v-main>
     <section class="hero-section">
-      <v-container class="py-6" style="max-width: 900px;">
-        <div class="text-center mb-6">
-          <v-chip color="primary" variant="tonal" size="large" class="mb-4">
-            <v-icon start>mdi-plus-circle</v-icon>
-            Contribution communautaire
+      <v-container class="py-4 py-sm-6" style="max-width: 900px;">
+        <div class="text-center mb-4 mb-sm-6">
+          <v-chip color="primary" variant="tonal" :size="$vuetify.display.xs ? 'default' : 'large'"
+            class="mb-3 mb-sm-4">
+            <v-icon start :size="$vuetify.display.xs ? '18' : '20'">mdi-plus-circle</v-icon>
+            <span class="d-none d-sm-inline">Contribution communautaire</span>
+            <span class="d-inline d-sm-none">Contribuer</span>
           </v-chip>
           <h1 class="hero-title mb-2">
-            Ajouter un produit à la base
+            Ajouter un produit
           </h1>
-          <p class="text-subtitle-1 text-medium-emphasis">
-            Partagez vos connaissances et aidez la communauté
+          <p class="text-body-2 text-sm-subtitle-1 text-medium-emphasis px-2">
+            Partagez vos connaissances
           </p>
         </div>
 
-        <v-stepper v-model="step" :items="steps" hide-actions flat color="primary" class="elevation-0 mb-6">
-        </v-stepper>
+        <v-stepper v-model="step" :items="steps" hide-actions flat color="primary" class="elevation-0 mb-4 mb-sm-6"
+          :mobile="$vuetify.display.xs" />
       </v-container>
     </section>
 
     <v-container style="max-width: 900px;" class="py-4">
+
       <v-alert v-if="!user" type="warning" variant="tonal" rounded="xl" class="mb-4" prominent>
         <template #prepend>
-          <v-icon size="32">mdi-alert-circle</v-icon>
+          <v-icon :size="$vuetify.display.xs ? '24' : '32'">mdi-alert-circle</v-icon>
         </template>
-        <div class="d-flex flex-column flex-md-row align-center justify-space-between">
-          <div class="mb-2 mb-md-0">
-            <div class="text-h6 font-weight-bold mb-1">Connexion requise</div>
-            <div class="text-body-2">
-              Vous devez être connecté pour ajouter un produit à la base de données.
-            </div>
+        <div class="d-flex flex-column align-start">
+          <div class="text-subtitle-1 text-sm-h6 font-weight-bold mb-1">Connexion requise</div>
+          <div class="text-caption text-sm-body-2 mb-3">
+            Connectez-vous pour ajouter un produit
           </div>
-          <div class="d-flex ga-2">
-            <v-btn color="primary" variant="flat" prepend-icon="mdi-login" to="/auth/login">
+          <div class="d-flex flex-column flex-sm-row ga-2 w-100">
+            <v-btn color="primary" variant="flat" prepend-icon="mdi-login" to="/auth/login"
+              :size="$vuetify.display.xs ? 'small' : 'default'" block class="mb-2 mb-sm-0">
               Se connecter
             </v-btn>
-            <v-btn color="primary" variant="outlined" prepend-icon="mdi-account-plus" to="/auth/signup">
+            <v-btn color="primary" variant="outlined" prepend-icon="mdi-account-plus" to="/auth/signup"
+              :size="$vuetify.display.xs ? 'small' : 'default'" block>
               Créer un compte
             </v-btn>
           </div>
         </div>
       </v-alert>
+
       <v-card v-show="step === 1" class="mb-4 card-enhanced" elevation="4" rounded="xl">
         <v-card-text class="pa-8">
-          <div class="d-flex align-center mb-6">
-            <v-avatar color="primary" size="48" class="mr-4">
-              <v-icon color="white" size="24">mdi-package-variant</v-icon>
+          <div class="d-flex align-center mb-4 mb-sm-6">
+            <v-avatar color="primary" :size="$vuetify.display.xs ? '40' : '48'" class="mr-3 mr-sm-4">
+              <v-icon color="white" :size="$vuetify.display.xs ? '20' : '24'">mdi-package-variant</v-icon>
             </v-avatar>
             <div>
-              <h2 class="text-h5 font-weight-bold mb-1">Informations de base</h2>
-              <p class="text-medium-emphasis mb-0">Commençons par les détails essentiels du produit</p>
+              <h2 class="text-h6 text-sm-h5 font-weight-bold mb-1">Informations de base</h2>
+              <p class="text-caption text-sm-body-2 text-medium-emphasis mb-0 d-none d-sm-block">
+                Commençons par les détails essentiels
+              </p>
             </div>
           </div>
 
@@ -136,10 +139,10 @@
           </v-row>
         </v-card-text>
 
-        <v-card-actions class="pa-6 pt-0">
-          <v-spacer />
-          <v-btn size="large" color="primary" variant="flat" append-icon="mdi-arrow-right" @click="nextStep"
-            :disabled="!isStep1Valid">
+        <v-card-actions class="pa-4 pa-sm-6 pt-0 flex-column flex-sm-row">
+          <v-spacer class="d-none d-sm-flex" />
+          <v-btn :size="$vuetify.display.xs ? 'default' : 'large'" color="primary" variant="flat"
+            append-icon="mdi-arrow-right" @click="nextStep" :disabled="!isStep1Valid" block class="w-100 w-sm-auto">
             Continuer
           </v-btn>
         </v-card-actions>
@@ -169,25 +172,10 @@
               </v-chip-group>
             </v-col>
 
-            <v-col cols="12" md="6">
+            <v-col cols="12">
               <v-combobox v-model="form.certification_body" :items="certificationBodies" label="Organisme certificateur"
                 prepend-inner-icon="mdi-certificate" placeholder="AVS, SFCVH..." hint="Laissez vide si non certifié"
                 persistent-hint clearable />
-            </v-col>
-
-            <v-col cols="12" md="6">
-              <v-text-field v-model="form.certificate_number" label="Numéro de certificat"
-                prepend-inner-icon="mdi-numeric" placeholder="CERT-2024-12345" />
-            </v-col>
-
-            <v-col cols="12" md="6">
-              <v-text-field v-model="form.certified_date" label="Date de certification"
-                prepend-inner-icon="mdi-calendar" type="date" />
-            </v-col>
-
-            <v-col cols="12" md="6">
-              <v-text-field v-model="form.expiry_date" label="Date d'expiration" prepend-inner-icon="mdi-calendar-end"
-                type="date" />
             </v-col>
 
             <v-col cols="12">
@@ -222,16 +210,9 @@
 
           <v-row>
             <v-col cols="12">
-              <v-combobox v-model="selectedIngredients" :items="ingredients" item-title="name" item-value="id"
-                label="Ingrédients" prepend-inner-icon="mdi-leaf" placeholder="Eau, sucre, arômes..." multiple chips
-                closable-chips hint="Appuyez sur Entrée pour ajouter. Dans l'ordre de la liste" persistent-hint
-                :loading="loadingIngredients">
-                <template #chip="{ item, props }">
-                  <v-chip v-bind="props" :color="getIngredientColor(item.raw)">
-                    {{ typeof item.raw === 'string' ? item.raw : item.raw.name }}
-                  </v-chip>
-                </template>
-              </v-combobox>
+              <v-text-field v-model="ingredientsInput" label="Ingrédients" prepend-inner-icon="mdi-leaf"
+                placeholder="Eau, sucre, arômes..." hint="Séparez par des virgules. Dans l'ordre de la liste"
+                persistent-hint />
             </v-col>
 
             <v-col cols="12">
@@ -341,15 +322,17 @@
     </template>
   </v-snackbar>
 
-  <v-dialog v-model="showHelp" max-width="600">
+  <v-dialog v-model="showHelp" :max-width="$vuetify.display.xs ? '95%' : '600'">
     <v-card rounded="xl">
-      <v-card-title class="pa-6 d-flex align-center">
-        <v-icon class="mr-3" color="primary">mdi-help-circle</v-icon>
-        <span class="text-h6">Aide</span>
+      <v-card-title class="pa-4 pa-sm-6 d-flex align-center">
+        <v-icon class="mr-2 mr-sm-3" color="primary" :size="$vuetify.display.xs ? '20' : '24'">
+          mdi-help-circle
+        </v-icon>
+        <span class="text-subtitle-1 text-sm-h6">Aide</span>
         <v-spacer />
-        <v-btn icon="mdi-close" variant="text" @click="showHelp = false" />
+        <v-btn icon="mdi-close" variant="text" size="small" @click="showHelp = false" />
       </v-card-title>
-      <v-card-text class="pa-6 pt-0">
+      <v-card-text class="pa-4 pa-sm-6 pt-0">
         <v-expansion-panels variant="accordion">
           <v-expansion-panel title="Comment trouver le code-barres ?">
             <v-expansion-panel-text>
@@ -403,7 +386,7 @@ const form = ref({
   category_id: null,
   portion_description: '',
   image_url: '',
-  halal_status: 'non_verifie',
+  halal_status: 'halal',
   certification_body: '',
   certificate_number: '',
   certified_date: '',
@@ -461,6 +444,7 @@ const allergensList = ref<any[]>([])
 const labelsList = ref<any[]>([])
 
 const selectedIngredients = ref<any[]>([])
+const ingredientsInput = ref('')
 const selectedAdditives = ref<any[]>([])
 const selectedAllergens = ref<string[]>([])
 const selectedLabels = ref<string[]>([])
@@ -492,15 +476,10 @@ watch(() => form.value.barcode, val => {
   displayBarcode.value = formatBarcode(val || '')
 })
 
-const selectedCategory = computed(() => {
-  return categories.value.find(c => c.id === form.value.category_id) || null
-})
-
 const halalStatuses = [
   { value: 'halal', label: 'Halal', icon: 'mdi-check-circle', color: 'success' },
-  { value: 'haram', label: 'Haraml', icon: 'mdi-check-circle', color: 'error' },
+  { value: 'haram', label: 'Haram', icon: 'mdi-check-circle', color: 'error' },
   { value: 'mashbuh', label: 'Mashbuh', icon: 'mdi-check-circle', color: 'warning' },
-  { value: 'non_verifie', label: 'Non vérifié', icon: 'mdi-help-circle', color: 'grey' },
 ]
 
 const certificationBodies = [
@@ -576,36 +555,15 @@ async function uploadImage(file: File): Promise<string | null> {
   return publicUrl
 }
 
-const getHalalStatusColor = (status: string) => {
-  const colors: Record<string, string> = {
-    halal: 'success',
-    haram: 'error',
-    mashbuh: 'warning',
-    non_verifie: 'grey',
-  }
-  return colors[status] || 'grey'
-}
 
-const getHalalStatusLabel = (status: string) => {
-  const labels: Record<string, string> = {
-    halal: 'Halal',
-    haram: 'Haram',
-    mashbuh: 'Mashbuh',
-    non_verifie: 'Non vérifié',
-  }
-  return labels[status] || 'Non vérifié'
-}
+watch(ingredientsInput, (val) => {
+  const parts = (val || '').split(',').map(s => s.trim()).filter(Boolean)
+  selectedIngredients.value = parts
+})
 
-const getIngredientColor = (ingredient: any) => {
-  if (typeof ingredient === 'object' && ingredient.halal_status) {
-    const colors: Record<string, string> = {
-      halal: 'success',
-      variable: 'info',
-    }
-    return colors[ingredient.halal_status] || 'primary'
-  }
-  return 'primary'
-}
+watch(selectedIngredients, (arr) => {
+  ingredientsInput.value = (arr || []).map((x: any) => typeof x === 'string' ? x : (x?.name || '')).filter(Boolean).join(', ')
+})
 
 const getAdditiveColor = (additive: any) => {
   if (typeof additive === 'object' && additive.halal_status) {
@@ -788,7 +746,6 @@ const resetForm = () => {
   selectedLabels.value = []
 }
 
-// Load data from Supabase on mount
 const loadCategories = async () => {
   loadingCategories.value = true
   try {
@@ -873,59 +830,6 @@ const loadLabels = async () => {
   }
 }
 
-const handleBarcodeDetected = async (barcode: string) => {
-  form.value.barcode = barcode
-  displayBarcode.value = formatBarcode(barcode)
-
-  await searchProductInfo(barcode)
-}
-
-const searchProductInfo = async (barcode: string) => {
-  try {
-    const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json`)
-    const data = await response.json()
-
-    if (data.status === 1 && data.product) {
-      const product = data.product
-
-      if (product.product_name && !form.value.name) {
-        form.value.name = product.product_name
-      }
-
-      if (product.brands && !form.value.brand) {
-        form.value.brand = product.brands.split(',')[0].trim()
-      }
-
-      if (product.image_url && !imagePreview.value) {
-        imagePreview.value = product.image_url
-        form.value.image_url = product.image_url
-      }
-
-      // Ingrédients
-      if (product.ingredients_text) {
-        // Parser les ingrédients (simplification)
-        const ingredientNames = product.ingredients_text
-          .split(',')
-          .map((i: string) => i.trim())
-          .filter(Boolean)
-          .slice(0, 10) // Limiter à 10
-
-        selectedIngredients.value = ingredientNames
-      }
-
-      // Notification de succès
-      errorMessage.value = `Produit trouvé ! Informations pré-remplies depuis Open Food Facts.`
-      errorSnackbar.value = true
-    } else {
-      // Produit non trouvé dans Open Food Facts
-      errorMessage.value = `Code-barres scanné : ${barcode}. Produit non trouvé dans Open Food Facts, veuillez remplir manuellement.`
-      errorSnackbar.value = true
-    }
-  } catch (error) {
-    console.error('Erreur lors de la recherche du produit:', error)
-  }
-}
-
 onMounted(async () => {
   await fetchUser()
   await Promise.all([
@@ -970,7 +874,6 @@ onMounted(async () => {
   }
 }
 
-/* Sticky preview on desktop */
 @media (min-width: 1280px) {
   .preview-card {
     position: fixed;
@@ -981,7 +884,6 @@ onMounted(async () => {
   }
 }
 
-/* Animation for step transitions */
 .v-card {
   animation: slideIn 0.3s ease-out;
 }
@@ -997,12 +899,10 @@ onMounted(async () => {
   }
 }
 
-/* Improve chip group spacing */
 .v-chip-group .v-chip {
   margin: 4px;
 }
 
-/* Custom scrollbar for better UX */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -1021,7 +921,6 @@ onMounted(async () => {
   background: rgba(var(--v-theme-primary), 0.5);
 }
 
-/* Improve focus states */
 .v-text-field:focus-within,
 .v-select:focus-within,
 .v-combobox:focus-within,
@@ -1030,24 +929,96 @@ onMounted(async () => {
   transition: transform 0.2s ease;
 }
 
-/* Responsive padding adjustments */
 @media (max-width: 600px) {
-  .v-card-text {
-    padding: 16px !important;
+
+  .hero-section {
+    border-radius: 0 0 24px 24px;
+    margin-bottom: 1rem;
   }
 
-  .v-card-actions {
-    padding: 16px !important;
+  .hero-title {
+    font-size: 1.5rem !important;
+    line-height: 1.3;
   }
+
+  .card-enhanced {
+    border-radius: 16px !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .card-enhanced .v-card-text {
+    padding: 1rem !important;
+  }
+
+  .card-enhanced .v-card-actions {
+    padding: 1rem !important;
+    padding-top: 0 !important;
+  }
+
+  .card-enhanced .v-avatar {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .text-h5 {
+    font-size: 1.25rem !important;
+  }
+
+  .v-stepper {
+    font-size: 0.75rem;
+  }
+
+  .v-chip-group .v-chip {
+    font-size: 0.875rem;
+    height: 32px;
+  }
+
+  .image-upload .v-img {
+    height: 150px !important;
+  }
+
+  .v-card-actions .v-btn {
+    width: 100%;
+  }
+
+  .v-row {
+    margin: -8px;
+  }
+
+  .v-row>.v-col {
+    padding: 8px;
+  }
+
+  .v-text-field,
+  .v-select,
+  .v-combobox,
+  .v-textarea {
+    font-size: 0.9rem;
+  }
+
+  .v-dialog {
+    margin: 8px;
+  }
+
+  .v-dialog>.v-card {
+    max-height: calc(100vh - 16px);
+  }
+
+  .v-alert {
+    padding: 12px !important;
+  }
+
+  .v-alert .v-icon {
+    margin-right: 8px;
+  }
+
 }
 
-/* Improve stepper visual */
 .v-stepper {
   box-shadow: none !important;
   background: transparent !important;
 }
 
-/* Smooth color transitions for chips */
 .v-chip {
   transition: all 0.2s ease;
 }
@@ -1057,12 +1028,10 @@ onMounted(async () => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Better avatar styling */
 .v-avatar {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Improve dialog entrance */
 .v-dialog {
   animation: dialogFadeIn 0.3s ease-out;
 }
@@ -1078,17 +1047,14 @@ onMounted(async () => {
   }
 }
 
-/* Loading state improvements */
 .v-btn--loading {
   pointer-events: none;
 }
 
-/* Better spacing for list items */
 .v-list-item {
   margin-bottom: 8px;
 }
 
-/* Improve expansion panel */
 .v-expansion-panel {
   margin-bottom: 8px;
 }
@@ -1097,7 +1063,6 @@ onMounted(async () => {
   font-weight: 500;
 }
 
-/* Success dialog special styling */
 .v-dialog .v-avatar {
   animation: successPulse 0.6s ease-out;
 }
@@ -1116,7 +1081,6 @@ onMounted(async () => {
   }
 }
 
-/* Mobile optimization */
 @media (max-width: 960px) {
   .hero-title {
     font-size: 1.75rem;
@@ -1127,7 +1091,6 @@ onMounted(async () => {
   }
 }
 
-/* Print optimization */
 @media print {
   .v-app-bar,
   .v-btn,
@@ -1136,7 +1099,6 @@ onMounted(async () => {
   }
 }
 
-/* Accessibility improvements */
 .v-btn:focus-visible,
 .v-chip:focus-visible,
 .v-text-field:focus-visible {
@@ -1144,7 +1106,6 @@ onMounted(async () => {
   outline-offset: 2px;
 }
 
-/* Dark mode specific adjustments */
 .v-theme--dark .image-upload {
   border-color: rgba(var(--v-theme-primary), 0.4);
 }
@@ -1154,7 +1115,6 @@ onMounted(async () => {
   background: rgba(var(--v-theme-primary), 0.05);
 }
 
-/* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
@@ -1163,7 +1123,6 @@ onMounted(async () => {
   }
 }
 
-/* Enhanced card styling */
 .card-enhanced {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(var(--v-border-color), 0.08);
@@ -1177,7 +1136,6 @@ onMounted(async () => {
   border-color: rgba(var(--v-theme-primary), 0.2);
 }
 
-/* Hero section styling */
 .hero-section {
   background: linear-gradient(135deg, rgba(46, 125, 50, 0.08) 0%, rgba(38, 198, 218, 0.08) 100%);
   border-radius: 0 0 40px 40px;
@@ -1191,13 +1149,11 @@ onMounted(async () => {
   letter-spacing: -0.02em;
 }
 
-/* Enhanced avatar glow */
 .card-enhanced .v-avatar {
   box-shadow: 0 4px 20px rgba(var(--v-theme-primary), 0.3);
   transition: all 0.3s ease;
 }
 
-/* Improve stepper visual */
 .v-stepper {
   background: transparent !important;
   box-shadow: none !important;
@@ -1205,7 +1161,6 @@ onMounted(async () => {
   overflow: hidden;
 }
 
-/* Better button styling */
 .card-enhanced .v-btn--variant-flat {
   box-shadow: 0 4px 16px rgba(var(--v-theme-primary), 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1216,7 +1171,6 @@ onMounted(async () => {
   transform: translateY(-1px);
 }
 
-/* Enhanced chip styling */
 .card-enhanced .v-chip {
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -1227,7 +1181,6 @@ onMounted(async () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Improved input focus states */
 .card-enhanced .v-text-field:focus-within,
 .card-enhanced .v-select:focus-within,
 .card-enhanced .v-combobox:focus-within,
@@ -1236,7 +1189,6 @@ onMounted(async () => {
   transition: transform 0.2s ease;
 }
 
-/* Better image upload area */
 .card-enhanced .image-upload {
   transition: all 0.3s ease;
   border: 2px dashed rgba(var(--v-theme-primary), 0.4);
@@ -1249,7 +1201,6 @@ onMounted(async () => {
   transform: scale(1.01);
 }
 
-/* Smooth section transitions */
 .v-card {
   animation: fadeInUp 0.4s ease-out;
 }
@@ -1265,7 +1216,6 @@ onMounted(async () => {
   }
 }
 
-/* Enhanced card header */
 .card-enhanced .v-avatar+div h2 {
   position: relative;
 }
@@ -1281,18 +1231,104 @@ onMounted(async () => {
   border-radius: 2px;
 }
 
-/* Better spacing for card content */
 .card-enhanced .v-card-text {
   padding: 2rem !important;
 }
 
-@media (max-width: 600px) {
+@media (min-width: 601px) and (max-width: 960px) {
+  .hero-section {
+    border-radius: 0 0 32px 32px;
+  }
+
   .card-enhanced .v-card-text {
     padding: 1.5rem !important;
   }
 
+  .card-enhanced .v-card-actions {
+    padding: 1.5rem !important;
+    padding-top: 0 !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .v-stepper ::v-deep(.v-stepper-item) {
+    padding: 8px 4px;
+  }
+
+  .v-stepper ::v-deep(.v-stepper-item__title) {
+    font-size: 0.75rem;
+  }
+
+  .v-stepper ::v-deep(.v-stepper-item__avatar) {
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 600px) and (pointer: coarse) {
+  .v-btn {
+    min-height: 44px;
+  }
+
+  .v-chip {
+    min-height: 36px;
+  }
+
+  .v-text-field,
+  .v-select,
+  .v-combobox {
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 360px) {
   .hero-title {
-    font-size: 1.5rem;
+    font-size: 1.25rem !important;
+  }
+
+  .v-container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .card-enhanced {
+    border-radius: 12px !important;
+  }
+
+  .v-chip {
+    font-size: 0.75rem;
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .v-theme--dark .card-enhanced {
+    background: rgba(var(--v-theme-surface), 0.98);
+  }
+
+  .v-theme--dark .text-medium-emphasis {
+    opacity: 0.8;
+  }
+}
+
+@media (max-width: 600px) {
+  .v-main {
+    overflow-x: hidden;
+  }
+
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 600px) and (prefers-reduced-motion: no-preference) {
+  .card-enhanced {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card-enhanced:active {
+    transform: scale(0.98);
   }
 }
 </style>
