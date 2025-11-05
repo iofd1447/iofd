@@ -147,16 +147,15 @@
 </template>
 
 <script setup lang="ts">
+// @ts-nocheck
+import moment from 'moment-hijri';
+import 'moment/locale/fr';
 
 useHead({
   title: 'IOFD - Vos données sont notre priorité'
 })
 
-const lastUpdated = new Intl.DateTimeFormat('fr-FR-u-ca-islamic', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric'
-}).format(new Date())
+const lastUpdated = moment().locale('fr').format('iD iMMMM iYYYY');
 </script>
 
 <style scoped></style>
