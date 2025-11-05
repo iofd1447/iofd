@@ -274,8 +274,8 @@
 
           <v-row>
             <v-col v-for="field in nutritionFields" :key="field.key" cols="12" sm="6" md="4">
-              <v-text-field v-model.number="form.nutrition[field.key]" :label="`${field.label} ${field.suffix}`"
-                type="text" :prepend-inner-icon="field.icon" :suffix="field.suffix" />
+              <v-text-field v-model="form.nutrition[field.key]" :label="`${field.label} ${field.suffix}`" type="number"
+                step="any" inputmode="decimal" :prepend-inner-icon="field.icon" :suffix="field.suffix" />
             </v-col>
           </v-row>
 
