@@ -169,7 +169,7 @@ Pour toute question ou suggestion :
 - **Email** : iofd1447@gmail.com
 - **Site web** : [À venir]
 
-##  Remerciements
+## 👊 Remerciements
 
 - À tous les contributeurs qui enrichissent la base de données
 - À la communauté musulmane pour son soutien
