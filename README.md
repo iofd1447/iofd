@@ -2,8 +2,6 @@
 
 <div align="center">
 
-![IOFD Logo](public/logo.png)
-
 **Base de données collaborative pour identifier et vérifier les produits alimentaires conformes aux principes halal**
 
 [![Nuxt](https://img.shields.io/badge/Nuxt-4.2.0-00DC82?style=flat-square&logo=nuxt.js)](https://nuxt.com)
@@ -78,8 +76,6 @@ IOFD (Islamic Open Food Database) est une application web collaborative dédiée
 - Compte Supabase (pour la base de données)
 
 
-L'application sera accessible sur `http://localhost:3000`
-
 ## 📁 Structure du projet
 
 ```
@@ -146,21 +142,6 @@ La base de données PostgreSQL comprend les tables suivantes :
 - `users` - Utilisateurs
 
 Voir `db/IOFD.sql` pour le schéma complet.
-
-## 📝 Scripts disponibles
-
-```bash
-# Développement
-npm run dev          # Lance le serveur de développement
-
-# Production
-npm run build        # Build pour la production
-npm run preview      # Prévisualise le build de production
-npm run generate     # Génère une version statique
-
-# Utilitaires
-npm run git          # Git add, commit et push (alias)
-```
 
 ## 🤝 Contribution
 
