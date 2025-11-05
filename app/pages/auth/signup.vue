@@ -26,12 +26,7 @@
           <v-card elevation="4" rounded="xl" class="auth-card">
             <v-card-text class="pa-8">
               <v-alert v-if="successMessage" type="success" variant="tonal" rounded="lg" class="mb-6">
-                <v-icon start>mdi-check-circle</v-icon>
                 {{ successMessage }}
-              </v-alert>
-
-              <v-alert v-if="errorMessage" type="error" variant="tonal" rounded="lg" class="mb-6">
-                {{ errorMessage }}
               </v-alert>
 
               <v-form @submit.prevent="handleSignUp">
@@ -93,7 +88,7 @@ import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const { signUp, loading } = useSupabaseAuth()
+const { signUp, loading, fetchUser, syncUser } = useSupabaseAuth()
 const router = useRouter()
 
 const email = ref('')
@@ -132,6 +127,8 @@ const handleSignUp = async () => {
   try {
     await signUp(email.value, password.value)
     successMessage.value = 'Inscription réussie ! Vérifiez votre email pour confirmer votre compte.'
+    await fetchUser()
+    await syncUser()
 
     setTimeout(() => {
       router.push('/auth/login')

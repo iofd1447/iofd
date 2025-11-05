@@ -73,7 +73,7 @@ import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const { signIn, loading } = useSupabaseAuth()
+const { signIn, loading, fetchUser, syncUser } = useSupabaseAuth()
 const router = useRouter()
 
 const email = ref('')

@@ -246,8 +246,7 @@ const getStatusColor = (status: string) => {
   const colors: Record<string, string> = {
     halal: 'success',
     haram: 'error',
-    mashbuh: 'warning',
-    variable: 'primary'
+    mashbuh: 'warning'
   }
   return colors[status] || 'grey'
 }
@@ -256,8 +255,7 @@ const getStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
     halal: 'Halal',
     haram: 'Haram',
-    mashbuh: 'Douteux',
-    variable: 'Variable'
+    mashbuh: 'Mashbuh'
   }
   return labels[status] || status
 }
@@ -266,8 +264,7 @@ const getStatusIcon = (status: string) => {
   const icons: Record<string, string> = {
     halal: 'mdi-check-circle',
     haram: 'mdi-close-circle',
-    mashbuh: 'mdi-alert-circle',
-    variable: 'mdi-swap-horizontal-circle'
+    mashbuh: 'mdi-alert-circle'
   }
   return icons[status] || 'mdi-help-circle'
 }
@@ -276,8 +273,7 @@ const getStatusGradient = (status: string) => {
   const gradients: Record<string, string> = {
     halal: 'linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%)',
     haram: 'linear-gradient(135deg, #d32f2f 0%, #ef5350 100%)',
-    mashbuh: 'linear-gradient(135deg, #f57c00 0%, #ff9800 100%)',
-    variable: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)'
+    mashbuh: 'linear-gradient(135deg, #f57c00 0%, #ff9800 100%)'
   }
   return gradients[status] || 'linear-gradient(135deg, #757575 0%, #bdbdbd 100%)'
 }
@@ -298,7 +294,6 @@ const getAlertType = (status: string): 'success' | 'error' | 'warning' | 'info' 
     halal: 'success',
     haram: 'error',
     mashbuh: 'warning',
-    variable: 'info'
   }
   return types[status] || 'info'
 }
@@ -446,7 +441,6 @@ onMounted(async () => {
   border-radius: 12px;
 }
 
-/* Smooth animations */
 .v-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

@@ -54,7 +54,7 @@
                   </div>
                 </v-col>
                 <v-col cols="12" md="auto" class="text-center text-md-right">
-                  <div class="d-flex flex-column flex-md-row gap-2 justify-center justify-md-end">
+                  <div class="d-flex flex-column flex-md-row ga-2 justify-center justify-md-end">
                     <v-btn color="error" variant="text" prepend-icon="mdi-logout" @click="handleLogout">
                       Déconnexion
                     </v-btn>
@@ -210,7 +210,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 useHead({
-  title: 'IOFD - Account'
+  title: 'IOFD - Manage my account'
 })
 
 const { user, fetchUser, signOut, loading, deleteAccount } = useSupabaseAuth()
@@ -288,17 +288,8 @@ const fetchStats = async () => {
 
   try {
 
-    let userIdInDB: string | null = null
-
-    if (user.value?.email) {
-      const { data, error } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', user.value.email)
-        .single()
-
-      if (data) userIdInDB = data.id
-    }
+    const userIdInDB = user.value.id
+    const userEmail = user.value.email || ''
 
     let contributions = 0
     let reviews = 0
@@ -312,7 +303,7 @@ const fetchStats = async () => {
       const { count: reviewCount } = await supabase
         .from('community_reviews')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', userIdInDB)
+        .eq('user_email', userEmail)
 
       contributions = contribCount || 0
       reviews = reviewCount || 0
@@ -376,14 +367,22 @@ const confirmDeleteAccount = async () => {
 const saveProfile = async () => {
   if (!user.value) return
   saving.value = true
-
   try {
-    const { error: userUpdateError } = await supabase
+    const { data: userRecord, error: userError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', user.value.email)
+      .single()
+
+    if (userError || !userRecord) throw userError || new Error('Utilisateur introuvable dans la table users')
+
+    const { data, error } = await supabase
       .from('users')
       .update({ username: userProfile.value.username })
-      .eq('id', user.value.id)
+      .eq('id', userRecord.id)
+      .select()
 
-    if (userUpdateError) throw userUpdateError
+    if (error) throw error
 
     const { error: metadataError } = await supabase.auth.updateUser({
       data: { full_name: userProfile.value.username }
@@ -391,7 +390,6 @@ const saveProfile = async () => {
 
     if (metadataError) throw metadataError
 
-    console.log('Profil mis à jour avec succès')
   } catch (error) {
     console.error('Erreur lors de la mise à jour du profil:', error)
   } finally {

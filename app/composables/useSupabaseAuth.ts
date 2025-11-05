@@ -16,6 +16,7 @@ export function useSupabaseAuth() {
     return u
   }
 
+  // Sign up avec création automatique dans la table users
   const signUp = async (email: string, password: string) => {
     loading.value = true
     try {
@@ -23,25 +24,27 @@ export function useSupabaseAuth() {
       if (error) throw error
 
       if (data.user) {
-        const username = email.split('@')[0]
+        // Crée la ligne dans users
         const { error: userError } = await supabase
           .from('users')
           .insert([{
             id: data.user.id,
             email: data.user.email || email,
-            username: username,
+            username: email.split('@')[0],
             role: 'user'
           }])
 
-        if (userError) {
-
-        }
+        if (userError) throw userError
       }
 
+      user.value = data.user
       return data
-    } finally { loading.value = false }
+    } finally {
+      loading.value = false
+    }
   }
 
+  // Sign in
   const signIn = async (email: string, password: string) => {
     loading.value = true
     try {
@@ -49,26 +52,73 @@ export function useSupabaseAuth() {
       if (error) throw error
       user.value = data.user
       return data
-    } finally { loading.value = false }
+    } finally {
+      loading.value = false
+    }
   }
 
+  // Sign out
   const signOut = async () => {
     loading.value = true
     try {
       const { error } = await supabase.auth.signOut()
       if (error) throw error
       user.value = null
-    } finally { loading.value = false }
+    } finally {
+      loading.value = false
+    }
   }
 
+  // Met à jour le profil
   const updateUserProfile = async (profileData: any) => {
+    if (!user.value) throw new Error('Utilisateur non connecté')
     loading.value = true
     try {
-      const { data, error } = await supabase.from('users').update(profileData).eq('id', user.value?.id).select().single()
+      const { data, error } = await supabase
+        .from('users')
+        .update(profileData)
+        .eq('id', user.value.id)
+        .select()
+        .single()
       if (error) throw error
+
       user.value = { ...user.value, ...data }
+      // Update Supabase Auth metadata
+      const { error: metadataError } = await supabase.auth.updateUser({
+        data: { full_name: profileData.username }
+      })
+      if (metadataError) throw metadataError
+
       return data
-    } finally { loading.value = false }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Sync pour anciens comptes Auth sans ligne users
+  const syncUser = async () => {
+    if (!user.value) return
+    loading.value = true
+    try {
+      const { data: existingUser, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user.value.id)
+        .single()
+
+      if (!existingUser) {
+        await supabase.from('users').insert([{
+          id: user.value.id,
+          email: user.value.email,
+          username: user.value.email.split('@')[0],
+          role: 'user'
+        }])
+      }
+    } catch (err) {
+      console.error('Erreur syncUser:', err)
+    } finally {
+      loading.value = false
+    }
   }
 
   async function logContribution(productId: string, email: string, changeType: 'create' | 'update', changeData: any) {
@@ -125,6 +175,7 @@ export function useSupabaseAuth() {
     signOut,
     updateUserProfile,
     logContribution,
-    deleteAccount
+    deleteAccount,
+    syncUser
   }
 }

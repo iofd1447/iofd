@@ -48,7 +48,8 @@
                 <span>Ajoutez un avis</span>
               </v-btn>
 
-              <v-btn block :size="$vuetify.display.xs ? 'default' : 'large'" variant="outlined" rounded="lg">
+              <v-btn block :size="$vuetify.display.xs ? 'default' : 'large'" variant="outlined" rounded="lg"
+                @click="editDialog = true">
                 <v-icon start :size="$vuetify.display.xs ? '18' : '20'">mdi-pencil</v-icon>
                 <span>Modifier les informations</span>
               </v-btn>
@@ -60,10 +61,13 @@
           <v-card elevation="2" rounded="xl" class="mb-3 mb-sm-4">
             <v-card-text :class="['pa-3 pa-sm-6']">
               <div class="d-flex align-center flex-wrap ga-1 ga-sm-2 mb-2 mb-sm-3">
-                <v-chip v-if="product.category" size="small" variant="tonal" color="primary" :class="['text-caption']">
-                  {{ product.category }}
+                <v-chip v-if="product.category" size="small" variant="tonal" color="primary" class="text-caption">
+                  <v-icon :icon="getCategoryIcon(product.category)" class="mr-2"></v-icon>
+                  {{ typeof product.category === 'object' ? product.category.name : product.category }}
                 </v-chip>
-                <v-chip size="small" variant="tonal" :class="['text-caption']">
+
+                <v-chip size="small" variant="tonal" :class="['text-caption']" color="secondary">
+                  <v-icon icon="mdi-barcode" class="mr-2"></v-icon>
                   {{ product.barcode }}
                 </v-chip>
               </div>
@@ -95,7 +99,7 @@
                   <v-chip v-for="label in product.labels" :key="label" color="success" variant="tonal" size="small"
                     :class="['text-caption']">
                     <v-icon start size="small">mdi-check-decagram</v-icon>
-                    {{ label }}
+                    {{ label.name }}
                   </v-chip>
                 </div>
               </div>
@@ -135,7 +139,7 @@
                   <div class="info-item">
                     <div class="text-caption text-medium-emphasis">Certification</div>
                     <div :class="['text-body-2 text-sm-body-1 font-weight-medium']">
-                      {{ formatDate(product.certification.certified_date) }}
+                      {{ formatHijriDate(product.certification.certified_date) }}
                     </div>
                   </div>
                 </v-col>
@@ -143,7 +147,7 @@
                   <div class="info-item">
                     <div class="text-caption text-medium-emphasis">Expiration</div>
                     <div :class="['text-body-2 text-sm-body-1 font-weight-medium']">
-                      {{ formatDate(product.certification.expiry_date) }}
+                      {{ formatHijriDate(product.certification.expiry_date) }}
                     </div>
                   </div>
                 </v-col>
@@ -162,46 +166,107 @@
             </v-card-text>
           </v-card>
 
-          <v-card elevation="2" rounded="xl" class="mb-3 mb-sm-4">
+          <v-card elevation="2" rounded="xl" class="mb-3 mb-sm-4 nutrition-card-modern">
             <v-card-text :class="['pa-3 pa-sm-6']">
-              <div class="d-flex align-center mb-3 mb-sm-4">
-                <v-icon :size="$vuetify.display.xs ? '24' : '32'" color="primary" class="mr-2 mr-sm-3">
-                  mdi-food-apple
-                </v-icon>
-                <div>
-                  <h3 :class="['text-subtitle-1 text-sm-h6 font-weight-bold']">Valeurs nutritionnelles</h3>
-                  <p class="text-caption text-medium-emphasis mb-0">Pour 100g / 100ml</p>
+              <div class="d-flex align-center justify-space-between mb-4">
+                <div class="d-flex align-center">
+                  <v-avatar color="primary" size="48" class="elevation-2 mr-3">
+                    <v-icon size="24" color="white">mdi-nutrition</v-icon>
+                  </v-avatar>
+                  <div>
+                    <h3 :class="['text-subtitle-1 text-sm-h6 font-weight-bold']">
+                      Valeurs nutritionnelles
+                    </h3>
+                    <p class="text-caption text-medium-emphasis mb-0">
+                      Pour {{ product.portion_description || '100g/100ml' }}
+                    </p>
+                  </div>
+                </div>
+                <v-btn icon variant="text" size="small" @click="showAllNutrients = !showAllNutrients">
+                  <v-icon>{{ showAllNutrients ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+                </v-btn>
+              </div>
+
+              <div class="macros-grid mb-4">
+                <div v-for="macro in mainMacros" :key="macro.key" class="macro-card"
+                  :style="{ borderColor: `rgb(var(--v-theme-${macro.color}))` }">
+                  <div class="macro-icon-wrapper" :style="{ background: `rgba(var(--v-theme-${macro.color}), 0.1)` }">
+                    <v-icon :color="macro.color" size="32">{{ macro.icon }}</v-icon>
+                  </div>
+                  <div class="macro-content">
+                    <div class="macro-value" :style="{ color: `rgb(var(--v-theme-${macro.color}))` }">
+                      {{ product.nutrition[macro.key] || 0 }}
+                      <span class="macro-unit">{{ macro.unit }}</span>
+                    </div>
+                    <div class="macro-label">{{ macro.label }}</div>
+                    <div class="macro-bar-wrapper">
+                      <div class="macro-bar" :style="{
+                        width: `${Math.min((product.nutrition[macro.key] / macro.max) * 100, 100)}%`,
+                        background: `rgb(var(--v-theme-${macro.color}))`
+                      }" />
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <v-row dense>
-                <v-col v-for="nutrient in nutrients" :key="nutrient.key" cols="6" sm="4" md="3">
-                  <div class="nutrition-card">
-                    <div class="d-flex align-center justify-center mb-1 mb-sm-2">
-                      <v-avatar :color="nutrient.color" :size="$vuetify.display.xs ? '40' : '48'" class="elevation-2">
-                        <v-icon :size="$vuetify.display.xs ? '20' : '24'" color="white">
+              <v-expand-transition>
+                <div v-show="showAllNutrients" class="nutrition-details">
+                  <v-divider class="mb-4" />
+
+                  <div class="text-subtitle-2 font-weight-bold mb-3 d-flex align-center">
+                    <v-icon size="small" class="mr-2" color="secondary">mdi-information</v-icon>
+                    Détails nutritionnels
+                  </div>
+
+                  <div class="nutrients-list">
+                    <div v-for="nutrient in secondaryNutrients" :key="nutrient.key" class="nutrient-row">
+                      <div class="nutrient-info">
+                        <v-icon :color="nutrient.color" size="20" class="mr-2">
                           {{ nutrient.icon }}
                         </v-icon>
-                      </v-avatar>
-                    </div>
-                    <div class="text-center">
-                      <div :class="['text-subtitle-1 text-sm-h6 font-weight-bold']"
-                        :style="{ color: `rgb(var(--v-theme-${nutrient.color}))` }">
-                        {{ product.nutrition[nutrient.key] || '0' }}
-                        <span class="text-caption">{{ nutrient.unit }}</span>
+                        <span class="nutrient-name">{{ nutrient.label }}</span>
                       </div>
-                      <div class="text-caption text-medium-emphasis mt-1">
-                        {{ nutrient.label }}
+                      <div class="nutrient-value-wrapper">
+                        <div class="nutrient-bar-bg">
+                          <div class="nutrient-bar-fill" :style="{
+                            width: `${Math.min((product.nutrition[nutrient.key] / nutrient.max) * 100, 100)}%`,
+                            background: `rgb(var(--v-theme-${nutrient.color}))`
+                          }" />
+                        </div>
+                        <span class="nutrient-value">
+                          {{ product.nutrition[nutrient.key] || 0 }} {{ nutrient.unit }}
+                        </span>
                       </div>
                     </div>
                   </div>
-                </v-col>
-              </v-row>
 
-              <v-divider class="my-3 my-sm-4" />
+                  <v-alert variant="tonal" color="info" density="compact" class="mt-4" rounded="lg">
+                    <div class="text-caption">
+                      <v-icon size="small" class="mr-1">mdi-information-outline</v-icon>
+                      Les valeurs peuvent varier selon les lots. Apports de référence pour un adulte (8400 kJ/2000
+                      kcal).
+                    </div>
+                  </v-alert>
+                </div>
+              </v-expand-transition>
 
-              <div class="text-caption text-medium-emphasis text-center">
-                Les valeurs sont indicatives et peuvent varier selon les lots
+              <div class="quick-stats-wrapper mt-4">
+                <v-chip v-if="product.nutrition.calories_kcal < 100" size="small" color="success" variant="tonal"
+                  prepend-icon="mdi-fire-circle">
+                  Faible en calories
+                </v-chip>
+                <v-chip v-if="product.nutrition.protein_g > 10" size="small" color="primary" variant="tonal"
+                  prepend-icon="mdi-arm-flex">
+                  Riche en protéines
+                </v-chip>
+                <v-chip v-if="product.nutrition.sugars_g < 5" size="small" color="success" variant="tonal"
+                  prepend-icon="mdi-candy-off">
+                  Faible en sucres
+                </v-chip>
+                <v-chip v-if="product.nutrition.fibres_g > 5" size="small" color="tertiary" variant="tonal"
+                  prepend-icon="mdi-leaf">
+                  Source de fibres
+                </v-chip>
               </div>
             </v-card-text>
           </v-card>
@@ -309,8 +374,7 @@
                     <p class="text-caption text-medium-emphasis mb-0">{{ product.reviews_count }} avis</p>
                   </div>
                 </div>
-                <v-btn color="primary" variant="tonal" @click="openReviewDialog"
-                  :size="$vuetify.display.xs ? 'small' : 'default'">
+                <v-btn color="primary" variant="tonal" :size="$vuetify.display.xs ? 'small' : 'default'">
                   <v-icon start size="small">mdi-plus</v-icon>
                   <span class="d-none d-sm-inline">Ajouter un avis</span>
                   <span class="d-inline d-sm-none">Avis</span>
@@ -323,11 +387,11 @@
                   <v-card-text :class="['pa-3 pa-sm-4']">
                     <div class="d-flex align-center mb-2">
                       <v-avatar color="primary" :size="$vuetify.display.xs ? '28' : '32'" class="mr-2">
-                        <span class="text-caption">{{ review.user_initials }}</span>
+                        <span class="text-h6">{{ review.user_name.charAt(0).toUpperCase() }}</span>
                       </v-avatar>
                       <div class="flex-grow-1">
                         <div :class="['text-body-2 font-weight-bold']">{{ review.user_name }}</div>
-                        <div class="text-caption text-medium-emphasis">{{ formatDate(review.created_at) }}</div>
+                        <div class="text-caption text-medium-emphasis">{{ formatHijriDate(review.created_at) }}</div>
                       </div>
                       <v-chip :color="getHalalColor(review.halal_vote)" size="x-small">
                         {{ review.halal_vote }}
@@ -366,9 +430,8 @@
           <v-text-field v-model="newReview.user_email" label="Votre email" variant="outlined" type="email"
             class="mb-2 mb-sm-3" :density="$vuetify.display.xs ? 'comfortable' : 'default'" />
 
-          <v-select v-model="newReview.halal_vote" label="Statut halal"
-            :items="['halal', 'haram', 'douteux', 'non_verifie']" variant="outlined" class="mb-2 mb-sm-3"
-            :density="$vuetify.display.xs ? 'comfortable' : 'default'" />
+          <v-select v-model="newReview.halal_vote" label="Statut halal" :items="['halal', 'haram', 'mashbuh']"
+            variant="outlined" class="mb-2 mb-sm-3" :density="$vuetify.display.xs ? 'comfortable' : 'default'" />
 
           <v-textarea v-model="newReview.comment" label="Commentaire" variant="outlined" rows="3"
             :density="$vuetify.display.xs ? 'comfortable' : 'default'" />
@@ -382,13 +445,25 @@
       </v-card-text>
     </v-card>
   </v-dialog>
+
+  <ProductEditDialog v-model="editDialog" :product="product" @saved="onProductSaved" />
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useTheme } from 'vuetify'
 import { useSupabase } from '#imports'
+import ProductEditDialog from '@/components/ProductEditDialog.vue'
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
+import { onMounted, ref } from 'vue'
+import {
+  formatHijriDate,
+  getHalalColor,
+  getHalalIcon,
+  getHalalLabel,
+  getIngredientColor,
+  getAllergenType,
+  getAllergenText,
+  getCategoryIcon
+} from '@/utils/function'
 
 const supabase = useSupabase()
 const { user, fetchUser } = useSupabaseAuth()
@@ -408,12 +483,13 @@ const product = ref<any>({
 
 const loading = ref(true)
 const reviewDialog = ref(false)
+const editDialog = ref(false)
 const reviewForm = ref()
 const newReview = ref({
   rating: 0,
   user_name: '',
   user_email: '',
-  halal_vote: 'non_verifie',
+  halal_vote: 'Sélectionnez un statut...',
   comment: ''
 })
 
@@ -445,7 +521,7 @@ const fetchProduct = async () => {
       rating: r.rating ?? 0,
       user_name: r.user_name ?? 'Utilisateur',
       user_email: r.user_email ?? '',
-      halal_vote: r.halal_vote ?? 'non_verifie',
+      halal_vote: r.halal_vote ?? '',
       comment: r.comment ?? '',
       helpful_count: r.helpful_count ?? 0,
       created_at: r.created_at
@@ -460,10 +536,11 @@ const fetchProduct = async () => {
       name: data.name,
       brand: data.brand,
       barcode: data.barcode,
+      category_id: data.category_id,
       category: data.category?.name || 'Autre',
       image_url: data.image_url || 'https://via.placeholder.com/600x400?text=Image+indisponible',
       portion_description: data.portion_description || 'Non spécifiée',
-      halal_status: data.halal_info?.halal_status,
+      halal_status: data.halal_certification?.[0]?.halal_status || data.halal_certification?.halal_status,
       certification: data.halal_certification?.[0]
         ? {
           body: data.halal_certification[0].certification_body,
@@ -471,7 +548,8 @@ const fetchProduct = async () => {
           certified_date: data.halal_certification[0].certified_date,
           expiry_date: data.halal_certification[0].expiry_date,
           verified_by_community: data.halal_certification[0].verified_by_community,
-          verification_count: data.halal_certification[0].verification_count
+          verification_count: data.halal_certification[0].verification_count,
+          notes: data.halal_certification[0].notes
         }
         : null,
       nutrition: data.nutrition?.[0] || data.nutrition || {},
@@ -483,6 +561,7 @@ const fetchProduct = async () => {
           halal_status: i.ingredient.halal_status
         })),
       additives: (data.product_additives || []).map((a: any) => ({
+        id: a.additive?.id,
         code: a.additive?.code,
         name: a.additive?.name,
         halal_status: a.additive?.halal_status,
@@ -490,14 +569,21 @@ const fetchProduct = async () => {
         function: a.additive?.function
       })),
       allergens: (data.product_allergens || []).map((a: any) => ({
+        id: a.allergen_id || a.allergen?.id,
+        allergen_id: a.allergen_id || a.allergen?.id,
         name: a.allergen?.name,
         description: a.allergen?.description
       })),
-      labels: (data.product_labels || []).map((l: any) => l.label?.name),
+      labels: (data.product_labels || []).map((l: any) => ({
+        id: l.label_id || l.label?.id,
+        label_id: l.label_id || l.label?.id,
+        name: l.label?.name
+      })),
       reviews,
       rating: Number(avgRating),
       reviews_count: reviews.length
     }
+
   } catch (err) {
     console.error('Erreur de récupération du produit:', err)
   } finally {
@@ -524,89 +610,58 @@ const submitReview = async () => {
   }
 
   reviewDialog.value = false
-  newReview.value = { rating: 0, user_name: '', user_email: '', halal_vote: 'non_verifie', comment: '' }
+  newReview.value = { rating: 0, user_name: '', user_email: '', halal_vote: '', comment: '' }
 
   await fetchProduct()
 }
 
-type NutrientKey = keyof typeof product.value.nutrition
+const showAllNutrients = ref(false)
 
-const nutrients: { key: NutrientKey; label: string; unit: string; icon: string; color: string }[] = [
-  { key: 'calories_kcal', label: 'Calories', unit: 'kcal', icon: 'mdi-fire', color: 'primary' },
-  { key: 'protein_g', label: 'Protéines', unit: 'g', icon: 'mdi-egg', color: 'success' },
-  { key: 'carbs_g', label: 'Glucides', unit: 'g', icon: 'mdi-pasta', color: 'warning' },
-  { key: 'sugars_g', label: 'Sucres', unit: 'g', icon: 'mdi-candy', color: 'error' },
-  { key: 'fats_g', label: 'Lipides', unit: 'g', icon: 'mdi-oil', color: 'secondary' },
-  { key: 'saturated_fats_g', label: 'Graisses saturées', unit: 'g', icon: 'mdi-food-drumstick', color: 'tertiary' },
-  { key: 'fibres_g', label: 'Fibres', unit: 'g', icon: 'mdi-barley', color: 'accent' },
-  { key: 'sodium_mg', label: 'Sodium', unit: 'mg', icon: 'mdi-shaker', color: 'bonus' },
+const onProductSaved = async () => {
+  await fetchProduct()
+}
+
+const mainMacros = [
+  {
+    key: 'calories_kcal',
+    label: 'Énergie',
+    unit: 'kcal',
+    icon: 'mdi-fire',
+    color: 'error',
+    max: 500
+  },
+  {
+    key: 'protein_g',
+    label: 'Protéines',
+    unit: 'g',
+    icon: 'mdi-dumbbell',
+    color: 'primary',
+    max: 30
+  },
+  {
+    key: 'carbs_g',
+    label: 'Glucides',
+    unit: 'g',
+    icon: 'mdi-grain',
+    color: 'warning',
+    max: 70
+  },
+  {
+    key: 'fats_g',
+    label: 'Lipides',
+    unit: 'g',
+    icon: 'mdi-water',
+    color: 'secondary',
+    max: 30
+  },
 ]
 
-const getHalalColor = (status: string) => {
-  const colors: Record<string, string> = {
-    halal: 'success',
-    haram: 'error',
-    douteux: 'warning',
-    non_verifie: 'grey',
-    variable: 'orange'
-  }
-  return colors[status] || 'grey'
-}
-
-const getHalalLabel = (status: string) => {
-  const labels: Record<string, string> = {
-    halal: 'Halal',
-    haram: 'Haram',
-    douteux: 'Douteux',
-    non_verifie: 'Non vérifié',
-    variable: 'Variable'
-  }
-  return labels[status] || 'Non vérifié'
-}
-
-const getHalalIcon = (status: string) => {
-  const icons: Record<string, string> = {
-    halal: 'mdi-check-circle',
-    haram: 'mdi-close-circle',
-    douteux: 'mdi-alert-circle',
-    non_verifie: 'mdi-help-circle',
-    variable: 'mdi-swap-horizontal-circle'
-  }
-  return icons[status] || 'mdi-help-circle'
-}
-
-const getIngredientColor = (status: string) => {
-  return getHalalColor(status)
-}
-
-const getAllergenType = (presence: string): 'success' | 'warning' | 'error' | 'info' => {
-  const types: Record<string, 'success' | 'warning' | 'error' | 'info'> = {
-    contient: 'error',
-    traces: 'warning',
-    peut_contenir: 'info'
-  }
-  return types[presence] || 'info'
-}
-
-const getAllergenText = (presence: string) => {
-  const texts: Record<string, string> = {
-    contient: 'Contient cet allergène',
-    traces: 'Peut contenir des traces',
-    peut_contenir: 'Peut contenir'
-  }
-  return texts[presence] || ''
-}
-
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString('fr-FR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
-
-const openReviewDialog = () => {
-}
+const secondaryNutrients = [
+  { key: 'sugars_g', label: 'dont Sucres', unit: 'g', icon: 'mdi-candy', color: 'error', max: 50 },
+  { key: 'saturated_fats_g', label: 'dont Acides gras saturés', unit: 'g', icon: 'mdi-food-drumstick', color: 'warning', max: 20 },
+  { key: 'fibres_g', label: 'Fibres', unit: 'g', icon: 'mdi-leaf', color: 'success', max: 15 },
+  { key: 'sodium_mg', label: 'Sodium', unit: 'mg', icon: 'mdi-shaker', color: 'tertiary', max: 2000 },
+]
 
 useHead({
   title: 'Chargement...',
@@ -1106,6 +1161,285 @@ html {
 @media (max-width: 600px) {
   .v-main {
     padding-top: env(safe-area-inset-top);
+  }
+}
+
+.nutrition-card-modern {
+  background: linear-gradient(135deg, rgba(var(--v-theme-surface), 1) 0%, rgba(var(--v-theme-surface-variant), 0.3) 100%);
+  overflow: hidden;
+}
+
+/* Grid pour les macros principales */
+.macros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .macros-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+/* Card macro individuelle */
+.macro-card {
+  background: rgba(var(--v-theme-surface), 0.8);
+  border-radius: 16px;
+  padding: 16px;
+  border: 2px solid;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.macro-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+@media (max-width: 600px) {
+  .macro-card {
+    padding: 12px;
+    border-radius: 12px;
+  }
+}
+
+.macro-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 600px) {
+  .macro-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 8px;
+  }
+
+  .macro-icon-wrapper .v-icon {
+    font-size: 24px !important;
+  }
+}
+
+.macro-content {
+  text-align: left;
+}
+
+.macro-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+@media (max-width: 600px) {
+  .macro-value {
+    font-size: 1.25rem;
+  }
+}
+
+.macro-unit {
+  font-size: 0.875rem;
+  font-weight: 500;
+  opacity: 0.7;
+  margin-left: 2px;
+}
+
+.macro-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(var(--v-theme-on-surface), 0.7);
+  margin-bottom: 8px;
+}
+
+@media (max-width: 600px) {
+  .macro-label {
+    font-size: 0.75rem;
+  }
+}
+
+/* Barre de progression */
+.macro-bar-wrapper {
+  width: 100%;
+  height: 4px;
+  background: rgba(var(--v-theme-on-surface), 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.macro-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Nutri-Score style */
+.nutri-score-wrapper {
+  padding: 16px;
+  background: rgba(var(--v-theme-surface-variant), 0.3);
+  border-radius: 12px;
+}
+
+.nutri-score-bar {
+  display: flex;
+  gap: 4px;
+  height: 40px;
+}
+
+.nutri-score-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: white;
+  border-radius: 8px;
+  opacity: 0.4;
+  transition: all 0.3s ease;
+}
+
+.nutri-score-item.active {
+  opacity: 1;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Liste détaillée des nutriments */
+.nutrients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nutrient-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(var(--v-theme-surface), 0.5);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.nutrient-row:hover {
+  background: rgba(var(--v-theme-surface), 0.8);
+  transform: translateX(4px);
+}
+
+.nutrient-info {
+  display: flex;
+  align-items: center;
+  flex: 0 0 45%;
+}
+
+.nutrient-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .nutrient-name {
+    font-size: 0.75rem;
+  }
+}
+
+.nutrient-value-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nutrient-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: rgba(var(--v-theme-on-surface), 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.nutrient-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nutrient-value {
+  font-size: 0.875rem;
+  font-weight: 700;
+  min-width: 60px;
+  text-align: right;
+}
+
+@media (max-width: 600px) {
+  .nutrient-value {
+    font-size: 0.75rem;
+    min-width: 50px;
+  }
+}
+
+/* Quick stats badges */
+.quick-stats-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nutrition-details {
+  animation: slideInUp 0.3s ease-out;
+}
+
+/* Mode sombre */
+.v-theme--dark .macro-card {
+  background: rgba(var(--v-theme-surface), 0.6);
+}
+
+.v-theme--dark .nutrient-row {
+  background: rgba(var(--v-theme-surface), 0.3);
+}
+
+.v-theme--dark .nutrient-row:hover {
+  background: rgba(var(--v-theme-surface), 0.5);
+}
+
+/* Responsive très petits écrans */
+@media (max-width: 360px) {
+  .macros-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .macro-card {
+    padding: 10px;
+  }
+}
+
+/* Touch feedback */
+@media (pointer: coarse) {
+  .macro-card:active {
+    transform: scale(0.98);
+  }
+
+  .nutrient-row:active {
+    transform: translateX(2px) scale(0.99);
   }
 }
 </style>
