@@ -408,17 +408,24 @@ const animateCounters = () => {
   const counters = document.querySelectorAll('.counter')
   counters.forEach(counter => {
     const target = parseInt((counter as HTMLElement).dataset.target || '0')
+
+    if (target <= 5) {
+      counter.textContent = target.toString()
+      return
+    }
+
     let current = 0
-    const increment = target / 50
-    const timer = setInterval(() => {
-      current += increment
-      if (current >= target) {
-        counter.textContent = target.toString()
-        clearInterval(timer)
-      } else {
-        counter.textContent = Math.floor(current).toString()
-      }
-    }, 30)
+    const duration = 1500
+    const startTime = performance.now()
+
+    const update = (now: number) => {
+      const progress = Math.min((now - startTime) / duration, 1)
+      current = Math.floor(target * progress)
+      counter.textContent = current.toString()
+      if (progress < 1) requestAnimationFrame(update)
+    }
+
+    requestAnimationFrame(update)
   })
 }
 
