@@ -75,15 +75,9 @@
           <v-row>
 
             <v-col cols="12" md="6">
-              <v-text-field :model-value="displayBarcode" label="Code-barres (EAN-13)" prepend-inner-icon="mdi-barcode"
-                placeholder="301 7620 42200 3" hint="13 chiffres" persistent-hint :rules="[rules.barcode]"
-                @input="onBarcodeInput" maxlength="16">
-                <template #append-inner>
-                  <!-- Bouton Scanner 
-                  <v-btn icon="mdi-barcode-scan" variant="text" color="primary" size="small" @click="openScanner" />
-                -->
-                </template>
-              </v-text-field>
+              <v-text-field :model-value="displayBarcode" label="Code-barres" prepend-inner-icon="mdi-barcode"
+                placeholder="3017620422003" hint="Jusqu'à 32 caractères" persistent-hint :rules="[rules.barcode]"
+                @input="onBarcodeInput" maxlength="32" />
             </v-col>
 
 
@@ -531,27 +525,40 @@ const selectedAdditives = ref<any[]>([])
 const selectedAllergens = ref<string[]>([])
 const selectedLabels = ref<string[]>([])
 
-const rules = {
-  required: (v: any) => !!v || 'Ce champ est requis',
-  barcode: (v: any) => !v || cleanDigits(v).length === 13 || 'Le code-barres doit contenir 13 chiffres',
-}
-
-const cleanDigits = (v: string) => (v || '').replace(/\D/g, '').slice(0, 13)
+const cleanBarcode = (v: string) => (v || '').toString().replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 32)
 
 const formatBarcode = (value: string) => {
-  const d = cleanDigits(value)
-  if (!d) return ''
-  if (d.length <= 3) return d
-  if (d.length <= 7) return d.replace(/^(\d{3})(\d+)/, '$1 $2')
-  if (d.length <= 12) return d.replace(/^(\d{3})(\d{4})(\d+)/, '$1 $2 $3')
-  return d.replace(/^(\d{3})(\d{4})(\d{5})(\d{1})/, '$1 $2 $3 $4')
+  const raw = cleanBarcode(value)
+  if (!raw) return ''
+  if (/^[0-9]+$/.test(raw)) {
+    const d = raw
+    if (d.length <= 3) return d
+    if (d.length <= 7) return d.replace(/^(\d{3})(\d+)/, '$1 $2')
+    if (d.length <= 12) return d.replace(/^(\d{3})(\d{4})(\d+)/, '$1 $2 $3')
+    return d.replace(/^(\d{3})(\d{4})(\d{5})(\d{1})/, '$1 $2 $3 $4')
+  }
+  return raw.match(/.{1,4}/g)?.join(' ') ?? raw
 }
 
+const barcodeRule = (v: any) => {
+  if (!v) return true
+  const cleaned = cleanBarcode(v)
+  if (/^[0-9]{8}$/.test(cleaned)) return true
+  if (/^[0-9]{12}$/.test(cleaned)) return true
+  if (/^[0-9]{13}$/.test(cleaned)) return true
+  if (/^[0-9]{10}$/.test(cleaned)) return true
+  if (/^[A-Z0-9]{8,32}$/.test(cleaned)) return true
+  return 'Code-barres invalide'
+}
+
+const rules = {
+  required: (v: any) => !!v || 'Ce champ est requis',
+  barcode: barcodeRule,
+}
 const onBarcodeInput = (e: any) => {
-  const value = e.target.value
-  const cleaned = cleanDigits(value)
-  form.value.barcode = cleaned
-  displayBarcode.value = formatBarcode(cleaned)
+  const raw = e?.target?.value ?? ''
+  form.value.barcode = cleanBarcode(raw)
+  displayBarcode.value = formatBarcode(raw)
 }
 
 watch(() => form.value.barcode, val => {
