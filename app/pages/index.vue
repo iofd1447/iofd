@@ -58,7 +58,8 @@
             <v-card class="search-card-enhanced mx-auto mb-6 mb-sm-8" elevation="12" max-width="700" data-aos="fade-up"
               data-aos-delay="300">
               <v-card-text class="pa-2 pa-sm-3">
-                <v-text-field v-model="searchQuery" placeholder="Rechercher un produit, marque ou code-barres..."
+                <v-text-field v-model="searchQuery"
+                  :placeholder="$vuetify.display.xs ? 'Rechercher un produit...' : 'Rechercher un produit, une marque ou un code-barres...'"
                   prepend-inner-icon="mdi-magnify" variant="solo" flat hide-details density="comfortable"
                   class="search-input" @keyup.enter="searchProducts">
                   <template #append-inner>
