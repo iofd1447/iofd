@@ -16,7 +16,6 @@ export function useSupabaseAuth() {
     return u
   }
 
-  // Sign up avec création automatique dans la table users
   const signUp = async (email: string, password: string) => {
     loading.value = true
     try {
@@ -24,7 +23,6 @@ export function useSupabaseAuth() {
       if (error) throw error
 
       if (data.user) {
-        // Crée la ligne dans users
         const { error: userError } = await supabase
           .from('users')
           .insert([{
@@ -34,7 +32,9 @@ export function useSupabaseAuth() {
             role: 'user'
           }])
 
-        if (userError) throw userError
+        if (userError && userError.code !== '23505') {
+          throw userError
+        }
       }
 
       user.value = data.user
@@ -44,7 +44,6 @@ export function useSupabaseAuth() {
     }
   }
 
-  // Sign in
   const signIn = async (email: string, password: string) => {
     loading.value = true
     try {
@@ -57,7 +56,6 @@ export function useSupabaseAuth() {
     }
   }
 
-  // Sign out
   const signOut = async () => {
     loading.value = true
     try {
@@ -69,7 +67,6 @@ export function useSupabaseAuth() {
     }
   }
 
-  // Met à jour le profil
   const updateUserProfile = async (profileData: any) => {
     if (!user.value) throw new Error('Utilisateur non connecté')
     loading.value = true
@@ -83,7 +80,6 @@ export function useSupabaseAuth() {
       if (error) throw error
 
       user.value = { ...user.value, ...data }
-      // Update Supabase Auth metadata
       const { error: metadataError } = await supabase.auth.updateUser({
         data: { full_name: profileData.username }
       })
@@ -95,7 +91,6 @@ export function useSupabaseAuth() {
     }
   }
 
-  // Sync pour anciens comptes Auth sans ligne users
   const syncUser = async () => {
     if (!user.value) return
     loading.value = true

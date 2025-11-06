@@ -213,7 +213,7 @@ useHead({
   title: 'IOFD - Manage my account'
 })
 
-const { user, fetchUser, signOut, loading, deleteAccount } = useSupabaseAuth()
+const { user, fetchUser, signOut, loading, deleteAccount, syncUser } = useSupabaseAuth()
 const supabase = useSupabase()
 const router = useRouter()
 
@@ -337,6 +337,7 @@ const fetchStats = async () => {
 
 onMounted(async () => {
   await fetchUser()
+  await syncUser()
   await fetchStats()
 })
 
