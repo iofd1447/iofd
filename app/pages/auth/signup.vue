@@ -127,8 +127,6 @@ const handleSignUp = async () => {
   try {
     await signUp(email.value, password.value)
     successMessage.value = 'Inscription réussie ! Vérifiez votre email pour confirmer votre compte.'
-    await fetchUser()
-    await syncUser()
 
     setTimeout(() => {
       router.push('/auth/login')

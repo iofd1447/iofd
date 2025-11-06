@@ -23,23 +23,22 @@ export function useSupabaseAuth() {
       if (error) throw error
 
       if (data.user) {
-        const { error: userError } = await supabase
-          .from('users')
-          .insert([{
-            id: data.user.id,
-            email: data.user.email || email,
-            username: email.split('@')[0],
-            role: 'user'
-          }])
-
-        if (userError && userError.code !== '23505') {
-          throw userError
-        }
+        const { error: userError } = await supabase.from('users').insert([{
+          auth_id: data.user.id,
+          email: data.user.email,
+          username: email.split('@')[0],
+          role: 'user'
+        }])
+        if (userError) throw userError
       }
 
       user.value = data.user
       return data
-    } finally {
+    }
+    catch (err: any) {
+      console.error("Erreur insertion user:", err);
+    }
+    finally {
       loading.value = false
     }
   }
