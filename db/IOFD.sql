@@ -117,15 +117,6 @@ CREATE TABLE IF NOT EXISTS product_labels (
   UNIQUE(product_id, label_id)
 );
 
-CREATE TABLE IF NOT EXISTS users (
-  id uuid PRIMARY KEY, 
-  email text NOT NULL UNIQUE,
-  username text,
-  role text DEFAULT 'user', 
-  created_at timestamptz DEFAULT timezone('utc', now()) NOT NULL,
-  updated_at timestamptz DEFAULT timezone('utc', now()) NOT NULL
-);
-
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -150,4 +141,3 @@ CREATE TABLE IF NOT EXISTS community_reviews (
   created_at timestamptz DEFAULT timezone('utc', now()) NOT NULL,
   updated_at timestamptz DEFAULT timezone('utc', now()) NOT NULL
 );
-

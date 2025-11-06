@@ -150,16 +150,25 @@
                 persistent-hint :density="$vuetify.display.xs ? 'comfortable' : 'default'" />
             </v-col>
             <v-col cols="12">
-              <v-combobox v-model="selectedAdditives" :items="additives" item-title="display" item-value="id"
-                label="Additifs" prepend-inner-icon="mdi-flask-outline" placeholder="E330, E471..." multiple chips
-                closable-chips hint="Codes E ou noms des additifs" persistent-hint :loading="loadingAdditives"
-                :density="$vuetify.display.xs ? 'comfortable' : 'default'">
-                <template #chip="{ item, props }">
-                  <v-chip v-bind="props" :color="getAdditiveColor(item.raw)">
-                    {{ typeof item.raw === 'string' ? item.raw : item.raw.code }}
+              <div class="text-subtitle-2 mb-2">Additifs</div>
+              <v-btn variant="outlined" color="primary" prepend-icon="mdi-flask-outline" append-icon="mdi-chevron-right"
+                block :size="$vuetify.display.xs ? 'default' : 'large'" @click="showAdditivesDialog = true"
+                class="additives-select-btn">
+                <span v-if="selectedAdditives.length === 0">Sélectionner des additifs</span>
+                <span v-else>{{ selectedAdditives.length }} additif{{ selectedAdditives.length > 1 ? 's' : '' }}
+                  sélectionné{{
+                    selectedAdditives.length > 1 ? 's' : '' }}</span>
+              </v-btn>
+              <div v-if="selectedAdditives.length > 0" class="mt-3">
+                <v-chip-group>
+                  <v-chip v-for="additive in selectedAdditives"
+                    :key="typeof additive === 'string' ? additive : additive.id" :color="getAdditiveColor(additive)"
+                    closable @click:close="removeAdditive(additive)" :size="$vuetify.display.xs ? 'small' : 'default'">
+                    <v-icon start size="16">{{ getAdditiveIcon(additive) }}</v-icon>
+                    {{ typeof additive === 'string' ? additive : additive.code }}
                   </v-chip>
-                </template>
-              </v-combobox>
+                </v-chip-group>
+              </div>
             </v-col>
             <v-col cols="12">
               <div class="text-subtitle-2 mb-3">Allergènes</div>
@@ -224,6 +233,73 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <!-- Dialogue Additifs -->
+  <v-dialog v-model="showAdditivesDialog" :fullscreen="$vuetify.display.xs"
+    :max-width="$vuetify.display.xs ? '100%' : '800'" scrollable>
+    <v-card rounded="xl">
+      <v-card-title class="pa-4 pa-sm-6 d-flex align-center">
+        <v-icon class="mr-3" color="primary" size="24">mdi-flask-outline</v-icon>
+        <span class="text-h6">Sélectionner des additifs</span>
+        <v-spacer />
+        <v-btn icon="mdi-close" variant="text" size="small" @click="showAdditivesDialog = false" />
+      </v-card-title>
+      <v-divider />
+      <v-card-text class="pa-4 pa-sm-6">
+        <div class="dialog-sticky">
+          <v-text-field v-model="additiveSearchQuery" prepend-inner-icon="mdi-magnify"
+            placeholder="Rechercher par code (E330) ou nom..." variant="outlined" density="compact" clearable
+            class="mb-3" />
+          <div class="d-flex flex-wrap ga-2 mb-3">
+            <v-chip v-for="status in additiveFilterStatuses" :key="status.value" :color="status.color"
+              :variant="selectedAdditiveFilter === status.value ? 'flat' : 'outlined'" filter size="small"
+              @click="selectedAdditiveFilter = selectedAdditiveFilter === status.value ? null : status.value">
+              <v-icon start size="14">{{ status.icon }}</v-icon>
+              {{ status.label }}
+            </v-chip>
+            <v-spacer />
+            <v-btn size="small" variant="text"
+              @click="selectedAdditiveFilter = null; additiveSearchQuery = ''">Réinitialiser</v-btn>
+          </div>
+        </div>
+        <div class="text-caption text-medium-emphasis mb-3">
+          {{ filteredAdditives.length }} additif{{ filteredAdditives.length > 1 ? 's' : '' }} trouvé{{
+            filteredAdditives.length > 1 ? 's' : '' }}
+        </div>
+        <v-divider class="mb-4" />
+        <div class="additives-list">
+          <v-list>
+            <v-list-item v-for="additive in filteredAdditives" :key="additive.id" :value="additive.id"
+              @click="toggleAdditive(additive)" class="additive-item" density="compact">
+              <template #prepend>
+                <v-checkbox :model-value="isAdditiveSelected(additive)" @click.stop="toggleAdditive(additive)"
+                  color="primary" hide-details density="compact" />
+              </template>
+              <v-list-item-title class="d-flex align-center">
+                <v-chip :color="getAdditiveColor(additive)" size="x-small" variant="tonal" class="mr-2">
+                  {{ additive.code }}
+                </v-chip>
+                <span class="font-weight-medium">{{ additive.name }}</span>
+              </v-list-item-title>
+              <v-list-item-subtitle v-if="additive.description" class="mt-1 text-truncate">
+                {{ additive.description }}
+              </v-list-item-subtitle>
+              <template #append>
+                <v-icon :color="getAdditiveColor(additive)" size="18">{{ getAdditiveIcon(additive) }}</v-icon>
+              </template>
+            </v-list-item>
+          </v-list>
+        </div>
+      </v-card-text>
+      <v-divider />
+      <v-card-actions class="pa-4 pa-sm-6">
+        <v-spacer />
+        <v-btn variant="text" @click="showAdditivesDialog = false">Annuler</v-btn>
+        <v-btn color="primary" variant="flat" @click="showAdditivesDialog = false">Valider ({{ selectedAdditives.length
+        }})</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -235,7 +311,7 @@ import { computed, ref, watch } from 'vue';
 type Category = { id: string; name: string }
 type Allergen = { id: string; name: string }
 type Label = { id: string; name: string }
-type Additive = { id: string; code: string; name: string; halal_status?: string; display: string }
+type Additive = { id: string; code: string; name: string; description?: string; halal_status?: string; display: string }
 
 const props = defineProps<{
   modelValue: boolean
@@ -315,6 +391,9 @@ const selectedAdditives = ref<any[]>([])
 const selectedAllergens = ref<string[]>([])
 const selectedLabels = ref<string[]>([])
 const ingredientsInput = ref('')
+const showAdditivesDialog = ref(false)
+const additiveSearchQuery = ref('')
+const selectedAdditiveFilter = ref<string | null>(null)
 
 const halalStatuses = [
   { value: 'halal', label: 'Halal', icon: 'mdi-check-circle', color: 'success' },
@@ -408,11 +487,76 @@ const getAdditiveColor = (additive: any) => {
   if (typeof additive === 'object' && additive.halal_status) {
     const colors: Record<string, string> = {
       halal: 'success',
+      haram: 'error',
+      mashbuh: 'warning',
       variable: 'info',
     }
     return colors[additive.halal_status] || 'secondary'
   }
   return 'secondary'
+}
+
+const getAdditiveIcon = (additive: any) => {
+  if (typeof additive === 'object' && additive.halal_status) {
+    const icons: Record<string, string> = {
+      halal: 'mdi-check-circle',
+      haram: 'mdi-close-circle',
+      mashbuh: 'mdi-alert-circle',
+      variable: 'mdi-help-circle',
+    }
+    return icons[additive.halal_status] || 'mdi-circle'
+  }
+  return 'mdi-circle'
+}
+
+const additiveFilterStatuses = [
+  { value: 'halal', label: 'Halal', color: 'success', icon: 'mdi-check-circle' },
+  { value: 'haram', label: 'Haram', color: 'error', icon: 'mdi-close-circle' },
+  { value: 'mashbuh', label: 'Mashbuh', color: 'warning', icon: 'mdi-alert-circle' },
+  { value: 'variable', label: 'Variable', color: 'info', icon: 'mdi-help-circle' },
+]
+
+const filteredAdditives = computed(() => {
+  let filtered = additives.value
+  if (additiveSearchQuery.value) {
+    const query = additiveSearchQuery.value.toLowerCase()
+    filtered = filtered.filter(a =>
+      a.code.toLowerCase().includes(query) ||
+      a.name.toLowerCase().includes(query) ||
+      (a as any).description?.toLowerCase?.().includes(query)
+    )
+  }
+  if (selectedAdditiveFilter.value) {
+    filtered = filtered.filter(a => (a as any).halal_status === selectedAdditiveFilter.value)
+  }
+  return filtered
+})
+
+const isAdditiveSelected = (additive: any) => {
+  return selectedAdditives.value.some(sel =>
+    typeof sel === 'object' && typeof additive === 'object'
+      ? (sel.id || sel.code) === (additive.id || additive.code)
+      : sel === additive
+  )
+}
+
+const toggleAdditive = (additive: any) => {
+  const index = selectedAdditives.value.findIndex(sel =>
+    typeof sel === 'object' && typeof additive === 'object'
+      ? (sel.id || sel.code) === (additive.id || additive.code)
+      : sel === additive
+  )
+  if (index > -1) selectedAdditives.value.splice(index, 1)
+  else selectedAdditives.value.push(additive)
+}
+
+const removeAdditive = (additive: any) => {
+  const index = selectedAdditives.value.findIndex(sel =>
+    typeof sel === 'object' && typeof additive === 'object'
+      ? (sel.id || sel.code) === (additive.id || additive.code)
+      : sel === additive
+  )
+  if (index > -1) selectedAdditives.value.splice(index, 1)
 }
 
 async function loadCategories() {
@@ -441,7 +585,7 @@ async function loadAdditives() {
   try {
     const { data, error } = await supabase
       .from('additives')
-      .select('id, code, name, halal_status')
+      .select('id, code, name, description, halal_status')
       .order('code')
     if (!error && data) {
       additives.value = (data || []).map((a: any) => ({
@@ -584,6 +728,61 @@ async function onSubmit() {
     width: 24px;
     height: 24px;
     font-size: 0.75rem;
+  }
+}
+
+.additives-select-btn {
+  transition: all 0.3s ease;
+}
+
+.additives-select-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--v-theme-primary), 0.2);
+}
+
+.additive-item {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+
+.additive-item:hover {
+  background: rgba(var(--v-theme-primary), 0.05);
+  transform: translateX(4px);
+}
+
+.additives-list {
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--v-theme-primary), 0.3) transparent;
+}
+
+.additives-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.additives-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.additives-list::-webkit-scrollbar-thumb {
+  background: rgba(var(--v-theme-primary), 0.3);
+  border-radius: 3px;
+}
+
+.additives-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--v-theme-primary), 0.5);
+}
+
+@media (max-width: 600px) {
+  .dialog-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: rgb(var(--v-theme-surface));
+    padding-bottom: 8px;
   }
 }
 </style>
