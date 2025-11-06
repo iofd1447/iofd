@@ -732,13 +732,6 @@ const removeAdditive = (additive: any) => {
   }
 }
 
-const getProgressColor = (percentage: number) => {
-  if (percentage < 50) return 'success'
-  if (percentage < 80) return 'warning'
-  return 'error'
-}
-
-
 const submitProduct = async () => {
   loading.value = true
   try {
@@ -861,7 +854,6 @@ const submitProduct = async () => {
     loading.value = false
   }
 }
-
 
 const goToProduct = () => {
   navigateTo(`/products/${createdProductId.value}`)

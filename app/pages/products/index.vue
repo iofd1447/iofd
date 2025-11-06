@@ -236,8 +236,8 @@
         <div class="mb-6">
           <h3 class="text-subtitle-1 font-weight-bold mb-3">Catégories</h3>
           <v-chip-group v-model="selectedCategories" multiple column>
-            <v-chip v-for="cat in categories" :key="cat.value" :value="cat.value" filter variant="tonal">
-              {{ cat.emoji }} {{ cat.label }}
+            <v-chip v-for="cat in dbCategories" :key="cat.id" :value="cat.id" filter variant="tonal">
+              {{ cat.name }}
             </v-chip>
           </v-chip-group>
         </div>
@@ -334,10 +334,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import { useTheme } from 'vuetify'
-import { useRouter, useRoute } from 'vue-router'
 import { useSupabase } from '@/composables/useSupabase'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useTheme } from 'vuetify'
 
 const supabase = useSupabase()
 
@@ -378,16 +378,22 @@ const quickFilters = [
   { label: 'Non vérifié', value: 'non_verifie', icon: 'mdi-help-circle', color: 'grey' }
 ]
 
-const categories = [
-  { label: 'Boissons', value: 'boissons', emoji: '🥤' },
-  { label: 'Snacks', value: 'snacks', emoji: '🍿' },
-  { label: 'Viandes', value: 'viandes', emoji: '🥩' },
-  { label: 'Produits laitiers', value: 'produits-laitiers', emoji: '🧀' },
-  { label: 'Surgelés', value: 'surgeles', emoji: '❄️' },
-  { label: 'Confiseries', value: 'confiseries', emoji: '🍬' },
-  { label: 'Conserves', value: 'conserves', emoji: '🥫' },
-  { label: 'Sauces', value: 'sauces', emoji: '🍯' }
-]
+type Category = { id: string; name: string; description?: string }
+const dbCategories = ref<Category[]>([])
+
+const loadCategories = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('id, name, description')
+      .order('name')
+
+    if (error) throw error
+    dbCategories.value = data || []
+  } catch (err) {
+    console.error('Erreur chargement catégories:', err)
+  }
+}
 
 const labels = [
   { label: 'Bio', value: 'bio', icon: 'mdi-leaf' },
@@ -434,7 +440,7 @@ type SupabaseProductRow = {
   brand: string
   image_url: string
   created_at: string
-  category?: { name: string }[] | null
+  category?: { id: string; name: string }[] | null
   halal_info?: { halal_status: string; certification_body: string }[] | null
   additives?: { count: number }[] | null,
   community_reviews?: {
@@ -462,7 +468,7 @@ const fetchProducts = async () => {
       brand,
       image_url,
       created_at,
-      category:categories(name),
+      category:categories(id, name),
       halal_info:halal_certifications(halal_status, certification_body),
       additives:product_additives(count),
       community_reviews:community_reviews(rating, user_name, user_email, halal_vote, comment, helpful_count, created_at)
@@ -487,6 +493,7 @@ const fetchProducts = async () => {
       barcode: p.barcode,
       name: p.name,
       brand: p.brand,
+      category_id: p.category?.[0]?.id || null,
       category: p.category?.[0]?.name || 'Autre',
       image_url: p.image_url || 'https://via.placeholder.com/400x400?text=Produit',
       // @ts-ignore
@@ -520,7 +527,7 @@ const filteredProducts = computed(() => {
 
   if (selectedCategories.value.length > 0) {
     products = products.filter(p =>
-      selectedCategories.value.includes(p.category.toLowerCase().replace(/\s+/g, '-'))
+      selectedCategories.value.includes(p.category_id)
     )
   }
 
@@ -698,6 +705,7 @@ watch([selectedHalalFilter, selectedCategories, filters], () => {
 
 onMounted(async () => {
   loading.value = true
+  await loadCategories()
   await fetchProducts()
   setTimeout(() => {
     loading.value = false
