@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS nutrition_facts (
   fats_g numeric,
   saturated_fats_g numeric,
   trans_fats_g numeric,
-  cholesterol_mg numeric,
+  calcium_mg numeric,
   fibres_g numeric,
   sodium_mg numeric,
   water_ml numeric,

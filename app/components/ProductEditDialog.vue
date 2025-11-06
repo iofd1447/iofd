@@ -625,9 +625,7 @@ async function loadLabels() {
 watch(internalModel, async (open) => {
   if (open) {
     step.value = 1
-    // Charger les catégories immédiatement
     await loadCategories()
-    // Charger les autres données en parallèle
     await Promise.all([
       loadAdditives(),
       loadAllergens(),

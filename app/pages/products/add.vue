@@ -477,6 +477,7 @@ const form = ref({
     trans_fats_g: null,
     fibres_g: null,
     sodium_mg: null,
+    calcium_mg: null,
     water_ml: null,
   }
 })
@@ -485,13 +486,14 @@ type NutritionKey = keyof typeof form.value.nutrition
 
 const nutritionFields: { key: NutritionKey, label: string, icon: string, suffix: string, color?: string, reference?: number }[] = [
   { key: 'calories_kcal', label: 'Calories', icon: 'mdi-fire', suffix: 'kcal', color: 'orange', reference: 2000 },
-  { key: 'protein_g', label: 'Protéines', icon: 'mdi-egg', suffix: 'g', color: 'blue', reference: 50 },
+  { key: 'protein_g', label: 'Protéines', icon: 'mdi-steak', suffix: 'g', color: 'blue', reference: 50 },
   { key: 'carbs_g', label: 'Glucides', icon: 'mdi-pasta', suffix: 'g', color: 'purple', reference: 260 },
   { key: 'sugars_g', label: 'Sucres', icon: 'mdi-candy', suffix: 'g', color: 'pink', reference: 90 },
   { key: 'fats_g', label: 'Lipides', icon: 'mdi-oil', suffix: 'g', color: 'amber', reference: 70 },
   { key: 'saturated_fats_g', label: 'Graisses saturées', icon: 'mdi-food-drumstick', suffix: 'g', color: 'red', reference: 20 },
   { key: 'fibres_g', label: 'Fibres', icon: 'mdi-barley', suffix: 'g', color: 'green', reference: 25 },
   { key: 'sodium_mg', label: 'Sodium', icon: 'mdi-shaker', suffix: 'mg', color: 'cyan', reference: 2300 },
+  { key: 'calcium_mg', label: 'Calcium', icon: 'mdi-egg', suffix: 'mg', color: 'cyan', reference: 900 },
 ]
 
 const loading = ref(false)
@@ -659,8 +661,7 @@ const getAdditiveColor = (additive: any) => {
     const colors: Record<string, string> = {
       halal: 'success',
       haram: 'error',
-      mashbuh: 'warning',
-      variable: 'info',
+      mashbuh: 'warning'
     }
     return colors[additive.halal_status] || 'secondary'
   }
@@ -672,8 +673,7 @@ const getAdditiveIcon = (additive: any) => {
     const icons: Record<string, string> = {
       halal: 'mdi-check-circle',
       haram: 'mdi-close-circle',
-      mashbuh: 'mdi-alert-circle',
-      variable: 'mdi-help-circle',
+      mashbuh: 'mdi-alert-circle'
     }
     return icons[additive.halal_status] || 'mdi-circle'
   }
@@ -683,8 +683,7 @@ const getAdditiveIcon = (additive: any) => {
 const additiveFilterStatuses = [
   { value: 'halal', label: 'Halal', color: 'success', icon: 'mdi-check-circle' },
   { value: 'haram', label: 'Haram', color: 'error', icon: 'mdi-close-circle' },
-  { value: 'mashbuh', label: 'Mashbuh', color: 'warning', icon: 'mdi-alert-circle' },
-  { value: 'variable', label: 'Variable', color: 'info', icon: 'mdi-help-circle' },
+  { value: 'mashbuh', label: 'Mashbuh', color: 'warning', icon: 'mdi-alert-circle' }
 ]
 
 const filteredAdditives = computed(() => {
@@ -897,6 +896,7 @@ const resetForm = () => {
       trans_fats_g: null,
       fibres_g: null,
       sodium_mg: null,
+      calcium_mg: null,
       water_ml: null,
     }
   }
