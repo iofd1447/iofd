@@ -86,9 +86,18 @@
                 <div class="text-caption text-sm-subtitle-2 text-medium-emphasis mb-1 mb-sm-2">
                   Description de la portion
                 </div>
-                <p :class="['text-body-2 text-sm-body-1 mb-0']">
-                  {{ product.portion_description || 'Non spécifié' }}
-                </p>
+                <div class="d-flex align-center ga-2">
+                  <div v-if="!editingPortion" class="d-flex align-center" @click="startEditingPortion()"
+                    style="cursor: pointer">
+                    <p :class="['text-body-2 text-sm-body-1 mb-0']">
+                      {{ portionSize }} {{ portionUnit }}
+                    </p>
+                    <v-icon size="small" class="ml-2" color="secondary">mdi-pencil</v-icon>
+                  </div>
+                  <v-text-field v-else v-model="portionInput" type="text" density="compact" hide-details
+                    :suffix="portionUnit" variant="underlined" style="max-width: 120px" @keyup.enter="commitPortion()"
+                    @blur="commitPortion()"></v-text-field>
+                </div>
               </div>
 
               <div v-if="product.labels?.length" class="mb-3 mb-sm-4">
@@ -178,7 +187,7 @@
                       Valeurs nutritionnelles
                     </h3>
                     <p class="text-caption text-medium-emphasis mb-0">
-                      Pour {{ product.portion_description || '100g/100ml' }}
+                      Pour {{ portionSize }} {{ portionUnit }}
                     </p>
                   </div>
                 </div>
@@ -195,7 +204,7 @@
                   </div>
                   <div class="macro-content">
                     <div class="macro-value" :style="{ color: `rgb(var(--v-theme-${macro.color}))` }">
-                      {{ product.nutrition[macro.key] || 0 }}
+                      {{ scaledNutrition[macro.key] || 0 }}
                       <span class="macro-unit">{{ macro.unit }}</span>
                     </div>
                     <div class="macro-label">{{ macro.label }}</div>
@@ -229,12 +238,12 @@
                       <div class="nutrient-value-wrapper">
                         <div class="nutrient-bar-bg">
                           <div class="nutrient-bar-fill" :style="{
-                            width: `${Math.min((product.nutrition[nutrient.key] / nutrient.max) * 100, 100)}%`,
+                            width: `${Math.min(((scaledNutrition[nutrient.key] || 0) / nutrient.max) * 100, 100)}%`,
                             background: `rgb(var(--v-theme-${nutrient.color}))`
                           }" />
                         </div>
                         <span class="nutrient-value">
-                          {{ product.nutrition[nutrient.key] || 0 }} {{ nutrient.unit }}
+                          {{ scaledNutrition[nutrient.key] || 0 }} {{ nutrient.unit }}
                         </span>
                       </div>
                     </div>
@@ -251,22 +260,12 @@
               </v-expand-transition>
 
               <div class="quick-stats-wrapper mt-4">
-                <v-chip v-if="product.nutrition.calories_kcal < 100" size="small" color="success" variant="tonal"
-                  prepend-icon="mdi-fire-circle">
-                  Faible en calories
-                </v-chip>
-                <v-chip v-if="product.nutrition.protein_g > 10" size="small" color="primary" variant="tonal"
-                  prepend-icon="mdi-arm-flex">
-                  Riche en protéines
-                </v-chip>
-                <v-chip v-if="product.nutrition.sugars_g < 5" size="small" color="success" variant="tonal"
-                  prepend-icon="mdi-candy-off">
-                  Faible en sucres
-                </v-chip>
-                <v-chip v-if="product.nutrition.fibres_g > 5" size="small" color="tertiary" variant="tonal"
-                  prepend-icon="mdi-leaf">
-                  Source de fibres
-                </v-chip>
+                <template v-for="(chip, i) in nutritionChips" :key="i">
+                  <v-chip v-if="chip.condition" :size="'small'" :color="chip.color" variant="tonal"
+                    :prepend-icon="chip.icon">
+                    {{ chip.label }}
+                  </v-chip>
+                </template>
               </div>
             </v-card-text>
           </v-card>
@@ -453,17 +452,17 @@
 import { useSupabase } from '#imports'
 import ProductEditDialog from '@/components/ProductEditDialog.vue'
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
-import { onMounted, ref } from 'vue'
 import {
   formatHijriDate,
+  getAllergenText,
+  getAllergenType,
+  getCategoryIcon,
   getHalalColor,
   getHalalIcon,
   getHalalLabel,
-  getIngredientColor,
-  getAllergenType,
-  getAllergenText,
-  getCategoryIcon
+  getIngredientColor
 } from '@/utils/function'
+import { computed, onMounted, ref } from 'vue'
 
 const supabase = useSupabase()
 const { user, fetchUser } = useSupabaseAuth()
@@ -616,6 +615,24 @@ const submitReview = async () => {
 }
 
 const showAllNutrients = ref(false)
+const editingPortion = ref(false)
+const portionInput = ref('')
+
+function startEditingPortion() {
+  portionInput.value = String(portionSize.value)
+  editingPortion.value = true
+}
+
+function commitPortion() {
+  const parsed = Number.parseFloat((portionInput.value || '').replace(',', '.'))
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    // revert to previous valid value
+    portionInput.value = String(portionSize.value)
+  } else {
+    portionSize.value = parsed
+  }
+  editingPortion.value = false
+}
 
 const onProductSaved = async () => {
   await fetchProduct()
@@ -661,7 +678,78 @@ const secondaryNutrients = [
   { key: 'saturated_fats_g', label: 'dont Acides gras saturés', unit: 'g', icon: 'mdi-food-drumstick', color: 'warning', max: 20 },
   { key: 'fibres_g', label: 'Fibres', unit: 'g', icon: 'mdi-leaf', color: 'success', max: 15 },
   { key: 'sodium_mg', label: 'Sodium', unit: 'mg', icon: 'mdi-shaker', color: 'tertiary', max: 2000 },
+  { key: 'calcium_mg', label: 'Calcium', unit: 'mg', icon: 'mdi-water', color: 'info', max: 900 },
 ]
+
+function parsePortion(desc: string | undefined | null): { size: number, unit: 'g' | 'ml' } {
+  const text = String(desc || '').trim()
+  const unit = /ml/i.test(text) ? 'ml' : 'g'
+  const numMatch = text.match(/([\d.,]+)/)
+  const matched = numMatch?.[1] ?? '100'
+  const raw = matched.replace(',', '.')
+  const size = Math.max(1, Number.parseFloat(raw) || 100)
+  return { size, unit }
+}
+
+const portionUnit = computed<'g' | 'ml'>(() => parsePortion(product.value?.portion_description).unit)
+const portionSize = computed<number>({
+  get() {
+    return parsePortion(product.value?.portion_description).size
+  },
+  set(val: number) {
+    const safe = Math.max(1, Number(val) || 100)
+    product.value.portion_description = `${safe} ${portionUnit.value}`
+  }
+})
+const scaledNutrition = computed<Record<string, number>>(() => {
+  const base = product.value?.nutrition || {}
+  const factor = (portionSize.value || 100) / 100
+  const out: Record<string, number> = {}
+  for (const [k, v] of Object.entries(base)) {
+    if (typeof v === 'number') out[k] = Number((v * factor).toFixed(2))
+  }
+  return out
+})
+
+interface NutritionChip {
+  condition: boolean
+  label: string
+  color: string
+  icon: string
+}
+
+const nutritionChips = computed<NutritionChip[]>(() => [
+  {
+    condition: (scaledNutrition.value.calories_kcal as number | undefined) as any < 100,
+    label: "Faible en calories",
+    color: "success",
+    icon: "mdi-fire-circle",
+  },
+  {
+    condition: (scaledNutrition.value.protein_g as number | undefined) as any > 10,
+    label: "Riche en protéines",
+    color: "primary",
+    icon: "mdi-arm-flex",
+  },
+  {
+    condition: (scaledNutrition.value.sugars_g as number | undefined) as any < 5,
+    label: "Faible en sucres",
+    color: "success",
+    icon: "mdi-candy-off",
+  },
+  {
+    condition: (scaledNutrition.value.fibres_g as number | undefined) as any > 5,
+    label: "Source de fibres",
+    color: "tertiary",
+    icon: "mdi-leaf",
+  },
+  {
+    condition: (scaledNutrition.value.calcium_mg as number | undefined) as any > 135,
+    label: "Riche en calcium",
+    color: "blue-darken-2",
+    icon: "mdi-water",
+  },
+])
 
 useHead({
   title: 'Chargement...',
@@ -1169,7 +1257,6 @@ html {
   overflow: hidden;
 }
 
-/* Grid pour les macros principales */
 .macros-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -1183,7 +1270,6 @@ html {
   }
 }
 
-/* Card macro individuelle */
 .macro-card {
   background: rgba(var(--v-theme-surface), 0.8);
   border-radius: 16px;

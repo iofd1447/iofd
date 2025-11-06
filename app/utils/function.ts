@@ -67,7 +67,7 @@ function getCategoryIcon(category: string): string {
     'Viandes': 'mdi-food-steak',
     'Poissons et fruits de mer': 'mdi-fish',
     'Œufs': 'mdi-egg',
-    'Produits laitiers': 'mdi-cow',
+    'Produits laitiers': 'mdi-cheese',
     'Céréales et dérivés': 'mdi-grain',
     'Légumineuses': 'mdi-peanut',
     'Tubercules': 'mdi-potato',

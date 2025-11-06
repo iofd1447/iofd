@@ -486,14 +486,14 @@ type NutritionKey = keyof typeof form.value.nutrition
 
 const nutritionFields: { key: NutritionKey, label: string, icon: string, suffix: string, color?: string, reference?: number }[] = [
   { key: 'calories_kcal', label: 'Calories', icon: 'mdi-fire', suffix: 'kcal', color: 'orange', reference: 2000 },
-  { key: 'protein_g', label: 'Protéines', icon: 'mdi-steak', suffix: 'g', color: 'blue', reference: 50 },
+  { key: 'protein_g', label: 'Protéines', icon: 'mdi-food-steak', suffix: 'g', color: 'blue', reference: 50 },
   { key: 'carbs_g', label: 'Glucides', icon: 'mdi-pasta', suffix: 'g', color: 'purple', reference: 260 },
   { key: 'sugars_g', label: 'Sucres', icon: 'mdi-candy', suffix: 'g', color: 'pink', reference: 90 },
   { key: 'fats_g', label: 'Lipides', icon: 'mdi-oil', suffix: 'g', color: 'amber', reference: 70 },
   { key: 'saturated_fats_g', label: 'Graisses saturées', icon: 'mdi-food-drumstick', suffix: 'g', color: 'red', reference: 20 },
   { key: 'fibres_g', label: 'Fibres', icon: 'mdi-barley', suffix: 'g', color: 'green', reference: 25 },
   { key: 'sodium_mg', label: 'Sodium', icon: 'mdi-shaker', suffix: 'mg', color: 'cyan', reference: 2300 },
-  { key: 'calcium_mg', label: 'Calcium', icon: 'mdi-egg', suffix: 'mg', color: 'cyan', reference: 900 },
+  { key: 'calcium_mg', label: 'Calcium', icon: 'mdi-egg', suffix: 'mg', color: 'blue-darken-2', reference: 900 },
 ]
 
 const loading = ref(false)
