@@ -116,28 +116,34 @@ export function useSupabaseAuth() {
   }
 
   async function logContribution(productId: string, email: string, changeType: 'create' | 'update', changeData: any) {
-    const { data: userRecord, error: userError } = await supabase
+
+    const { data: users, error: userError } = await supabase
       .from('users')
       .select('id')
-      .eq('email', email)
-      .single();
+      .eq('email', email.toLowerCase());
 
-    if (userError || !userRecord) {
-      console.error('Impossible de récupérer l’ID user pour la contribution', userError);
+
+    if (userError) {
+      console.error('Erreur lors de la récupération de l’utilisateur', userError);
       return;
     }
 
-    const userId = userRecord.id;
+    if (!users || users.length === 0) {
+      console.error('Aucun utilisateur trouvé avec cet email');
+      return;
+    }
 
-    const { data, error } = await supabase
+    // @ts-ignore
+    const userId = users[0].id;
+
+    const { data: productData, error: productError } = await supabase
       .from('product_contributors')
       .insert([{ product_id: productId, user_id: userId, change_type: changeType, change_data: changeData }]);
 
-    if (error) {
-      console.error('Erreur logContribution:', error);
+    if (productError) {
+      console.error('Erreur logContribution:', productError);
     }
   }
-
 
   const deleteAccount = async () => {
     if (!user.value) throw new Error('Aucun utilisateur connecté')

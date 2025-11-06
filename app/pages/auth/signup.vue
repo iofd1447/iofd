@@ -126,10 +126,10 @@ const handleSignUp = async () => {
 
   try {
     await signUp(email.value, password.value)
-    successMessage.value = 'Inscription réussie ! Vérifiez votre email pour confirmer votre compte.'
+    successMessage.value = 'Inscription réussie !'
 
     setTimeout(() => {
-      router.push('/auth/login')
+      router.push('/')
     }, 3000)
   } catch (err: any) {
     errorMessage.value = err.message || 'Erreur lors de l\'inscription'
