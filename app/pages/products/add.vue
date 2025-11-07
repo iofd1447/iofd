@@ -655,63 +655,36 @@ const handleImageUpload = async (event: Event) => {
   reader.readAsDataURL(file);
 }
 
-// ------ uploadImage: robust upload, fallback ext, compression, contentType, et remontée d'erreur ------
 async function uploadImage(file: File): Promise<string | null> {
   uploadingImage.value = true;
   try {
-    // fallback pour l'extension si file.name manquant
-    let fileExt = 'jpg';
-    if (file.name && file.name.includes('.')) {
-      fileExt = file.name.split('.').pop()!.toLowerCase();
-    } else if (file.type && file.type.includes('/')) {
-      fileExt = file.type.split('/').pop()!;
-    }
-
-    // si très grand -> compresser
-    let fileToUpload: File | Blob = file;
-    const MAX_UPLOAD_MB = 5;
-    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
-      // compress to blob (jpeg)
-      try {
-        const compressed = await compressImage(file, MAX_UPLOAD_MB, 0.78);
-        // si compressImage renvoie un Blob, on le convertit en File pour garder type/name
-        fileToUpload = new File([compressed], `photo.${fileExt}`, { type: 'image/jpeg' });
-      } catch (err) {
-        // si compression rate, on conserve le fichier original (mais on le teste)
-        console.warn('Compression failed, using original file', err);
-        fileToUpload = file;
-      }
-    }
-
-    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+    const fileExt = file.name?.split('.').pop() || 'jpg';
+    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
     const filePath = `products/${fileName}`;
+    const url = `https://<ton-projet>.supabase.co/storage/v1/object/product-images/${filePath}`;
+    const token = "<ta_clé_anon>"; // ou via supabase.auth.getSession() si connecté
 
-    // upload via supabase, en précisant contentType si possible
-    const { data, error } = await supabase.storage
-      .from('product-images')
-      .upload(filePath, fileToUpload as Blob, { cacheControl: '3600', upsert: false, contentType: (fileToUpload as File).type || file.type });
+    // Compression si > 5Mo
+    const uploadFile = file.size > 5 * 1024 * 1024 ? await compressImage(file) : file;
 
-    if (error) {
-      console.error('Upload failed', error);
-      // montrer l'erreur à l'utilisateur
-      errorMessage.value = 'Échec de l\'upload de l\'image : ' + (error.message || 'erreur inconnue');
-      errorSnackbar.value = true;
-      return null;
-    }
+    // XMLHttpRequest plus fiable sur mobile
+    await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", url);
+      xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+      xhr.setRequestHeader("apikey", token);
+      xhr.setRequestHeader("cache-control", "3600");
+      xhr.onload = () => (xhr.status >= 200 && xhr.status < 300) ? resolve(xhr.response) : reject(xhr.responseText);
+      xhr.onerror = () => reject("XHR network error");
+      xhr.send(uploadFile);
+    });
 
-    // getPublicUrl: supabase v2 renvoie data.publicUrl
-    const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(filePath);
-    const publicUrl = (urlData as any)?.publicUrl ?? null;
-    if (!publicUrl) {
-      console.warn('Public URL missing', urlData);
-      errorMessage.value = 'Image uploadée mais impossible de récupérer l\'URL publique';
-      errorSnackbar.value = true;
-      return null;
-    }
-    return publicUrl;
+    // Récupérer l’URL publique
+    const { data } = supabase.storage.from('product-images').getPublicUrl(filePath);
+    return data.publicUrl;
   } catch (err: any) {
-    console.error('Unexpected upload error', err);
-    errorMessage.value = err?.message || 'Erreur inattendue lors de l\'upload';
+    console.error("Upload mobile error:", err);
+    errorMessage.value = 'Échec de l’upload sur mobile : ' + (err.message || 'erreur inconnue');
     errorSnackbar.value = true;
     return null;
   } finally {
