@@ -655,37 +655,69 @@ const handleImageUpload = async (event: Event) => {
   reader.readAsDataURL(file);
 }
 
+// ------ uploadImage: robust upload, fallback ext, compression, contentType, et remontée d'erreur ------
 async function uploadImage(file: File): Promise<string | null> {
+  uploadingImage.value = true;
   try {
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`
-    const filePath = `products/${fileName}`
-
-    // Convertir en blob si besoin
-    let uploadFile: Blob = file
-    if (file.type.startsWith('image/heic')) {
-      console.warn('Conversion HEIC nécessaire pour mobile iOS')
-      // ici tu pourrais convertir en jpeg avec un package comme heic2any
-      return null
+    // fallback pour l'extension si file.name manquant
+    let fileExt = 'jpg';
+    if (file.name && file.name.includes('.')) {
+      fileExt = file.name.split('.').pop()!.toLowerCase();
+    } else if (file.type && file.type.includes('/')) {
+      fileExt = file.type.split('/').pop()!;
     }
 
+    // si très grand -> compresser
+    let fileToUpload: File | Blob = file;
+    const MAX_UPLOAD_MB = 5;
+    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
+      // compress to blob (jpeg)
+      try {
+        const compressed = await compressImage(file, MAX_UPLOAD_MB, 0.78);
+        // si compressImage renvoie un Blob, on le convertit en File pour garder type/name
+        fileToUpload = new File([compressed], `photo.${fileExt}`, { type: 'image/jpeg' });
+      } catch (err) {
+        // si compression rate, on conserve le fichier original (mais on le teste)
+        console.warn('Compression failed, using original file', err);
+        fileToUpload = file;
+      }
+    }
+
+    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+    const filePath = `products/${fileName}`;
+
+    // upload via supabase, en précisant contentType si possible
     const { data, error } = await supabase.storage
       .from('product-images')
-      .upload(filePath, uploadFile, { cacheControl: '3600', upsert: false })
+      .upload(filePath, fileToUpload as Blob, { cacheControl: '3600', upsert: false, contentType: (fileToUpload as File).type || file.type });
 
     if (error) {
-      console.error('Upload failed', error)
-      return null
+      console.error('Upload failed', error);
+      // montrer l'erreur à l'utilisateur
+      errorMessage.value = 'Échec de l\'upload de l\'image : ' + (error.message || 'erreur inconnue');
+      errorSnackbar.value = true;
+      return null;
     }
 
-    const { data: { publicUrl } } = supabase.storage.from('product-images').getPublicUrl(filePath)
-    return publicUrl
-  } catch (err) {
-    console.error('Upload exception', err)
-    return null
+    // getPublicUrl: supabase v2 renvoie data.publicUrl
+    const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(filePath);
+    const publicUrl = (urlData as any)?.publicUrl ?? null;
+    if (!publicUrl) {
+      console.warn('Public URL missing', urlData);
+      errorMessage.value = 'Image uploadée mais impossible de récupérer l\'URL publique';
+      errorSnackbar.value = true;
+      return null;
+    }
+    return publicUrl;
+  } catch (err: any) {
+    console.error('Unexpected upload error', err);
+    errorMessage.value = err?.message || 'Erreur inattendue lors de l\'upload';
+    errorSnackbar.value = true;
+    return null;
+  } finally {
+    uploadingImage.value = false;
   }
 }
-
 
 const removeImage = () => {
   imagePreview.value = ''
