@@ -130,6 +130,15 @@
                 </v-card-text>
               </v-card>
             </v-col>
+
+            <v-col cols="12" v-if="uploadErrorLog" class="mb-4">
+              <v-alert type="error" border="start" colored-border prominent>
+                <div class="text-h6 font-weight-bold mb-2">🚨 Log Upload Image</div>
+                <pre
+                  style="white-space: pre-wrap; word-break: break-word; font-size: 0.875rem;">{{ uploadErrorLog }}</pre>
+              </v-alert>
+            </v-col>
+
           </v-row>
         </v-card-text>
 
@@ -654,64 +663,52 @@ const handleImageUpload = async (event: Event) => {
   reader.onload = (e) => { imagePreview.value = e.target?.result as string };
   reader.readAsDataURL(file);
 }
+const uploadErrorLog = ref('')  // variable pour afficher le log complet
 
-// ------ uploadImage: robust upload, fallback ext, compression, contentType, et remontée d'erreur ------
+// Modifie ton uploadImage pour remplir uploadErrorLog
 async function uploadImage(file: File): Promise<string | null> {
   uploadingImage.value = true;
+  uploadErrorLog.value = ''  // reset log avant chaque upload
   try {
-    // fallback pour l'extension si file.name manquant
     let fileExt = 'jpg';
-    if (file.name && file.name.includes('.')) {
-      fileExt = file.name.split('.').pop()!.toLowerCase();
-    } else if (file.type && file.type.includes('/')) {
-      fileExt = file.type.split('/').pop()!;
-    }
+    if (file.name && file.name.includes('.')) fileExt = file.name.split('.').pop()!.toLowerCase();
+    else if (file.type && file.type.includes('/')) fileExt = file.type.split('/').pop()!;
 
-    // si très grand -> compresser
     let fileToUpload: File | Blob = file;
-    const MAX_UPLOAD_MB = 5;
-    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
-      // compress to blob (jpeg)
-      try {
-        const compressed = await compressImage(file, MAX_UPLOAD_MB, 0.78);
-        // si compressImage renvoie un Blob, on le convertit en File pour garder type/name
-        fileToUpload = new File([compressed], `photo.${fileExt}`, { type: 'image/jpeg' });
-      } catch (err) {
-        // si compression rate, on conserve le fichier original (mais on le teste)
-        console.warn('Compression failed, using original file', err);
-        fileToUpload = file;
-      }
+    if (file.size > 5 * 1024 * 1024) {
+      try { fileToUpload = new File([await compressImage(file, 5, 0.78)], `photo.${fileExt}`, { type: 'image/jpeg' }) }
+      catch (err) { fileToUpload = file; uploadErrorLog.value += 'Compression failed: ' + JSON.stringify(err) + '\n' }
     }
 
     const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
     const filePath = `products/${fileName}`;
 
-    // upload via supabase, en précisant contentType si possible
     const { data, error } = await supabase.storage
       .from('product-images')
       .upload(filePath, fileToUpload as Blob, { cacheControl: '3600', upsert: false, contentType: (fileToUpload as File).type || file.type });
 
     if (error) {
-      console.error('Upload failed', error);
-      // montrer l'erreur à l'utilisateur
-      errorMessage.value = 'Échec de l\'upload de l\'image : ' + (error.message || 'erreur inconnue');
+      uploadErrorLog.value += 'Supabase upload error: ' + JSON.stringify(error) + '\n';
+      errorMessage.value = 'Échec de l\'upload';
       errorSnackbar.value = true;
       return null;
     }
 
-    // getPublicUrl: supabase v2 renvoie data.publicUrl
     const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(filePath);
     const publicUrl = (urlData as any)?.publicUrl ?? null;
+
     if (!publicUrl) {
-      console.warn('Public URL missing', urlData);
-      errorMessage.value = 'Image uploadée mais impossible de récupérer l\'URL publique';
+      uploadErrorLog.value += 'Public URL missing: ' + JSON.stringify(urlData) + '\n';
+      errorMessage.value = 'Image uploadée mais URL publique introuvable';
       errorSnackbar.value = true;
       return null;
     }
+
+    uploadErrorLog.value += 'Upload successful: ' + publicUrl + '\n';
     return publicUrl;
   } catch (err: any) {
-    console.error('Unexpected upload error', err);
-    errorMessage.value = err?.message || 'Erreur inattendue lors de l\'upload';
+    uploadErrorLog.value += 'Unexpected error: ' + JSON.stringify(err) + '\n';
+    errorMessage.value = err?.message || 'Erreur inattendue';
     errorSnackbar.value = true;
     return null;
   } finally {
