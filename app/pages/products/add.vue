@@ -656,41 +656,36 @@ const handleImageUpload = async (event: Event) => {
 }
 
 async function uploadImage(file: File): Promise<string | null> {
-  uploadingImage.value = true;
   try {
-    const fileExt = file.name?.split('.').pop() || 'jpg';
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-    const filePath = `products/${fileName}`;
-    const url = `https://<ton-projet>.supabase.co/storage/v1/object/product-images/${filePath}`;
-    const token = "<ta_clé_anon>"; // ou via supabase.auth.getSession() si connecté
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`
+    const filePath = `products/${fileName}`
 
-    // Compression si > 5Mo
-    const uploadFile = file.size > 5 * 1024 * 1024 ? await compressImage(file) : file;
+    // Convertir en blob si besoin
+    let uploadFile: Blob = file
+    if (file.type.startsWith('image/heic')) {
+      console.warn('Conversion HEIC nécessaire pour mobile iOS')
+      // ici tu pourrais convertir en jpeg avec un package comme heic2any
+      return null
+    }
 
-    // XMLHttpRequest plus fiable sur mobile
-    await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", url);
-      xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-      xhr.setRequestHeader("apikey", token);
-      xhr.setRequestHeader("cache-control", "3600");
-      xhr.onload = () => (xhr.status >= 200 && xhr.status < 300) ? resolve(xhr.response) : reject(xhr.responseText);
-      xhr.onerror = () => reject("XHR network error");
-      xhr.send(uploadFile);
-    });
+    const { data, error } = await supabase.storage
+      .from('product-images')
+      .upload(filePath, uploadFile, { cacheControl: '3600', upsert: false })
 
-    // Récupérer l’URL publique
-    const { data } = supabase.storage.from('product-images').getPublicUrl(filePath);
-    return data.publicUrl;
-  } catch (err: any) {
-    console.error("Upload mobile error:", err);
-    errorMessage.value = 'Échec de l’upload sur mobile : ' + (err.message || 'erreur inconnue');
-    errorSnackbar.value = true;
-    return null;
-  } finally {
-    uploadingImage.value = false;
+    if (error) {
+      console.error('Upload failed', error)
+      return null
+    }
+
+    const { data: { publicUrl } } = supabase.storage.from('product-images').getPublicUrl(filePath)
+    return publicUrl
+  } catch (err) {
+    console.error('Upload exception', err)
+    return null
   }
 }
+
 
 const removeImage = () => {
   imagePreview.value = ''
