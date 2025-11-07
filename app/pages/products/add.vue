@@ -604,21 +604,118 @@ const selectImage = () => {
   fileInput.value?.click()
 }
 
-const handleImageUpload = (event: Event) => {
-  const file = (event.target as HTMLInputElement).files?.[0]
-  if (file) {
-    if (file.size > 5 * 1024 * 1024) {
-      errorMessage.value = 'L\'image ne doit pas dépasser 5MB'
-      errorSnackbar.value = true
-      return
+// ------ compressImage: réduit l'image si besoin (canvas) ------
+async function compressImage(file: File, maxSizeMB = 5, quality = 0.8): Promise<Blob> {
+  if (file.size <= maxSizeMB * 1024 * 1024) return file;
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      // dimension maximale raisonnable pour la compression
+      const maxDim = 1920;
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        const ratio = Math.max(width / maxDim, height / maxDim);
+        width = Math.round(width / ratio);
+        height = Math.round(height / ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob((blob) => {
+        URL.revokeObjectURL(url);
+        if (!blob) return reject(new Error('Compression failed'));
+        resolve(blob);
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = (e) => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Impossible de charger l\'image pour compression'));
+    };
+    img.src = url;
+  });
+}
+
+// ------ handleImageUpload: robustifier la sélection (affiche preview) ------
+const handleImageUpload = async (event: Event) => {
+  const file = (event.target as HTMLInputElement).files?.[0] ?? null;
+  if (!file) return;
+  // vérif taille brutale avant compression
+  if (file.size > 20 * 1024 * 1024) { // limite stricte (20MB) - reject early
+    errorMessage.value = "Fichier trop volumineux (plus de 20MB)";
+    errorSnackbar.value = true;
+    return;
+  }
+  imageFile.value = file;
+  // preview
+  const reader = new FileReader();
+  reader.onload = (e) => { imagePreview.value = e.target?.result as string };
+  reader.readAsDataURL(file);
+}
+
+// ------ uploadImage: robust upload, fallback ext, compression, contentType, et remontée d'erreur ------
+async function uploadImage(file: File): Promise<string | null> {
+  uploadingImage.value = true;
+  try {
+    // fallback pour l'extension si file.name manquant
+    let fileExt = 'jpg';
+    if (file.name && file.name.includes('.')) {
+      fileExt = file.name.split('.').pop()!.toLowerCase();
+    } else if (file.type && file.type.includes('/')) {
+      fileExt = file.type.split('/').pop()!;
     }
 
-    imageFile.value = file
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      imagePreview.value = e.target?.result as string
+    // si très grand -> compresser
+    let fileToUpload: File | Blob = file;
+    const MAX_UPLOAD_MB = 5;
+    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
+      // compress to blob (jpeg)
+      try {
+        const compressed = await compressImage(file, MAX_UPLOAD_MB, 0.78);
+        // si compressImage renvoie un Blob, on le convertit en File pour garder type/name
+        fileToUpload = new File([compressed], `photo.${fileExt}`, { type: 'image/jpeg' });
+      } catch (err) {
+        // si compression rate, on conserve le fichier original (mais on le teste)
+        console.warn('Compression failed, using original file', err);
+        fileToUpload = file;
+      }
     }
-    reader.readAsDataURL(file)
+
+    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+    const filePath = `products/${fileName}`;
+
+    // upload via supabase, en précisant contentType si possible
+    const { data, error } = await supabase.storage
+      .from('product-images')
+      .upload(filePath, fileToUpload as Blob, { cacheControl: '3600', upsert: false, contentType: (fileToUpload as File).type || file.type });
+
+    if (error) {
+      console.error('Upload failed', error);
+      // montrer l'erreur à l'utilisateur
+      errorMessage.value = 'Échec de l\'upload de l\'image : ' + (error.message || 'erreur inconnue');
+      errorSnackbar.value = true;
+      return null;
+    }
+
+    // getPublicUrl: supabase v2 renvoie data.publicUrl
+    const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(filePath);
+    const publicUrl = (urlData as any)?.publicUrl ?? null;
+    if (!publicUrl) {
+      console.warn('Public URL missing', urlData);
+      errorMessage.value = 'Image uploadée mais impossible de récupérer l\'URL publique';
+      errorSnackbar.value = true;
+      return null;
+    }
+    return publicUrl;
+  } catch (err: any) {
+    console.error('Unexpected upload error', err);
+    errorMessage.value = err?.message || 'Erreur inattendue lors de l\'upload';
+    errorSnackbar.value = true;
+    return null;
+  } finally {
+    uploadingImage.value = false;
   }
 }
 
@@ -626,24 +723,6 @@ const removeImage = () => {
   imagePreview.value = ''
   imageFile.value = null
   form.value.image_url = ''
-}
-
-async function uploadImage(file: File): Promise<string | null> {
-  const fileExt = file.name.split('.').pop()
-  const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`
-  const filePath = `products/${fileName}`
-
-  const { data, error } = await supabase.storage
-    .from('product-images')
-    .upload(filePath, file, { cacheControl: '3600', upsert: false })
-
-  if (error) {
-    console.error('Upload failed', error)
-    return null
-  }
-
-  const { data: { publicUrl } } = supabase.storage.from('product-images').getPublicUrl(filePath)
-  return publicUrl
 }
 
 
@@ -747,10 +826,14 @@ const submitProduct = async () => {
       return
     }
 
-    let imageUrl = form.value.image_url
+    let imageUrl = form.value.image_url;
     if (imageFile.value) {
-      const uploadedUrl = await uploadImage(imageFile.value)
-      if (uploadedUrl) imageUrl = uploadedUrl
+      const uploadedUrl = await uploadImage(imageFile.value);
+      if (!uploadedUrl) {
+        loading.value = false;
+        return;
+      }
+      imageUrl = uploadedUrl;
     }
 
     const { data: product, error: productError } = await supabase
