@@ -1,5 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -247,13 +248,39 @@ export default function ContributeScreen() {
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
       const filePath = `products/${fileName}`;
 
-      // Convertir l'URI en blob
-      const response = await fetch(imageFile.uri);
-      const blob = await response.blob();
+      const base64 = await FileSystem.readAsStringAsync(imageFile.uri, {
+        encoding: 'base64' as any,
+      });
+
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+      const lookup = new Uint8Array(256);
+      for (let i = 0; i < chars.length; i++) {
+        lookup[chars.charCodeAt(i)] = i;
+      }
+
+      let padding = 0;
+      if (base64.endsWith('==')) padding = 2;
+      else if (base64.endsWith('=')) padding = 1;
+      const byteLength = Math.floor((base64.length * 3) / 4) - padding;
+
+      const bytes = new Uint8Array(byteLength);
+      let p = 0;
+      for (let i = 0; i < base64.length; i += 4) {
+        const encoded1 = lookup[base64.charCodeAt(i)];
+        const encoded2 = lookup[base64.charCodeAt(i + 1)];
+        const encoded3 = lookup[base64.charCodeAt(i + 2)];
+        const encoded4 = lookup[base64.charCodeAt(i + 3)];
+
+        if (p < byteLength) bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
+        if (p < byteLength) bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+        if (p < byteLength) bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
+      }
+
+      const byteArray = bytes;
 
       const { data, error } = await supabase.storage
         .from('product-images')
-        .upload(filePath, blob, {
+        .upload(filePath, byteArray, {
           cacheControl: '3600',
           upsert: false,
           contentType: imageFile.type || `image/${fileExt}`,
