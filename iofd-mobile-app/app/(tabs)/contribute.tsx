@@ -666,7 +666,6 @@ export default function ContributeScreen() {
       </Appbar.Header>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {/* Stepper */}
         <View style={styles.stepper}>
           {STEPS.map((s, index) => (
             <React.Fragment key={s.value}>
@@ -710,7 +709,6 @@ export default function ContributeScreen() {
           ))}
         </View>
 
-        {/* Step 1: Informations de base */}
         {step === 1 && (
           <Card style={styles.card}>
             <Card.Content>
@@ -830,7 +828,6 @@ export default function ContributeScreen() {
           </Card>
         )}
 
-        {/* Step 2: Statut Halal */}
         {step === 2 && (
           <Card style={styles.card}>
             <Card.Content>
@@ -906,7 +903,6 @@ export default function ContributeScreen() {
           </Card>
         )}
 
-        {/* Step 3: Composition */}
         {step === 3 && (
           <Card style={styles.card}>
             <Card.Content>
@@ -1072,7 +1068,6 @@ export default function ContributeScreen() {
         )}
       </ScrollView>
 
-      {/* Success Dialog */}
       <Portal>
         <Dialog visible={showSuccessDialog} onDismiss={() => setShowSuccessDialog(false)}>
           <Dialog.Content>

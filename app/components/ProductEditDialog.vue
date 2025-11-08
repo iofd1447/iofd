@@ -434,7 +434,7 @@ watch(() => props.product, (p) => {
   }).filter(Boolean)
   const allergenIds = (p.allergens || []).map((a: any) => a.id || a.allergen_id).filter(Boolean)
   const labelIds = (p.labels || []).map((l: any) => {
-    if (typeof l === 'string') return null // Old format
+    if (typeof l === 'string') return null
     return l.id || l.label_id
   }).filter(Boolean)
 

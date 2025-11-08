@@ -1,6 +1,10 @@
 {
   "build": {
     "preview": {
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://ollvzpokrotcomfqdomk.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sbHZ6cG9rcm90Y29tZnFkb21rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIwMjcxNDMsImV4cCI6MjA3NzYwMzE0M30.t1RCbRDj0HtlxGerXogHdFMLOB0XzJW756yU1hUxSus"
+      },
       "android": {
         "buildType": "apk"
       }
