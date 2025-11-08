@@ -75,11 +75,11 @@ export default function ProductScreen() {
           halal_certification:halal_certifications(*),
           product_ingredients(ingredient:ingredients(name, description, halal_status)),
           product_additives(additive:additives(code, name, halal_status, origin_type, function)),
-          product_allergens(allergen:allergens(name, description, presence_type)),
+          product_allergens(presence_type, allergen:allergens(name, description)),
           product_labels(label:labels(name)),
           community_reviews(rating, user_name, user_email, halal_vote, comment, helpful_count, created_at)
         `);
-
+        
       const isBarcode = /^\d+$/.test(barcode);
       
       if (isBarcode) {

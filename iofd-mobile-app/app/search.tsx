@@ -14,46 +14,45 @@ export default function SearchScreen() {
   const [hasSearched, setHasSearched] = useState(false);
 
   useEffect(() => {
-    if (searchQuery.length >= 2) {
-      const timeoutId = setTimeout(() => {
-        searchProducts();
-      }, 500);
-      return () => clearTimeout(timeoutId);
-    } else {
+    // Réinitialiser les résultats si la recherche est trop courte
+    if (searchQuery.length < 2) {
       setProducts([]);
       setHasSearched(false);
-    }
-  }, [searchQuery]);
-
-  const searchProducts = async () => {
-    if (searchQuery.length < 2) return;
-
-    setLoading(true);
-    setHasSearched(true);
-
-    try {
-      const query = `%${searchQuery}%`;
-      
-      // Recherche dans nom, marque et code-barres
-      const { data, error } = await supabase
-        .from('products')
-        .select(`
-          *,
-          category:categories(id, name)
-        `)
-        .or(`name.ilike.${query},brand.ilike.${query},barcode.ilike.${query}`)
-        .limit(50)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setProducts(data || []);
-    } catch (error: any) {
-      console.error('Erreur lors de la recherche:', error);
-      setProducts([]);
-    } finally {
       setLoading(false);
+      return;
     }
-  };
+
+    // Déclencher la recherche avec un debounce de 300ms pour une réactivité plus rapide
+    const timeoutId = setTimeout(async () => {
+      setLoading(true);
+      setHasSearched(true);
+
+      try {
+        const query = `%${searchQuery}%`;
+        
+        // Recherche dans nom, marque et code-barres
+        const { data, error } = await supabase
+          .from('products')
+          .select(`
+            *,
+            category:categories(id, name)
+          `)
+          .or(`name.ilike.${query},brand.ilike.${query},barcode.ilike.${query}`)
+          .limit(50)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setProducts(data || []);
+      } catch (error: any) {
+        console.error('Erreur lors de la recherche:', error);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
   const handleProductPress = (product: any) => {
     // Utiliser le code-barres si disponible, sinon l'ID
@@ -91,20 +90,26 @@ export default function SearchScreen() {
                   setSearchQuery('');
                   setProducts([]);
                   setHasSearched(false);
+                  setLoading(false);
                 }}
               />
             ) : null
           }
           autoFocus
-          returnKeyType="search"
-          onSubmitEditing={searchProducts}
+          returnKeyType="done"
+          placeholder="Tapez pour rechercher..."
         />
 
-        {loading && (
-          <ActivityIndicator size="large" style={styles.loader} />
+        {searchQuery.length >= 2 && loading && (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="small" color={theme.colors.primary} />
+            <Text variant="bodySmall" style={[styles.loadingText, { color: theme.colors.onSurfaceVariant }]}>
+              Recherche en cours...
+            </Text>
+          </View>
         )}
 
-        {!loading && hasSearched && searchQuery.length >= 2 && (
+        {!loading && hasSearched && searchQuery.length >= 2 && products.length > 0 && (
           <Text variant="bodyMedium" style={[styles.resultCount, { color: theme.colors.onSurfaceVariant }]}>
             {products.length} résultat{products.length > 1 ? 's' : ''} trouvé{products.length > 1 ? 's' : ''}
           </Text>
@@ -185,6 +190,15 @@ const styles = StyleSheet.create({
   },
   loader: {
     marginVertical: 32,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+  },
+  loadingText: {
+    marginLeft: 12,
   },
   resultCount: {
     marginBottom: 16,

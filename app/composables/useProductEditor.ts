@@ -24,7 +24,7 @@ export type EditableProductFields = {
     trans_fats_g?: number | null
     fibres_g?: number | null
     sodium_mg?: number | null
-    cholesterol_mg?: number | null
+    calcium_mg?: number | null
     water_ml?: number | null
   }
   ingredients?: string[]

@@ -234,7 +234,6 @@
     </v-card>
   </v-dialog>
 
-  <!-- Dialogue Additifs -->
   <v-dialog v-model="showAdditivesDialog" :fullscreen="$vuetify.display.xs"
     :max-width="$vuetify.display.xs ? '100%' : '800'" scrollable>
     <v-card rounded="xl">
@@ -352,7 +351,7 @@ const defaultNutrition: Record<string, number | null> = {
   trans_fats_g: null,
   fibres_g: null,
   sodium_mg: null,
-  cholesterol_mg: null,
+  calcium_mg: null,
   water_ml: null,
 }
 
@@ -418,7 +417,7 @@ const nutritionFields = [
   { key: 'saturated_fats_g', label: 'Graisses saturées', icon: 'mdi-food-drumstick', suffix: 'g' },
   { key: 'fibres_g', label: 'Fibres', icon: 'mdi-barley', suffix: 'g' },
   { key: 'sodium_mg', label: 'Sodium', icon: 'mdi-shaker', suffix: 'mg' },
-  { key: 'cholesterol_mg', label: 'Cholestérol', icon: 'mdi-heart-pulse', suffix: 'mg' },
+  { key: 'calcium_mg', label: 'Calcium', icon: 'mdi-water', suffix: 'mg' },
 ]
 
 const supabase = useSupabase()

@@ -115,7 +115,7 @@
             </v-card-text>
           </v-card>
 
-          <v-card v-if="product.certification" elevation="2" rounded="xl" class="mb-3 mb-sm-4">
+          <!---  <v-card v-if="product.certification" elevation="2" rounded="xl" class="mb-3 mb-sm-4">
             <v-card-text :class="['pa-3 pa-sm-6']">
               <div class="d-flex align-center mb-3 mb-sm-4">
                 <v-icon :size="$vuetify.display.xs ? '24' : '32'" color="success" class="mr-2 mr-sm-3">
@@ -172,6 +172,33 @@
                   </div>
                 </div>
               </v-alert>
+            </v-card-text>
+          </v-card> -->
+
+          <v-card v-if="product.certification && product.certification.notes && product.certification.notes.trim()"
+            elevation="2" rounded="xl" class="mb-3 mb-sm-4">
+            <v-card-text :class="['pa-3 pa-sm-6']">
+              <div class="d-flex align-center mb-3 mb-sm-4">
+                <v-icon :size="$vuetify.display.xs ? '24' : '32'" color="info" class="mr-2 mr-sm-3">
+                  mdi-information
+                </v-icon>
+                <div>
+                  <h3 :class="['text-subtitle-1 text-sm-h6 font-weight-bold']">
+                    Notes de la communautée
+                  </h3>
+                  <p class="text-caption text-medium-emphasis mb-0">
+                    Informations complémentaires
+                  </p>
+                </div>
+              </div>
+
+              <div class="certification-notes-wrapper">
+                <div class="certification-notes-content">
+                  <div class="text-body-2 certification-notes-text">
+                    {{ product.certification.notes }}
+                  </div>
+                </div>
+              </div>
             </v-card-text>
           </v-card>
 
@@ -516,6 +543,10 @@ const fetchProduct = async () => {
     if (error) throw error
     if (!data) throw new Error('Produit non trouvé')
 
+    const halalCert = Array.isArray(data.halal_certification)
+      ? data.halal_certification[0]
+      : data.halal_certification
+
     const reviews = (data.community_reviews || []).map((r: any) => ({
       rating: r.rating ?? 0,
       user_name: r.user_name ?? 'Utilisateur',
@@ -539,16 +570,16 @@ const fetchProduct = async () => {
       category: data.category?.name || 'Autre',
       image_url: data.image_url || 'https://via.placeholder.com/600x400?text=Image+indisponible',
       portion_description: data.portion_description || 'Non spécifiée',
-      halal_status: data.halal_certification?.[0]?.halal_status || data.halal_certification?.halal_status,
-      certification: data.halal_certification?.[0]
+      halal_status: halalCert?.halal_status,
+      certification: halalCert
         ? {
-          body: data.halal_certification[0].certification_body,
-          number: data.halal_certification[0].certificate_number,
-          certified_date: data.halal_certification[0].certified_date,
-          expiry_date: data.halal_certification[0].expiry_date,
-          verified_by_community: data.halal_certification[0].verified_by_community,
-          verification_count: data.halal_certification[0].verification_count,
-          notes: data.halal_certification[0].notes
+          body: halalCert.certification_body,
+          number: halalCert.certificate_number,
+          certified_date: halalCert.certified_date,
+          expiry_date: halalCert.expiry_date,
+          verified_by_community: halalCert.verified_by_community,
+          verification_count: halalCert.verification_count,
+          notes: halalCert.notes
         }
         : null,
       nutrition: data.nutrition?.[0] || data.nutrition || {},
@@ -582,6 +613,12 @@ const fetchProduct = async () => {
       rating: Number(avgRating),
       reviews_count: reviews.length
     }
+
+    // Log pour vérifier le mapping final
+    console.log('✅ [DEBUG] product.certification après mapping:', product.value.certification)
+    console.log('✅ [DEBUG] product.certification?.notes:', product.value.certification?.notes)
+    console.log('✅ [DEBUG] Condition v-if:', !!product.value.certification?.notes)
+    console.log('✅ [DEBUG] Type de notes final:', typeof product.value.certification?.notes)
 
   } catch (err) {
     console.error('Erreur de récupération du produit:', err)
@@ -717,6 +754,20 @@ interface NutritionChip {
   color: string
   icon: string
 }
+
+const hasCertificationInfo = computed(() => {
+  const cert = product.value?.certification
+  if (!cert) return false
+
+  return !!(
+    cert.body ||
+    cert.number ||
+    cert.certified_date ||
+    cert.expiry_date ||
+    (cert.notes && cert.notes.trim()) ||
+    cert.verified_by_community
+  )
+})
 
 const nutritionChips = computed<NutritionChip[]>(() => [
   {
@@ -1527,5 +1578,51 @@ html {
   .nutrient-row:active {
     transform: translateX(2px) scale(0.99);
   }
+}
+
+/* Styles pour les notes de certification */
+.certification-notes-wrapper {
+  background: rgba(var(--v-theme-info), 0.08);
+  border-left: 4px solid rgb(var(--v-theme-info));
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 8px;
+  transition: all 0.3s ease;
+}
+
+.certification-notes-wrapper:hover {
+  background: rgba(var(--v-theme-info), 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.certification-notes-content {
+  position: relative;
+}
+
+.certification-notes-text {
+  white-space: pre-wrap;
+  line-height: 1.7;
+  color: rgba(var(--v-theme-on-surface), 0.87);
+  font-size: 0.9375rem;
+}
+
+@media (max-width: 600px) {
+  .certification-notes-wrapper {
+    padding: 12px;
+  }
+
+  .certification-notes-text {
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+}
+
+.v-theme--dark .certification-notes-wrapper {
+  background: rgba(var(--v-theme-info), 0.15);
+  border-left-color: rgb(var(--v-theme-info));
+}
+
+.v-theme--dark .certification-notes-wrapper:hover {
+  background: rgba(var(--v-theme-info), 0.2);
 }
 </style>

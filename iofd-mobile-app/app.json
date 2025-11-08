@@ -22,10 +22,13 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "permissions": [
-        "CAMERA"
+        "CAMERA",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ],
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.nur_djedd.iofdmobileapp"
     },
     "web": {
       "output": "static",
@@ -39,7 +42,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#2e7d32",
+          "backgroundColor": "#f8fdf9",
           "dark": {
             "backgroundColor": "#0a0e0a"
           }
@@ -55,6 +58,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "77cf3bc2-55a6-4bc5-ae9e-14b1ef322192"
+      }
     }
   }
 }

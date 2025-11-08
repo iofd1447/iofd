@@ -2,7 +2,8 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { View } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 import 'react-native-reanimated';
 
@@ -10,6 +11,7 @@ import { darkTheme, lightTheme } from '@/constants/paperTheme';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
+// Empêcher le masquage automatique du splash screen
 SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
@@ -21,43 +23,39 @@ export default function RootLayout() {
   const [appIsReady, setAppIsReady] = useState(false);
 
   useEffect(() => {
-    async function prepare() {
-      try {
-        // Attendre 3 secondes pour le splash screen
-        await new Promise(resolve => setTimeout(resolve, 3000));
-      } catch (e) {
-        console.warn(e);
-      } finally {
-        setAppIsReady(true);
-        await SplashScreen.hideAsync();
-      }
-    }
-
-    prepare();
+    // Initialiser l'app immédiatement
+    setAppIsReady(true);
   }, []);
+
+  const onLayoutRootView = useCallback(async () => {
+    // Masquer le splash screen une fois que l'UI est complètement rendue
+    if (appIsReady) {
+      await SplashScreen.hideAsync();
+    }
+  }, [appIsReady]);
 
   const paperTheme = colorScheme === 'dark' ? darkTheme : lightTheme;
   const navigationTheme = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
 
-  if (!appIsReady) {
-    return null;
-  }
-
+  // Toujours rendre l'UI - le splash screen natif restera affiché
+  // jusqu'à ce que onLayoutRootView soit appelé (quand l'UI est rendue)
   return (
-    <AuthProvider>
-      <PaperProvider theme={paperTheme}>
-        <ThemeProvider value={navigationTheme}>
-          <Stack>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="search" options={{ headerShown: false }} />
-            <Stack.Screen name="product/[barcode]" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-          </Stack>
-          <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-        </ThemeProvider>
-      </PaperProvider>
-    </AuthProvider>
+    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+      <AuthProvider>
+        <PaperProvider theme={paperTheme}>
+          <ThemeProvider value={navigationTheme}>
+            <Stack>
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="search" options={{ headerShown: false }} />
+              <Stack.Screen name="product/[barcode]" options={{ headerShown: false }} />
+              <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+            </Stack>
+            <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+          </ThemeProvider>
+        </PaperProvider>
+      </AuthProvider>
+    </View>
   );
 }
