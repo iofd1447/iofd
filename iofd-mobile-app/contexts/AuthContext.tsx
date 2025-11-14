@@ -23,27 +23,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isGuestMode, setIsGuestMode] = useState(false);
 
   useEffect(() => {
-    // Charger l'état du mode invité et la session
     const initializeAuth = async () => {
       try {
-        // Charger l'état du mode invité
-        const guestMode = await StorageService.getGuestMode();
+        const [guestMode, sessionResult] = await Promise.allSettled([
+          StorageService.getGuestMode(),
+          Promise.race([
+            supabase.auth.getSession(),
+            new Promise<{ data: { session: Session | null } }>((resolve) =>
+              setTimeout(() => resolve({ data: { session: null } }), 1500)
+            )
+          ])
+        ]);
         
-        // Vérifier la session actuelle
-        const { data: { session } } = await supabase.auth.getSession();
+        const guestModeValue = guestMode.status === 'fulfilled' ? guestMode.value : false;
+        const session = sessionResult.status === 'fulfilled' 
+          ? sessionResult.value.data.session 
+          : null;
         
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Si l'utilisateur est connecté, désactiver le mode invité
         if (session?.user) {
-          await StorageService.clearGuestMode();
+          StorageService.clearGuestMode().catch(() => {});
           setIsGuestMode(false);
         } else {
-          setIsGuestMode(guestMode);
+          setIsGuestMode(guestModeValue);
         }
       } catch (error) {
         console.error('Erreur lors de l\'initialisation de l\'authentification:', error);
+        try {
+          const guestMode = await StorageService.getGuestMode();
+          setIsGuestMode(guestMode);
+        } catch {
+        }
       } finally {
         setLoading(false);
       }
@@ -51,20 +63,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     initializeAuth();
 
-    // Écouter les changements d'authentification
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       
-      // Si l'utilisateur est connecté, désactiver le mode invité
       if (session?.user) {
-        await StorageService.clearGuestMode();
+        // Ne pas bloquer sur clearGuestMode, le faire en arrière-plan
+        StorageService.clearGuestMode().catch(() => {});
         setIsGuestMode(false);
       } else {
-        // Si déconnecté, ne pas réactiver automatiquement le mode invité
-        // L'utilisateur devra le réactiver manuellement s'il le souhaite
       }
     });
 
@@ -84,7 +93,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) throw error;
     setSession(data.session);
     setUser(data.user);
-    // Désactiver le mode invité lors de la connexion
     await StorageService.clearGuestMode();
     setIsGuestMode(false);
   };
@@ -96,7 +104,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     if (error) throw error;
     
-    // Créer l'utilisateur dans la table users
     if (data.user) {
       const { error: userError } = await supabase.from('users').insert([{
         auth_id: data.user.id,
@@ -109,7 +116,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     setSession(data.session);
     setUser(data.user);
-    // Désactiver le mode invité lors de l'inscription
     await StorageService.clearGuestMode();
     setIsGuestMode(false);
   };
@@ -119,7 +125,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) throw error;
     setSession(null);
     setUser(null);
-    // Ne pas réactiver automatiquement le mode invité à la déconnexion
   };
 
   return (

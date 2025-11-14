@@ -37,7 +37,7 @@ export default function HomeScreen() {
             Islamic Open Food Database
           </Text>
           <Text variant="bodyMedium" style={[styles.description, { color: theme.colors.onSurfaceVariant }]}>
-            La plus grande base de donnée nutrionnelle pensée et alimenter par la Ummah
+          La plus grande base de données nutritionnelle pensée et alimentée par la Ummah
           </Text>
         </View>
       </View>

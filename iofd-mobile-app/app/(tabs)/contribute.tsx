@@ -119,7 +119,6 @@ export default function ContributeScreen() {
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>([]);
   const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
 
-  // Additives dialog state
   const [additiveSearchQuery, setAdditiveSearchQuery] = useState('');
   const [selectedAdditiveFilter, setSelectedAdditiveFilter] = useState<string | null>(null);
 
@@ -221,7 +220,7 @@ export default function ContributeScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: 'images',
       allowsEditing: true,
       aspect: [4, 3],
       quality: 0.8,
@@ -241,71 +240,68 @@ export default function ContributeScreen() {
 
   const uploadImage = async (): Promise<string | null> => {
     if (!imageFile) return null;
-
+  
     setUploadingImage(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session?.access_token) {
+        setErrorMessage('Session expirée, veuillez vous reconnecter');
+        setErrorSnackbar(true);
+        return null;
+      }
+  
       const fileExt = imageFile.uri.split('.').pop() || 'jpg';
+      const mimeType = imageFile.mimeType || `image/${fileExt}`;
       const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
       const filePath = `products/${fileName}`;
-
-      const base64 = await FileSystem.readAsStringAsync(imageFile.uri, {
-        encoding: 'base64' as any,
+  
+      const supabaseUrl = (supabase as any).supabaseUrl || process.env.EXPO_PUBLIC_SUPABASE_URL;
+      const uploadUrl = `${supabaseUrl}/storage/v1/object/product-images/${filePath}`;
+  
+      console.log('Tentative upload vers:', uploadUrl);
+      console.log('Type MIME:', mimeType);
+  
+      const formData = new FormData();
+      formData.append('file', {
+        uri: imageFile.uri,
+        name: fileName,
+        type: mimeType,
+      } as any);
+  
+      const response = await fetch(uploadUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: formData,
       });
-
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-      const lookup = new Uint8Array(256);
-      for (let i = 0; i < chars.length; i++) {
-        lookup[chars.charCodeAt(i)] = i;
-      }
-
-      let padding = 0;
-      if (base64.endsWith('==')) padding = 2;
-      else if (base64.endsWith('=')) padding = 1;
-      const byteLength = Math.floor((base64.length * 3) / 4) - padding;
-
-      const bytes = new Uint8Array(byteLength);
-      let p = 0;
-      for (let i = 0; i < base64.length; i += 4) {
-        const encoded1 = lookup[base64.charCodeAt(i)];
-        const encoded2 = lookup[base64.charCodeAt(i + 1)];
-        const encoded3 = lookup[base64.charCodeAt(i + 2)];
-        const encoded4 = lookup[base64.charCodeAt(i + 3)];
-
-        if (p < byteLength) bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
-        if (p < byteLength) bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
-        if (p < byteLength) bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
-      }
-
-      const byteArray = bytes;
-
-      const { data, error } = await supabase.storage
-        .from('product-images')
-        .upload(filePath, byteArray, {
-          cacheControl: '3600',
-          upsert: false,
-          contentType: imageFile.type || `image/${fileExt}`,
-        });
-
-      if (error) {
-        console.error('Upload error:', error);
-        setErrorMessage('Échec de l\'upload');
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Échec upload:', errorText);
+        setErrorMessage(`Échec de l'upload (${response.status})`);
         setErrorSnackbar(true);
         return null;
       }
 
-      const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(filePath);
+      const { data: urlData } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+  
       const publicUrl = urlData?.publicUrl ?? null;
-
+  
       if (!publicUrl) {
         setErrorMessage('Image uploadée mais URL publique introuvable');
         setErrorSnackbar(true);
         return null;
       }
-
+  
       return publicUrl;
+  
     } catch (err: any) {
-      console.error('Unexpected error:', err);
-      setErrorMessage(err?.message || 'Erreur inattendue');
+      console.error('Erreur inattendue lors de l\'upload:', err);
+      setErrorMessage(err?.message || 'Erreur inattendue lors de l\'upload');
       setErrorSnackbar(true);
       return null;
     } finally {
@@ -687,7 +683,6 @@ export default function ContributeScreen() {
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <StatusBar style={theme.dark ? 'light' : 'dark'} />
       <Appbar.Header>
-        <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="Nouveau produit" />
         <Appbar.Action icon="help-circle" onPress={() => setShowHelpDialog(true)} />
       </Appbar.Header>

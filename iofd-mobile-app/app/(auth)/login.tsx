@@ -41,7 +41,7 @@ export default function LoginScreen() {
 
     try {
       await signIn(email, password);
-      router.replace('/(tabs)');
+      router.replace('/(tabs)/contribute');
     } catch (err: any) {
       setError(err.message || 'Erreur de connexion');
       setShowError(true);
