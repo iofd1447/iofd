@@ -139,6 +139,42 @@
               </v-alert>
             </v-col>
 
+            <v-col cols="12" v-if="uploadErrorLog || uploadStage !== 'idle'">
+              <v-card variant="outlined" class="upload-debug-card" rounded="xl">
+                <v-card-title class="d-flex align-center">
+                  <v-icon color="primary" class="mr-2">mdi-bug</v-icon>
+                  <span class="text-subtitle-1 font-weight-bold">Diagnostic upload</span>
+                  <v-spacer />
+                  <v-chip size="small" color="primary" variant="tonal">{{ uploadStageLabel }}</v-chip>
+                  <v-btn size="small" variant="text" class="ml-3" @click="showUploadDebug = !showUploadDebug">
+                    {{ showUploadDebug ? 'Masquer' : 'Afficher' }}
+                  </v-btn>
+                </v-card-title>
+                <v-expand-transition>
+                  <v-card-text v-if="showUploadDebug" class="pt-0">
+                    <div class="debug-row">
+                      <span class="debug-label">Appareil</span>
+                      <span class="debug-value">{{ userAgent || 'Inconnu' }}</span>
+                    </div>
+                    <div class="debug-row" v-if="selectedFileMeta">
+                      <span class="debug-label">Fichier</span>
+                      <span class="debug-value">
+                        {{ selectedFileMeta.name }} – {{ selectedFileMeta.size }} – {{ selectedFileMeta.type }}
+                      </span>
+                    </div>
+                    <div class="debug-row">
+                      <span class="debug-label">État</span>
+                      <span class="debug-value">{{ uploadStageLabel }}</span>
+                    </div>
+                    <div class="debug-row">
+                      <span class="debug-label">Logs</span>
+                    </div>
+                    <pre class="upload-debug-log">{{ uploadErrorLog || 'Aucun log pour le moment.' }}</pre>
+                  </v-card-text>
+                </v-expand-transition>
+              </v-card>
+            </v-col>
+
           </v-row>
         </v-card-text>
 
@@ -518,6 +554,31 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const createdProductId = ref('')
 const displayBarcode = ref('')
 const showAdditivesDialog = ref(false)
+const showUploadDebug = ref(true)
+type UploadStage = 'idle' | 'selected' | 'preparing' | 'compressing' | 'uploading' | 'getting-url' | 'done' | 'failed'
+const uploadStage = ref<UploadStage>('idle')
+const uploadStageLabels: Record<UploadStage, string> = {
+  idle: 'En attente',
+  selected: 'Fichier sélectionné',
+  preparing: 'Préparation du fichier',
+  compressing: 'Compression',
+  uploading: 'Envoi vers Supabase',
+  'getting-url': 'Récupération de l’URL',
+  done: 'Terminé',
+  failed: 'Erreur détectée'
+}
+const uploadStageLabel = computed(() => uploadStageLabels[uploadStage.value])
+const userAgent = ref('')
+
+const selectedFileMeta = computed(() => {
+  const file = imageFile.value
+  if (!file) return null
+  return {
+    name: file.name || 'Sans nom',
+    type: file.type || 'Inconnu',
+    size: `${(file.size / 1024).toFixed(1)} Ko`
+  }
+})
 const additiveSearchQuery = ref('')
 const selectedAdditiveFilter = ref<string | null>(null)
 
@@ -649,7 +710,9 @@ async function compressImage(file: File, maxSizeMB = 5, quality = 0.8): Promise<
 const handleImageUpload = async (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0] ?? null;
   if (!file) return;
+  uploadStage.value = 'selected';
   if (file.size > 20 * 1024 * 1024) {
+    uploadStage.value = 'failed';
     errorMessage.value = "Fichier trop volumineux (plus de 20MB)";
     errorSnackbar.value = true;
     return;
@@ -663,6 +726,7 @@ const uploadErrorLog = ref('')
 
 async function uploadImage(file: File): Promise<string | null> {
   uploadingImage.value = true;
+  uploadStage.value = 'preparing';
   uploadErrorLog.value = ''
   try {
     let fileExt = 'jpg';
@@ -671,37 +735,49 @@ async function uploadImage(file: File): Promise<string | null> {
 
     let fileToUpload: File | Blob = file;
     if (file.size > 5 * 1024 * 1024) {
-      try { fileToUpload = new File([await compressImage(file, 5, 0.78)], `photo.${fileExt}`, { type: 'image/jpeg' }) }
-      catch (err) { fileToUpload = file; uploadErrorLog.value += 'Compression failed: ' + JSON.stringify(err) + '\n' }
+      uploadStage.value = 'compressing';
+      try {
+        fileToUpload = new File([await compressImage(file, 5, 0.78)], `photo.${fileExt}`, { type: 'image/jpeg' })
+      } catch (err) {
+        fileToUpload = file;
+        uploadStage.value = 'failed';
+        uploadErrorLog.value += 'Compression failed: ' + JSON.stringify(err) + '\n'
+      }
     }
 
     const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
     const filePath = `products/${fileName}`;
 
+    uploadStage.value = 'uploading';
     const { data, error } = await supabase.storage
       .from('product-images')
       .upload(filePath, fileToUpload as Blob, { cacheControl: '3600', upsert: false, contentType: (fileToUpload as File).type || file.type });
 
     if (error) {
+      uploadStage.value = 'failed';
       uploadErrorLog.value += 'Supabase upload error: ' + JSON.stringify(error) + '\n';
       errorMessage.value = 'Échec de l\'upload';
       errorSnackbar.value = true;
       return null;
     }
 
+    uploadStage.value = 'getting-url';
     const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(filePath);
     const publicUrl = (urlData as any)?.publicUrl ?? null;
 
     if (!publicUrl) {
+      uploadStage.value = 'failed';
       uploadErrorLog.value += 'Public URL missing: ' + JSON.stringify(urlData) + '\n';
       errorMessage.value = 'Image uploadée mais URL publique introuvable';
       errorSnackbar.value = true;
       return null;
     }
 
+    uploadStage.value = 'done';
     uploadErrorLog.value += 'Upload successful: ' + publicUrl + '\n';
     return publicUrl;
   } catch (err: any) {
+    uploadStage.value = 'failed';
     uploadErrorLog.value += 'Unexpected error: ' + JSON.stringify(err) + '\n';
     errorMessage.value = err?.message || 'Erreur inattendue';
     errorSnackbar.value = true;
@@ -715,6 +791,7 @@ const removeImage = () => {
   imagePreview.value = ''
   imageFile.value = null
   form.value.image_url = ''
+  uploadStage.value = 'idle'
 }
 
 
@@ -1067,6 +1144,9 @@ const loadLabels = async () => {
 }
 
 onMounted(async () => {
+  if (typeof navigator !== 'undefined') {
+    userAgent.value = navigator.userAgent
+  }
   await fetchUser()
   await Promise.all([
     loadCategories(),
@@ -1097,6 +1177,39 @@ onMounted(async () => {
 
 .barcode-scanner {
   animation: fadeIn 0.4s ease-out;
+}
+
+.upload-debug-card {
+  background: rgba(var(--v-theme-surface), 0.9);
+}
+
+.debug-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.debug-label {
+  font-weight: 600;
+  color: rgba(var(--v-theme-on-surface), 0.7);
+}
+
+.debug-value {
+  font-family: 'Fira Code', monospace;
+  word-break: break-word;
+}
+
+.upload-debug-log {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.8rem;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 @keyframes fadeIn {
