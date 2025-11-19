@@ -66,7 +66,8 @@
                   {{ typeof product.category === 'object' ? product.category.name : product.category }}
                 </v-chip>
 
-                <v-chip size="small" variant="tonal" :class="['text-caption']" color="secondary">
+                <v-chip v-if="product.category && product.category.toLowerCase() !== 'fruits'" size="small"
+                  variant="tonal" :class="['text-caption']" color="secondary">
                   <v-icon icon="mdi-barcode" class="mr-2"></v-icon>
                   {{ product.barcode }}
                 </v-chip>
@@ -287,6 +288,13 @@
               </v-expand-transition>
 
               <div class="quick-stats-wrapper mt-4">
+                <v-chip v-if="hydrationInsight" class="hydration-chip" variant="elevated" color="light-blue-darken-1"
+                  prepend-icon="mdi-water">
+                  Hydratation • {{ hydrationInsight.value }} ml
+                  <span v-if="hydrationInsight.ratio !== null" class="hydration-chip__ratio">
+                    (≈ {{ hydrationInsight.ratio }} %)
+                  </span>
+                </v-chip>
                 <template v-for="(chip, i) in nutritionChips" :key="i">
                   <v-chip v-if="chip.condition" :size="'small'" :color="chip.color" variant="tonal"
                     :prepend-icon="chip.icon">
@@ -614,11 +622,6 @@ const fetchProduct = async () => {
       reviews_count: reviews.length
     }
 
-    // Log pour vérifier le mapping final
-    console.log('✅ [DEBUG] product.certification après mapping:', product.value.certification)
-    console.log('✅ [DEBUG] product.certification?.notes:', product.value.certification?.notes)
-    console.log('✅ [DEBUG] Condition v-if:', !!product.value.certification?.notes)
-    console.log('✅ [DEBUG] Type de notes final:', typeof product.value.certification?.notes)
 
   } catch (err) {
     console.error('Erreur de récupération du produit:', err)
@@ -663,7 +666,6 @@ function startEditingPortion() {
 function commitPortion() {
   const parsed = Number.parseFloat((portionInput.value || '').replace(',', '.'))
   if (!Number.isFinite(parsed) || parsed <= 0) {
-    // revert to previous valid value
     portionInput.value = String(portionSize.value)
   } else {
     portionSize.value = parsed
@@ -767,6 +769,18 @@ const hasCertificationInfo = computed(() => {
     (cert.notes && cert.notes.trim()) ||
     cert.verified_by_community
   )
+})
+
+const hydrationInsight = computed(() => {
+  const waterValue = scaledNutrition.value.water_ml
+  if (typeof waterValue !== 'number' || waterValue <= 0) return null
+  const rounded = Number(waterValue.toFixed(0))
+  const reference = portionUnit.value === 'ml' ? portionSize.value : null
+  const ratio = reference && reference > 0 ? Math.min(100, Math.round((rounded / reference) * 100)) : null
+  return {
+    value: rounded,
+    ratio
+  }
 })
 
 const nutritionChips = computed<NutritionChip[]>(() => [
@@ -1529,7 +1543,18 @@ html {
   gap: 8px;
 }
 
-/* Animations */
+.hydration-chip {
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.15), rgba(3, 169, 244, 0.3)) !important;
+  color: #01579b !important;
+}
+
+.hydration-chip__ratio {
+  font-weight: 500;
+  margin-left: 4px;
+  color: rgba(1, 87, 155, 0.9);
+}
+
 @keyframes slideInUp {
   from {
     opacity: 0;
