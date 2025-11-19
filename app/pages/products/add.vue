@@ -495,6 +495,7 @@ type NutritionKey = keyof typeof form.value.nutrition
 
 const nutritionFields: { key: NutritionKey, label: string, icon: string, suffix: string, color?: string, reference?: number }[] = [
   { key: 'calories_kcal', label: 'Calories', icon: 'mdi-fire', suffix: 'kcal', color: 'orange', reference: 2000 },
+  { key: 'water_ml', label: 'Water', icon: 'mdi-water', suffix: 'ml', color: 'blue', reference: 100 },
   { key: 'protein_g', label: 'Protéines', icon: 'mdi-food-steak', suffix: 'g', color: 'blue', reference: 50 },
   { key: 'carbs_g', label: 'Glucides', icon: 'mdi-pasta', suffix: 'g', color: 'purple', reference: 260 },
   { key: 'sugars_g', label: 'Sucres', icon: 'mdi-candy', suffix: 'g', color: 'pink', reference: 90 },
@@ -613,14 +614,12 @@ const selectImage = () => {
   fileInput.value?.click()
 }
 
-// ------ compressImage: réduit l'image si besoin (canvas) ------
 async function compressImage(file: File, maxSizeMB = 5, quality = 0.8): Promise<Blob> {
   if (file.size <= maxSizeMB * 1024 * 1024) return file;
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      // dimension maximale raisonnable pour la compression
       const maxDim = 1920;
       let { width, height } = img;
       if (width > maxDim || height > maxDim) {
@@ -647,28 +646,24 @@ async function compressImage(file: File, maxSizeMB = 5, quality = 0.8): Promise<
   });
 }
 
-// ------ handleImageUpload: robustifier la sélection (affiche preview) ------
 const handleImageUpload = async (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0] ?? null;
   if (!file) return;
-  // vérif taille brutale avant compression
-  if (file.size > 20 * 1024 * 1024) { // limite stricte (20MB) - reject early
+  if (file.size > 20 * 1024 * 1024) {
     errorMessage.value = "Fichier trop volumineux (plus de 20MB)";
     errorSnackbar.value = true;
     return;
   }
   imageFile.value = file;
-  // preview
   const reader = new FileReader();
   reader.onload = (e) => { imagePreview.value = e.target?.result as string };
   reader.readAsDataURL(file);
 }
-const uploadErrorLog = ref('')  // variable pour afficher le log complet
+const uploadErrorLog = ref('')
 
-// Modifie ton uploadImage pour remplir uploadErrorLog
 async function uploadImage(file: File): Promise<string | null> {
   uploadingImage.value = true;
-  uploadErrorLog.value = ''  // reset log avant chaque upload
+  uploadErrorLog.value = ''
   try {
     let fileExt = 'jpg';
     if (file.name && file.name.includes('.')) fileExt = file.name.split('.').pop()!.toLowerCase();
