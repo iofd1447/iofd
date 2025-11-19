@@ -136,6 +136,15 @@
                 <div class="text-h6 font-weight-bold mb-2">🚨 Log Upload Image</div>
                 <pre
                   style="white-space: pre-wrap; word-break: break-word; font-size: 0.875rem;">{{ uploadErrorLog }}</pre>
+                <div v-if="uploadErrorStructured" class="mt-3">
+                  <v-chip color="error" variant="tonal" prepend-icon="mdi-shield-alert">
+                    {{ uploadErrorStructured.message || 'Erreur inconnue' }}
+                  </v-chip>
+                  <div class="text-caption mt-2">
+                    Status: {{ uploadErrorStructured.statusCode || uploadErrorStructured.httpStatus || 'N/A' }} |
+                    Type: {{ uploadErrorStructured.name || 'N/A' }}
+                  </div>
+                </div>
               </v-alert>
             </v-col>
 
@@ -170,6 +179,10 @@
                       <span class="debug-label">Logs</span>
                     </div>
                     <pre class="upload-debug-log">{{ uploadErrorLog || 'Aucun log pour le moment.' }}</pre>
+                    <div v-if="uploadErrorStructured" class="mt-3">
+                      <div class="text-caption text-medium-emphasis mb-1">JSON détaillé</div>
+                      <pre class="upload-debug-log">{{ JSON.stringify(uploadErrorStructured, null, 2) }}</pre>
+                    </div>
                   </v-card-text>
                 </v-expand-transition>
               </v-card>
@@ -723,11 +736,13 @@ const handleImageUpload = async (event: Event) => {
   reader.readAsDataURL(file);
 }
 const uploadErrorLog = ref('')
+const uploadErrorStructured = ref<{ message?: string, statusCode?: number, httpStatus?: number, name?: string, fileMeta?: any, userAgent?: string, originalError?: any } | null>(null)
 
 async function uploadImage(file: File): Promise<string | null> {
   uploadingImage.value = true;
   uploadStage.value = 'preparing';
   uploadErrorLog.value = ''
+  uploadErrorStructured.value = null
   try {
     let fileExt = 'jpg';
     if (file.name && file.name.includes('.')) fileExt = file.name.split('.').pop()!.toLowerCase();
@@ -755,7 +770,15 @@ async function uploadImage(file: File): Promise<string | null> {
 
     if (error) {
       uploadStage.value = 'failed';
-      uploadErrorLog.value += 'Supabase upload error: ' + JSON.stringify(error) + '\n';
+      uploadErrorStructured.value = {
+        message: error.message,
+        statusCode: (error as any)?.statusCode,
+        originalError: (error as any)?.originalError,
+        fileMeta: selectedFileMeta.value,
+        userAgent: userAgent.value,
+        httpStatus: (error as any)?.cause?.status || (error as any)?.status
+      }
+      uploadErrorLog.value += 'Supabase upload error: ' + JSON.stringify(uploadErrorStructured.value, null, 2) + '\n';
       errorMessage.value = 'Échec de l\'upload';
       errorSnackbar.value = true;
       return null;
@@ -778,7 +801,14 @@ async function uploadImage(file: File): Promise<string | null> {
     return publicUrl;
   } catch (err: any) {
     uploadStage.value = 'failed';
-    uploadErrorLog.value += 'Unexpected error: ' + JSON.stringify(err) + '\n';
+    uploadErrorStructured.value = {
+      message: err?.message,
+      stack: err?.stack,
+      name: err?.name,
+      fileMeta: selectedFileMeta.value,
+      userAgent: userAgent.value
+    }
+    uploadErrorLog.value += 'Unexpected error: ' + JSON.stringify(uploadErrorStructured.value, null, 2) + '\n';
     errorMessage.value = err?.message || 'Erreur inattendue';
     errorSnackbar.value = true;
     return null;
