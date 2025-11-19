@@ -103,7 +103,7 @@
                 hint="Précisez la taille de référence pour les valeurs nutritionnelles" persistent-hint />
             </v-col>
 
-            <v-col cols="12">
+            <v-col cols="12" v-if="!$vuetify.display.xs">
               <div class="text-subtitle-2 mb-2">Photo du produit</div>
               <v-card variant="outlined" class="image-upload" rounded="lg" :class="{ 'has-image': imagePreview }">
                 <v-card-text class="pa-6">
@@ -131,61 +131,18 @@
               </v-card>
             </v-col>
 
-            <v-col cols="12" v-if="uploadErrorLog" class="mb-4">
-              <v-alert type="error" border="start" colored-border prominent>
-                <div class="text-h6 font-weight-bold mb-2">🚨 Log Upload Image</div>
-                <pre
-                  style="white-space: pre-wrap; word-break: break-word; font-size: 0.875rem;">{{ uploadErrorLog }}</pre>
-                <div v-if="uploadErrorStructured" class="mt-3">
-                  <v-chip color="error" variant="tonal" prepend-icon="mdi-shield-alert">
-                    {{ uploadErrorStructured.message || 'Erreur inconnue' }}
-                  </v-chip>
-                  <div class="text-caption mt-2">
-                    Status: {{ uploadErrorStructured.statusCode || uploadErrorStructured.httpStatus || 'N/A' }} |
-                    Type: {{ uploadErrorStructured.name || 'N/A' }}
-                  </div>
-                </div>
+            <v-col cols="12" v-else>
+              <v-alert type="info" variant="tonal" rounded="xl" class="d-flex flex-column align-start"
+                prepend-icon="mdi-cellphone-off">
+                <div class="text-subtitle-2 font-weight-bold mb-1">Upload photo indisponible sur mobile</div>
+                <p class="text-body-2 text-medium-emphasis mb-2">
+                  Pour garantir un upload fiable, ajoutez la photo depuis un ordinateur. Vous pouvez quand même
+                  enregistrer le produit sans image puis revenir l’ajouter plus tard.
+                </p>
+                <v-chip size="small" color="primary" variant="tonal">
+                  Dernière mise à jour : {{ mobileUploadInfoDate }}
+                </v-chip>
               </v-alert>
-            </v-col>
-
-            <v-col cols="12" v-if="uploadErrorLog || uploadStage !== 'idle'">
-              <v-card variant="outlined" class="upload-debug-card" rounded="xl">
-                <v-card-title class="d-flex align-center">
-                  <v-icon color="primary" class="mr-2">mdi-bug</v-icon>
-                  <span class="text-subtitle-1 font-weight-bold">Diagnostic upload</span>
-                  <v-spacer />
-                  <v-chip size="small" color="primary" variant="tonal">{{ uploadStageLabel }}</v-chip>
-                  <v-btn size="small" variant="text" class="ml-3" @click="showUploadDebug = !showUploadDebug">
-                    {{ showUploadDebug ? 'Masquer' : 'Afficher' }}
-                  </v-btn>
-                </v-card-title>
-                <v-expand-transition>
-                  <v-card-text v-if="showUploadDebug" class="pt-0">
-                    <div class="debug-row">
-                      <span class="debug-label">Appareil</span>
-                      <span class="debug-value">{{ userAgent || 'Inconnu' }}</span>
-                    </div>
-                    <div class="debug-row" v-if="selectedFileMeta">
-                      <span class="debug-label">Fichier</span>
-                      <span class="debug-value">
-                        {{ selectedFileMeta.name }} – {{ selectedFileMeta.size }} – {{ selectedFileMeta.type }}
-                      </span>
-                    </div>
-                    <div class="debug-row">
-                      <span class="debug-label">État</span>
-                      <span class="debug-value">{{ uploadStageLabel }}</span>
-                    </div>
-                    <div class="debug-row">
-                      <span class="debug-label">Logs</span>
-                    </div>
-                    <pre class="upload-debug-log">{{ uploadErrorLog || 'Aucun log pour le moment.' }}</pre>
-                    <div v-if="uploadErrorStructured" class="mt-3">
-                      <div class="text-caption text-medium-emphasis mb-1">JSON détaillé</div>
-                      <pre class="upload-debug-log">{{ JSON.stringify(uploadErrorStructured, null, 2) }}</pre>
-                    </div>
-                  </v-card-text>
-                </v-expand-transition>
-              </v-card>
             </v-col>
 
           </v-row>
@@ -567,33 +524,9 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const createdProductId = ref('')
 const displayBarcode = ref('')
 const showAdditivesDialog = ref(false)
-const showUploadDebug = ref(true)
-type UploadStage = 'idle' | 'selected' | 'preparing' | 'compressing' | 'uploading' | 'getting-url' | 'done' | 'failed'
-const uploadStage = ref<UploadStage>('idle')
-const uploadStageLabels: Record<UploadStage, string> = {
-  idle: 'En attente',
-  selected: 'Fichier sélectionné',
-  preparing: 'Préparation du fichier',
-  compressing: 'Compression',
-  uploading: 'Envoi vers Supabase',
-  'getting-url': 'Récupération de l’URL',
-  done: 'Terminé',
-  failed: 'Erreur détectée'
-}
-const uploadStageLabel = computed(() => uploadStageLabels[uploadStage.value])
-const userAgent = ref('')
-
-const selectedFileMeta = computed(() => {
-  const file = imageFile.value
-  if (!file) return null
-  return {
-    name: file.name || 'Sans nom',
-    type: file.type || 'Inconnu',
-    size: `${(file.size / 1024).toFixed(1)} Ko`
-  }
-})
 const additiveSearchQuery = ref('')
 const selectedAdditiveFilter = ref<string | null>(null)
+const mobileUploadInfoDate = new Date().toLocaleDateString('fr-FR')
 
 const loadingCategories = ref(false)
 const loadingIngredients = ref(false)
@@ -723,9 +656,7 @@ async function compressImage(file: File, maxSizeMB = 5, quality = 0.8): Promise<
 const handleImageUpload = async (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0] ?? null;
   if (!file) return;
-  uploadStage.value = 'selected';
   if (file.size > 20 * 1024 * 1024) {
-    uploadStage.value = 'failed';
     errorMessage.value = "Fichier trop volumineux (plus de 20MB)";
     errorSnackbar.value = true;
     return;
@@ -736,13 +667,10 @@ const handleImageUpload = async (event: Event) => {
   reader.readAsDataURL(file);
 }
 const uploadErrorLog = ref('')
-const uploadErrorStructured = ref<{ message?: string, statusCode?: number, httpStatus?: number, name?: string, fileMeta?: any, userAgent?: string, originalError?: any } | null>(null)
 
 async function uploadImage(file: File): Promise<string | null> {
   uploadingImage.value = true;
-  uploadStage.value = 'preparing';
   uploadErrorLog.value = ''
-  uploadErrorStructured.value = null
   try {
     let fileExt = 'jpg';
     if (file.name && file.name.includes('.')) fileExt = file.name.split('.').pop()!.toLowerCase();
@@ -750,65 +678,38 @@ async function uploadImage(file: File): Promise<string | null> {
 
     let fileToUpload: File | Blob = file;
     if (file.size > 5 * 1024 * 1024) {
-      uploadStage.value = 'compressing';
-      try {
-        fileToUpload = new File([await compressImage(file, 5, 0.78)], `photo.${fileExt}`, { type: 'image/jpeg' })
-      } catch (err) {
-        fileToUpload = file;
-        uploadStage.value = 'failed';
-        uploadErrorLog.value += 'Compression failed: ' + JSON.stringify(err) + '\n'
-      }
+      try { fileToUpload = new File([await compressImage(file, 5, 0.78)], `photo.${fileExt}`, { type: 'image/jpeg' }) }
+      catch (err) { fileToUpload = file; uploadErrorLog.value += 'Compression failed: ' + JSON.stringify(err) + '\n' }
     }
 
     const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
     const filePath = `products/${fileName}`;
 
-    uploadStage.value = 'uploading';
     const { data, error } = await supabase.storage
       .from('product-images')
       .upload(filePath, fileToUpload as Blob, { cacheControl: '3600', upsert: false, contentType: (fileToUpload as File).type || file.type });
 
     if (error) {
-      uploadStage.value = 'failed';
-      uploadErrorStructured.value = {
-        message: error.message,
-        statusCode: (error as any)?.statusCode,
-        originalError: (error as any)?.originalError,
-        fileMeta: selectedFileMeta.value,
-        userAgent: userAgent.value,
-        httpStatus: (error as any)?.cause?.status || (error as any)?.status
-      }
-      uploadErrorLog.value += 'Supabase upload error: ' + JSON.stringify(uploadErrorStructured.value, null, 2) + '\n';
+      uploadErrorLog.value += 'Supabase upload error: ' + JSON.stringify(error) + '\n';
       errorMessage.value = 'Échec de l\'upload';
       errorSnackbar.value = true;
       return null;
     }
 
-    uploadStage.value = 'getting-url';
     const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(filePath);
     const publicUrl = (urlData as any)?.publicUrl ?? null;
 
     if (!publicUrl) {
-      uploadStage.value = 'failed';
       uploadErrorLog.value += 'Public URL missing: ' + JSON.stringify(urlData) + '\n';
       errorMessage.value = 'Image uploadée mais URL publique introuvable';
       errorSnackbar.value = true;
       return null;
     }
 
-    uploadStage.value = 'done';
     uploadErrorLog.value += 'Upload successful: ' + publicUrl + '\n';
     return publicUrl;
   } catch (err: any) {
-    uploadStage.value = 'failed';
-    uploadErrorStructured.value = {
-      message: err?.message,
-      stack: err?.stack,
-      name: err?.name,
-      fileMeta: selectedFileMeta.value,
-      userAgent: userAgent.value
-    }
-    uploadErrorLog.value += 'Unexpected error: ' + JSON.stringify(uploadErrorStructured.value, null, 2) + '\n';
+    uploadErrorLog.value += 'Unexpected error: ' + JSON.stringify(err) + '\n';
     errorMessage.value = err?.message || 'Erreur inattendue';
     errorSnackbar.value = true;
     return null;
@@ -821,7 +722,6 @@ const removeImage = () => {
   imagePreview.value = ''
   imageFile.value = null
   form.value.image_url = ''
-  uploadStage.value = 'idle'
 }
 
 
@@ -1174,9 +1074,6 @@ const loadLabels = async () => {
 }
 
 onMounted(async () => {
-  if (typeof navigator !== 'undefined') {
-    userAgent.value = navigator.userAgent
-  }
   await fetchUser()
   await Promise.all([
     loadCategories(),
@@ -1207,39 +1104,6 @@ onMounted(async () => {
 
 .barcode-scanner {
   animation: fadeIn 0.4s ease-out;
-}
-
-.upload-debug-card {
-  background: rgba(var(--v-theme-surface), 0.9);
-}
-
-.debug-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
-  font-size: 0.9rem;
-}
-
-.debug-label {
-  font-weight: 600;
-  color: rgba(var(--v-theme-on-surface), 0.7);
-}
-
-.debug-value {
-  font-family: 'Fira Code', monospace;
-  word-break: break-word;
-}
-
-.upload-debug-log {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
-  padding: 12px;
-  font-size: 0.8rem;
-  max-height: 200px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
 }
 
 @keyframes fadeIn {
