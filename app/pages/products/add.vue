@@ -297,11 +297,6 @@
             Publier le produit
           </v-btn>
         </v-card-actions>
-
-        <v-alert v-if="uploadErrorLog" type="info" class="mt-2">
-          <pre style="font-size: 10px; white-space: pre-wrap;">{{ uploadErrorLog }}</pre>
-        </v-alert>
-
       </v-card>
 
     </v-container>
