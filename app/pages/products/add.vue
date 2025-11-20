@@ -103,7 +103,7 @@
                 hint="Précisez la taille de référence pour les valeurs nutritionnelles" persistent-hint />
             </v-col>
 
-            <v-col cols="12" v-if="!$vuetify.display.xs">
+            <v-col cols="12">
               <div class="text-subtitle-2 mb-2">Photo du produit</div>
               <v-card variant="outlined" class="image-upload" rounded="lg" :class="{ 'has-image': imagePreview }">
                 <v-card-text class="pa-6">
@@ -129,20 +129,6 @@
                   </div>
                 </v-card-text>
               </v-card>
-            </v-col>
-
-            <v-col cols="12" v-else>
-              <v-alert type="info" variant="tonal" rounded="xl" class="d-flex flex-column align-start"
-                prepend-icon="mdi-cellphone-off">
-                <div class="text-subtitle-2 font-weight-bold mb-1">Upload photo indisponible sur mobile</div>
-                <p class="text-body-2 text-medium-emphasis mb-2">
-                  Pour garantir un upload fiable, ajoutez la photo depuis un ordinateur. Vous pouvez quand même
-                  enregistrer le produit sans image puis revenir l’ajouter plus tard.
-                </p>
-                <v-chip size="small" color="primary" variant="tonal">
-                  Dernière mise à jour : {{ mobileUploadInfoDate }}
-                </v-chip>
-              </v-alert>
             </v-col>
 
           </v-row>
@@ -312,6 +298,11 @@
         </v-card-actions>
 
       </v-card>
+
+      <div id="mobile-log" style="position:fixed; bottom:0; left:0; right:0; max-height:35vh; overflow:auto;
+         background:#000; color:#0f0; font-size:12px; padding:6px; z-index:999999;">
+      </div>
+
 
     </v-container>
   </v-main>
@@ -496,6 +487,36 @@ const form = ref({
     water_ml: null,
   }
 })
+declare global {
+  interface Window {
+    __mobileLogs: string[];
+  }
+}
+
+onMounted(() => {
+  window.onerror = (msg, src, line, col, err) => {
+    logMobile("[ONERROR]", msg, src, line, col, err)
+  }
+
+  window.onunhandledrejection = (e) => {
+    logMobile("[PROMISE]", e.reason)
+  }
+})
+
+
+function logMobile(...args: any[]) {
+  const el = document.getElementById("mobile-log")
+  if (!el) return
+
+  const msg = args.map(a => typeof a === "object" ? JSON.stringify(a) : a).join(" ")
+  const line = document.createElement("div")
+  line.textContent = msg
+  el.appendChild(line)
+
+  window.__mobileLogs = window.__mobileLogs || []
+  window.__mobileLogs.push(msg)
+}
+
 
 type NutritionKey = keyof typeof form.value.nutrition
 
@@ -526,7 +547,6 @@ const displayBarcode = ref('')
 const showAdditivesDialog = ref(false)
 const additiveSearchQuery = ref('')
 const selectedAdditiveFilter = ref<string | null>(null)
-const mobileUploadInfoDate = new Date().toLocaleDateString('fr-FR')
 
 const loadingCategories = ref(false)
 const loadingIngredients = ref(false)
@@ -654,7 +674,10 @@ async function compressImage(file: File, maxSizeMB = 5, quality = 0.8): Promise<
 }
 
 const handleImageUpload = async (event: Event) => {
+  logMobile("file input triggered")
+
   const file = (event.target as HTMLInputElement).files?.[0] ?? null;
+  logMobile("selected file", file ? file.name : "none")
   if (!file) return;
   if (file.size > 20 * 1024 * 1024) {
     errorMessage.value = "Fichier trop volumineux (plus de 20MB)";
@@ -672,6 +695,7 @@ async function uploadImage(file: File): Promise<string | null> {
   uploadingImage.value = true;
   uploadErrorLog.value = ''
   try {
+    logMobile("upload start", file.size)
     let fileExt = 'jpg';
     if (file.name && file.name.includes('.')) fileExt = file.name.split('.').pop()!.toLowerCase();
     else if (file.type && file.type.includes('/')) fileExt = file.type.split('/').pop()!;
@@ -685,14 +709,24 @@ async function uploadImage(file: File): Promise<string | null> {
     const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
     const filePath = `products/${fileName}`;
 
+    const mime = (fileToUpload as any).type || file.type || "image/jpeg"
+    logMobile("before supabase upload")
+
     const { data, error } = await supabase.storage
       .from('product-images')
-      .upload(filePath, fileToUpload as Blob, { cacheControl: '3600', upsert: false, contentType: (fileToUpload as File).type || file.type });
+      .upload(filePath, fileToUpload as Blob, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: mime
+      });
+    logMobile("after supabase upload", { data, error })
+
 
     if (error) {
       uploadErrorLog.value += 'Supabase upload error: ' + JSON.stringify(error) + '\n';
       errorMessage.value = 'Échec de l\'upload';
       errorSnackbar.value = true;
+      console.log(error)
       return null;
     }
 
@@ -712,6 +746,7 @@ async function uploadImage(file: File): Promise<string | null> {
     uploadErrorLog.value += 'Unexpected error: ' + JSON.stringify(err) + '\n';
     errorMessage.value = err?.message || 'Erreur inattendue';
     errorSnackbar.value = true;
+    logMobile("upload exception", err)
     return null;
   } finally {
     uploadingImage.value = false;
