@@ -111,11 +111,6 @@
                   </span>
                 </div>
 
-                <div v-if="product.additives_count > 0" class="mt-2">
-                  <v-chip size="x-small" variant="tonal" color="warning">
-                    {{ product.additives_count }} additif{{ product.additives_count > 1 ? 's' : '' }}
-                  </v-chip>
-                </div>
               </v-card-text>
             </v-card>
           </v-col>
@@ -603,7 +598,7 @@ const getHalalLabel = (status: string) => {
   const labels: Record<string, string> = {
     halal: 'Halal',
     haram: 'Haram',
-    douteux: 'Douteux',
+    douteux: 'Mashbuh',
     non_verifie: 'Non vérifié'
   }
   return labels[status] || 'Non vérifié'

@@ -304,9 +304,6 @@ const fetchStats = async () => {
         .from('community_reviews')
         .select('*', { count: 'exact', head: true })
         .eq('user_email', userEmail)
-      console.log('UserID utilisé pour la requête:', userIdInDB)
-
-      console.log(contribCount)
 
       contributions = contribCount || 0
       reviews = reviewCount || 0
