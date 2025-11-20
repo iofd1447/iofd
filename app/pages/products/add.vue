@@ -297,17 +297,6 @@
           </v-btn>
         </v-card-actions>
 
-        <v-card v-if="window.__mobileLogs?.length" class="mt-4 pa-4" outlined>
-          <v-card-title class="text-h6">Logs mobiles</v-card-title>
-          <v-divider class="mb-2" />
-          <div id="mobile-log" style="max-height:200px; overflow-y:auto; font-size:0.85rem;">
-            <div v-for="(log, idx) in window.__mobileLogs" :key="idx" class="mb-1">
-              {{ log }}
-            </div>
-          </div>
-        </v-card>
-
-
       </v-card>
 
     </v-container>
