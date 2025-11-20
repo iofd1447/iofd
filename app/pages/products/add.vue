@@ -674,20 +674,24 @@ async function compressImage(file: File, maxSizeMB = 5, quality = 0.8): Promise<
 }
 
 const handleImageUpload = async (event: Event) => {
-  logMobile("file input triggered")
-
-  const file = (event.target as HTMLInputElement).files?.[0] ?? null;
-  logMobile("selected file", file ? file.name : "none")
-  if (!file) return;
-  if (file.size > 20 * 1024 * 1024) {
-    errorMessage.value = "Fichier trop volumineux (plus de 20MB)";
-    errorSnackbar.value = true;
-    return;
+  try {
+    const file = (event.target as HTMLInputElement).files?.[0] ?? null;
+    if (!file) return;
+    if (file.size > 20 * 1024 * 1024) {
+      errorMessage.value = "Fichier trop volumineux (plus de 20MB)";
+      errorSnackbar.value = true;
+      return;
+    }
+    imageFile.value = file;
+    const reader = new FileReader();
+    reader.onload = (e) => { imagePreview.value = e.target?.result as string };
+    reader.readAsDataURL(file);
   }
-  imageFile.value = file;
-  const reader = new FileReader();
-  reader.onload = (e) => { imagePreview.value = e.target?.result as string };
-  reader.readAsDataURL(file);
+  catch (error) {
+    uploadErrorLog.value += 'Supabase error: ' + JSON.stringify(error) + '\n';
+    errorMessage.value = `Échec de la compression: ${error}`;
+    errorSnackbar.value = true;
+  }
 }
 const uploadErrorLog = ref('')
 
@@ -702,7 +706,6 @@ async function uploadImage(file: File): Promise<string | null> {
       type: file.type
     })
 
-    // Détection extension plus robuste
     let fileExt = 'jpg';
     if (file.name && file.name.includes('.')) {
       fileExt = file.name.split('.').pop()!.toLowerCase();
@@ -712,31 +715,25 @@ async function uploadImage(file: File): Promise<string | null> {
         'image/jpg': 'jpg',
         'image/png': 'png',
         'image/webp': 'webp',
-        'image/heic': 'jpg', // iOS HEIC converti en JPG
+        'image/heic': 'jpg',
       }
       fileExt = typeMap[file.type] || 'jpg'
     }
 
     let fileToUpload: File | Blob = file;
 
-    // Compression avec meilleure gestion d'erreur
     if (file.size > 5 * 1024 * 1024) {
       try {
-        logMobile("compression start", file.size)
         const compressed = await compressImage(file, 5, 0.78)
-        logMobile("compression done", compressed.size)
 
-        // Vérifier que la compression a fonctionné
         if (compressed.size < file.size) {
           fileToUpload = new File([compressed], `photo.${fileExt}`, {
             type: file.type || 'image/jpeg'
           })
         } else {
-          logMobile("compression ineffective, using original")
           fileToUpload = file
         }
       } catch (err) {
-        logMobile("compression failed", err)
         fileToUpload = file
         uploadErrorLog.value += 'Compression failed: ' + JSON.stringify(err) + '\n'
       }
@@ -745,7 +742,6 @@ async function uploadImage(file: File): Promise<string | null> {
     const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
     const filePath = `products/${fileName}`;
 
-    // Type MIME plus robuste
     const mime = fileToUpload.type || file.type || `image/${fileExt === 'png' ? 'png' : 'jpeg'}`
 
     const { data, error } = await supabase.storage
