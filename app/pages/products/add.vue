@@ -299,11 +299,6 @@
 
       </v-card>
 
-      <div id="mobile-log" style="position:fixed; bottom:0; left:0; right:0; max-height:35vh; overflow:auto;
-         background:#000; color:#0f0; font-size:12px; padding:6px; z-index:999999;">
-      </div>
-
-
     </v-container>
   </v-main>
 
