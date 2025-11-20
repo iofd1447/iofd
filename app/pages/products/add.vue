@@ -120,7 +120,8 @@
                     <v-btn color="primary" variant="tonal" prepend-icon="mdi-upload" @click="selectImage">
                       Choisir une image
                     </v-btn>
-                    <input ref="fileInput" type="file" accept="image/*" hidden @change="handleImageUpload">
+                    <input ref="fileInput" type="file" accept="image/*" capture="environment" hidden
+                      @change="handleImageUpload">
                   </div>
                   <div v-else class="position-relative">
                     <v-img :src="imagePreview" height="200" cover rounded="lg" />
@@ -296,6 +297,10 @@
             Publier le produit
           </v-btn>
         </v-card-actions>
+
+        <v-alert v-if="uploadErrorLog" type="info" class="mt-2">
+          <pre style="font-size: 10px; white-space: pre-wrap;">{{ uploadErrorLog }}</pre>
+        </v-alert>
 
       </v-card>
 
@@ -689,56 +694,106 @@ const uploadErrorLog = ref('')
 async function uploadImage(file: File): Promise<string | null> {
   uploadingImage.value = true;
   uploadErrorLog.value = ''
+
   try {
-    logMobile("upload start", file.size)
+    logMobile("upload start", {
+      name: file.name,
+      size: file.size,
+      type: file.type
+    })
+
+    // Détection extension plus robuste
     let fileExt = 'jpg';
-    if (file.name && file.name.includes('.')) fileExt = file.name.split('.').pop()!.toLowerCase();
-    else if (file.type && file.type.includes('/')) fileExt = file.type.split('/').pop()!;
+    if (file.name && file.name.includes('.')) {
+      fileExt = file.name.split('.').pop()!.toLowerCase();
+    } else if (file.type) {
+      const typeMap: Record<string, string> = {
+        'image/jpeg': 'jpg',
+        'image/jpg': 'jpg',
+        'image/png': 'png',
+        'image/webp': 'webp',
+        'image/heic': 'jpg', // iOS HEIC converti en JPG
+      }
+      fileExt = typeMap[file.type] || 'jpg'
+    }
 
     let fileToUpload: File | Blob = file;
+
+    // Compression avec meilleure gestion d'erreur
     if (file.size > 5 * 1024 * 1024) {
-      try { fileToUpload = new File([await compressImage(file, 5, 0.78)], `photo.${fileExt}`, { type: 'image/jpeg' }) }
-      catch (err) { fileToUpload = file; uploadErrorLog.value += 'Compression failed: ' + JSON.stringify(err) + '\n' }
+      try {
+        logMobile("compression start", file.size)
+        const compressed = await compressImage(file, 5, 0.78)
+        logMobile("compression done", compressed.size)
+
+        // Vérifier que la compression a fonctionné
+        if (compressed.size < file.size) {
+          fileToUpload = new File([compressed], `photo.${fileExt}`, {
+            type: file.type || 'image/jpeg'
+          })
+        } else {
+          logMobile("compression ineffective, using original")
+          fileToUpload = file
+        }
+      } catch (err) {
+        logMobile("compression failed", err)
+        fileToUpload = file
+        uploadErrorLog.value += 'Compression failed: ' + JSON.stringify(err) + '\n'
+      }
     }
 
     const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
     const filePath = `products/${fileName}`;
 
-    const mime = (fileToUpload as any).type || file.type || "image/jpeg"
-    logMobile("before supabase upload")
+    // Type MIME plus robuste
+    const mime = fileToUpload.type || file.type || `image/${fileExt === 'png' ? 'png' : 'jpeg'}`
+
+    logMobile("uploading to supabase", {
+      path: filePath,
+      size: fileToUpload.size,
+      mime: mime
+    })
 
     const { data, error } = await supabase.storage
       .from('product-images')
-      .upload(filePath, fileToUpload as Blob, {
+      .upload(filePath, fileToUpload, {
         cacheControl: '3600',
         upsert: false,
         contentType: mime
       });
-    logMobile("after supabase upload", { data, error })
 
+    logMobile("supabase response", {
+      success: !error,
+      path: data?.path,
+      error: error?.message
+    })
 
     if (error) {
-      uploadErrorLog.value += 'Supabase upload error: ' + JSON.stringify(error) + '\n';
-      errorMessage.value = 'Échec de l\'upload';
+      uploadErrorLog.value += 'Supabase error: ' + JSON.stringify(error) + '\n';
+      errorMessage.value = `Échec de l'upload: ${error.message}`;
       errorSnackbar.value = true;
-      console.log(error)
       return null;
     }
 
-    const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(filePath);
-    const publicUrl = (urlData as any)?.publicUrl ?? null;
+    const { data: urlData } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(filePath);
+
+    const publicUrl = urlData?.publicUrl;
 
     if (!publicUrl) {
-      uploadErrorLog.value += 'Public URL missing: ' + JSON.stringify(urlData) + '\n';
-      errorMessage.value = 'Image uploadée mais URL publique introuvable';
+      uploadErrorLog.value += 'No public URL\n';
+      errorMessage.value = 'URL publique introuvable';
       errorSnackbar.value = true;
       return null;
     }
 
-    uploadErrorLog.value += 'Upload successful: ' + publicUrl + '\n';
+    logMobile("upload complete", publicUrl)
+    uploadErrorLog.value += 'Success: ' + publicUrl + '\n';
     return publicUrl;
+
   } catch (err: any) {
-    uploadErrorLog.value += 'Unexpected error: ' + JSON.stringify(err) + '\n';
+    uploadErrorLog.value += 'Exception: ' + (err?.message || JSON.stringify(err)) + '\n';
     errorMessage.value = err?.message || 'Erreur inattendue';
     errorSnackbar.value = true;
     logMobile("upload exception", err)
