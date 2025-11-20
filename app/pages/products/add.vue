@@ -748,12 +748,6 @@ async function uploadImage(file: File): Promise<string | null> {
     // Type MIME plus robuste
     const mime = fileToUpload.type || file.type || `image/${fileExt === 'png' ? 'png' : 'jpeg'}`
 
-    logMobile("uploading to supabase", {
-      path: filePath,
-      size: fileToUpload.size,
-      mime: mime
-    })
-
     const { data, error } = await supabase.storage
       .from('product-images')
       .upload(filePath, fileToUpload, {
@@ -762,15 +756,9 @@ async function uploadImage(file: File): Promise<string | null> {
         contentType: mime
       });
 
-    logMobile("supabase response", {
-      success: !error,
-      path: data?.path,
-      error: error?.message
-    })
-
     if (error) {
       uploadErrorLog.value += 'Supabase error: ' + JSON.stringify(error) + '\n';
-      errorMessage.value = `Échec de l'upload: ${error.message}`;
+      errorMessage.value = `Échec de l'upload: ${error}`;
       errorSnackbar.value = true;
       return null;
     }
