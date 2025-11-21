@@ -409,7 +409,8 @@
                     <p class="text-caption text-medium-emphasis mb-0">{{ product.reviews_count }} avis</p>
                   </div>
                 </div>
-                <v-btn color="primary" variant="tonal" :size="$vuetify.display.xs ? 'small' : 'default'">
+                <v-btn color="primary" variant="tonal" :size="$vuetify.display.xs ? 'small' : 'default'"
+                  @click="reviewDialog = true">
                   <v-icon start size="small">mdi-plus</v-icon>
                   <span class="d-none d-sm-inline">Ajouter un avis</span>
                   <span class="d-inline d-sm-none">Avis</span>

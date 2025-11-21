@@ -397,8 +397,7 @@ const selectedAdditiveFilter = ref<string | null>(null)
 const halalStatuses = [
   { value: 'halal', label: 'Halal', icon: 'mdi-check-circle', color: 'success' },
   { value: 'haram', label: 'Haram', icon: 'mdi-close-circle', color: 'error' },
-  { value: 'mashbuh', label: 'Mashbuh', icon: 'mdi-alert-circle', color: 'warning' },
-  { value: 'non_verifie', label: 'Non vérifié', icon: 'mdi-help-circle', color: 'grey' },
+  { value: 'mashbuh', label: 'Mashbuh', icon: 'mdi-alert-circle', color: 'warning' }
 ]
 
 const certificationBodies = [
@@ -487,8 +486,7 @@ const getAdditiveColor = (additive: any) => {
     const colors: Record<string, string> = {
       halal: 'success',
       haram: 'error',
-      mashbuh: 'warning',
-      variable: 'info',
+      mashbuh: 'warning'
     }
     return colors[additive.halal_status] || 'secondary'
   }
@@ -500,8 +498,7 @@ const getAdditiveIcon = (additive: any) => {
     const icons: Record<string, string> = {
       halal: 'mdi-check-circle',
       haram: 'mdi-close-circle',
-      mashbuh: 'mdi-alert-circle',
-      variable: 'mdi-help-circle',
+      mashbuh: 'mdi-alert-circle'
     }
     return icons[additive.halal_status] || 'mdi-circle'
   }
@@ -511,8 +508,7 @@ const getAdditiveIcon = (additive: any) => {
 const additiveFilterStatuses = [
   { value: 'halal', label: 'Halal', color: 'success', icon: 'mdi-check-circle' },
   { value: 'haram', label: 'Haram', color: 'error', icon: 'mdi-close-circle' },
-  { value: 'mashbuh', label: 'Mashbuh', color: 'warning', icon: 'mdi-alert-circle' },
-  { value: 'variable', label: 'Variable', color: 'info', icon: 'mdi-help-circle' },
+  { value: 'mashbuh', label: 'Mashbuh', color: 'warning', icon: 'mdi-alert-circle' }
 ]
 
 const filteredAdditives = computed(() => {
