@@ -25,16 +25,17 @@ export default defineEventHandler(async (event) => {
     `${baseUrl}/sitemap-static.xml`,
   ]
 
+  /*
   for (let i = 0; i < productsSitemaps; i++) {
-    sitemaps.push(`${baseUrl}/sitemap-products-${i + 1}.xml`)
+    sitemaps.push(`${baseUrl}/api/sitemap-products/${i + 1}`)
   }
-
 
   for (let i = 0; i < additivesSitemaps; i++) {
     sitemaps.push(`${baseUrl}/sitemap-additives-${i + 1}.xml`)
   }
 
   sitemaps.push(`${baseUrl}/sitemap-contributions.xml`)
+  */
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
