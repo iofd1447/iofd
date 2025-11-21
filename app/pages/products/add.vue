@@ -210,7 +210,6 @@
                 prepend-inner-icon="mdi-leaf" placeholder="Eau, sucre, arômes..."
                 hint="Séparez par des virgules. Dans l'ordre de la liste" persistent-hint />
 
-              <!-- Mode Mobile: Input avec bouton scan -->
               <div v-else>
                 <v-text-field v-model="ingredientsInput" label="Ingrédients" prepend-inner-icon="mdi-leaf"
                   placeholder="Scannez ou tapez les ingrédients..." hint="Utilisez le scan OCR ou tapez manuellement"
@@ -222,7 +221,6 @@
                   </template>
                 </v-text-field>
 
-                <!-- Dialog pour la caméra -->
                 <v-dialog v-model="cameraDialog" :max-width="500" persistent>
                   <v-card>
                     <v-toolbar color="primary">
@@ -233,15 +231,12 @@
                     </v-toolbar>
 
                     <v-card-text class="pa-0 d-flex flex-column align-center">
-                      <!-- Preview vidéo -->
                       <video ref="videoRef" autoplay playsinline class="camera-preview" />
 
-                      <!-- Canvas caché pour capture -->
                       <canvas ref="canvasRef" style="display: none;" />
 
                       <v-img v-if="capturedImage" :src="capturedImage" max-height="300" class="my-4" />
 
-                      <!-- Progression OCR -->
                       <v-progress-linear v-if="isScanning" :model-value="scanProgress" color="primary" class="mx-4 my-2"
                         style="width: 90%;" />
                       <p v-if="isScanning" class="text-center text-body-2">
@@ -257,10 +252,10 @@
                       </v-btn>
 
                       <template v-else>
-                        <v-btn variant="outlined" @click="retakePhoto" :disabled="isScanning">
+                        <v-btn size="small" variant="outlined" @click="retakePhoto" :disabled="isScanning">
                           Reprendre
                         </v-btn>
-                        <v-btn color="primary" @click="processImage" :loading="isScanning">
+                        <v-btn size="small" color="primary" @click="processImage" :loading="isScanning">
                           <v-icon left>mdi-text-recognition</v-icon>
                           Analyser
                         </v-btn>
@@ -646,6 +641,7 @@ const barcodeRule = (v: any) => {
   return 'Code-barres invalide'
 }
 
+// @ts-ignore
 const rules = {
   required: (v: any) => !!v || 'Ce champ est requis',
   barcode: barcodeRule,
@@ -1300,7 +1296,6 @@ function preprocessImage(imgDataUrl: string): string {
   canvas.height = img.height
   const ctx = canvas.getContext('2d')!
   ctx.drawImage(img, 0, 0)
-  // Convertir en noir et blanc pour OCR
   const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
   for (let i = 0; i < imgData.data.length; i += 4) {
     // @ts-ignore
