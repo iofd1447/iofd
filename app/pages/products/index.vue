@@ -368,9 +368,8 @@ const filters = ref({
 
 const quickFilters = [
   { label: 'Halal', value: 'halal', icon: 'mdi-check-circle', color: 'success' },
-  { label: 'Douteux', value: 'douteux', icon: 'mdi-alert-circle', color: 'warning' },
+  { label: 'Mashbuh', value: 'mashbuh', icon: 'mdi-alert-circle', color: 'warning' },
   { label: 'Haram', value: 'haram', icon: 'mdi-close-circle', color: 'error' },
-  { label: 'Non vérifié', value: 'non_verifie', icon: 'mdi-help-circle', color: 'grey' }
 ]
 
 type Category = { id: string; name: string; description?: string }
@@ -588,8 +587,7 @@ const getHalalColor = (status: string) => {
   const colors: Record<string, string> = {
     halal: 'success',
     haram: 'error',
-    douteux: 'warning',
-    non_verifie: 'grey'
+    mashbuh: 'warning'
   }
   return colors[status] || 'grey'
 }
@@ -598,20 +596,18 @@ const getHalalLabel = (status: string) => {
   const labels: Record<string, string> = {
     halal: 'Halal',
     haram: 'Haram',
-    douteux: 'Mashbuh',
-    non_verifie: 'Non vérifié'
+    mashbuh: 'Mashbuh'
   }
-  return labels[status] || 'Non vérifié'
+  return labels[status] || ''
 }
 
 const getHalalIcon = (status: string) => {
   const icons: Record<string, string> = {
     halal: 'mdi-check-circle',
     haram: 'mdi-close-circle',
-    douteux: 'mdi-alert-circle',
-    non_verifie: 'mdi-help-circle'
+    mashbuh: 'mdi-alert-circle'
   }
-  return icons[status] || 'mdi-help-circle'
+  return icons[status] || ''
 }
 
 const getSortLabel = (value: string) => {
