@@ -16,6 +16,7 @@
     "@zxing/library": "^0.21.3",
     "aos": "^2.3.4",
     "hijri-date": "^0.2.2",
+    "html2canvas": "^1.4.1",
     "moment-hijri": "^3.0.0",
     "nuxt": "^4.2.0",
     "vue": "^3.5.22",
