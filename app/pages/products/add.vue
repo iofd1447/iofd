@@ -239,7 +239,7 @@
                       <!-- Canvas caché pour capture -->
                       <canvas ref="canvasRef" style="display: none;" />
 
-                      <img ref="cropperImg" v-if="capturedImage" :src="capturedImage" style="max-width: 100%;" />
+                      <v-img v-if="capturedImage" :src="capturedImage" max-height="300" class="my-4" />
 
                       <!-- Progression OCR -->
                       <v-progress-linear v-if="isScanning" :model-value="scanProgress" color="primary" class="mx-4 my-2"
@@ -498,10 +498,8 @@
 <script setup lang="ts">
 import { useSupabase } from '@/composables/useSupabase'
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import Tesseract from 'tesseract.js'
-import Cropper from 'cropperjs'
-import 'cropperjs/dist/cropper.css'
 
 useHead({
   title: 'IOFD - Add a product to the database'
@@ -1218,9 +1216,6 @@ const isMobile = computed(() => {
   ) || window.innerWidth < 768
 })
 
-// États
-let cropper: Cropper | null = null
-const cropperImgRef = ref<HTMLImageElement | null>(null)
 const cameraDialog = ref(false)
 // Typage correct
 const capturedImage = ref<string | null>(null)
@@ -1263,10 +1258,7 @@ function closeCamera() {
   cameraDialog.value = false
   capturedImage.value = null
   cameraReady.value = false
-  if (cropper) {
-    cropper.destroy()
-    cropper = null
-  }
+
 }
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 
@@ -1288,31 +1280,38 @@ function capturePhoto() {
 
   if (mediaStream) mediaStream.getTracks().forEach(track => track.stop())
 
-  nextTick(() => {
-    if (cropperImgRef.value) {
-      cropper = new Cropper(cropperImgRef.value, {
-        // @ts-ignore
-        viewMode: 1,
-        autoCropArea: 1,
-        movable: true,
-        zoomable: true,
-        scalable: false,
-        cropBoxResizable: true,
-        aspectRatio: NaN
-      })
-    }
-  })
+
 }
 
 function cleanIngredients(text: string) {
   return text
-    .replace(/\n/g, ', ')           // Remplacer sauts de ligne par virgules
-    .replace(/\s+/g, ' ')           // Normaliser espaces
-    .replace(/,\s*,/g, ',')         // Supprimer virgules doubles
-    .replace(/^[,\s]+|[,\s]+$/g, '') // Trim virgules/espaces début/fin
+    .replace(/\n/g, ', ')
+    .replace(/\s+/g, ' ')
+    .replace(/,\s*,/g, ',')
+    .replace(/^[,\s]+|[,\s]+$/g, '')
     .trim()
 }
 
+function preprocessImage(imgDataUrl: string): string {
+  const img = new Image()
+  img.src = imgDataUrl
+  const canvas = document.createElement('canvas')
+  canvas.width = img.width
+  canvas.height = img.height
+  const ctx = canvas.getContext('2d')!
+  ctx.drawImage(img, 0, 0)
+  // Convertir en noir et blanc pour OCR
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+  for (let i = 0; i < imgData.data.length; i += 4) {
+    // @ts-ignore
+    const avg = (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2]) / 3
+    imgData.data[i] = avg
+    imgData.data[i + 1] = avg
+    imgData.data[i + 2] = avg
+  }
+  ctx.putImageData(imgData, 0, 0)
+  return canvas.toDataURL('image/png')
+}
 
 async function processImage() {
   if (!capturedImage.value) return
@@ -1321,11 +1320,7 @@ async function processImage() {
   scanStatus.value = 'Initialisation...'
 
   try {
-    let dataUrl = capturedImage.value
-    if (cropper) {
-      const canvas = (cropper as any).getCroppedCanvas()
-      if (canvas) dataUrl = canvas.toDataURL('image/png')
-    }
+    let dataUrl = preprocessImage(capturedImage.value)
 
     const result = await Tesseract.recognize(dataUrl, 'fra', {
       logger: (m) => {
@@ -1348,10 +1343,6 @@ async function processImage() {
   }
 }
 
-// Import nextTick
-import { nextTick } from 'vue'
-
-// Cleanup
 onUnmounted(() => {
   if (mediaStream) {
     mediaStream.getTracks().forEach(track => track.stop())
