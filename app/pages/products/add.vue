@@ -206,9 +206,70 @@
 
           <v-row>
             <v-col cols="12">
-              <v-text-field v-model="ingredientsInput" label="Ingrédients" prepend-inner-icon="mdi-leaf"
-                placeholder="Eau, sucre, arômes..." hint="Séparez par des virgules. Dans l'ordre de la liste"
-                persistent-hint />
+              <v-text-field v-if="!isMobile" v-model="ingredientsInput" label="Ingrédients"
+                prepend-inner-icon="mdi-leaf" placeholder="Eau, sucre, arômes..."
+                hint="Séparez par des virgules. Dans l'ordre de la liste" persistent-hint />
+
+              <!-- Mode Mobile: Input avec bouton scan -->
+              <div v-else>
+                <v-text-field v-model="ingredientsInput" label="Ingrédients" prepend-inner-icon="mdi-leaf"
+                  placeholder="Scannez ou tapez les ingrédients..." hint="Utilisez le scan OCR ou tapez manuellement"
+                  persistent-hint :loading="isScanning">
+                  <template #append-inner>
+                    <v-btn icon variant="text" color="primary" @click="openCamera" :disabled="isScanning">
+                      <v-icon>mdi-camera</v-icon>
+                    </v-btn>
+                  </template>
+                </v-text-field>
+
+                <!-- Dialog pour la caméra -->
+                <v-dialog v-model="cameraDialog" fullscreen>
+                  <v-card>
+                    <v-toolbar color="primary">
+                      <v-btn icon @click="closeCamera">
+                        <v-icon>mdi-close</v-icon>
+                      </v-btn>
+                      <v-toolbar-title>Scanner les ingrédients</v-toolbar-title>
+                    </v-toolbar>
+
+                    <v-card-text class="pa-0 d-flex flex-column align-center">
+                      <!-- Preview vidéo -->
+                      <video ref="videoRef" autoplay playsinline class="camera-preview" />
+
+                      <!-- Canvas caché pour capture -->
+                      <canvas ref="canvasRef" style="display: none;" />
+
+                      <!-- Aperçu de l'image capturée -->
+                      <v-img v-if="capturedImage" :src="capturedImage" max-height="300" class="my-4" />
+
+                      <!-- Progression OCR -->
+                      <v-progress-linear v-if="isScanning" :model-value="scanProgress" color="primary" class="mx-4 my-2"
+                        style="width: 90%;" />
+                      <p v-if="isScanning" class="text-center text-body-2">
+                        {{ scanStatus }}
+                      </p>
+                    </v-card-text>
+
+                    <v-card-actions class="justify-center pb-4">
+                      <v-btn v-if="!capturedImage" color="primary" size="large" @click="capturePhoto"
+                        :disabled="!cameraReady">
+                        <v-icon left>mdi-camera</v-icon>
+                        Capturer
+                      </v-btn>
+
+                      <template v-else>
+                        <v-btn variant="outlined" @click="retakePhoto" :disabled="isScanning">
+                          Reprendre
+                        </v-btn>
+                        <v-btn color="primary" @click="processImage" :loading="isScanning">
+                          <v-icon left>mdi-text-recognition</v-icon>
+                          Analyser
+                        </v-btn>
+                      </template>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </div>
             </v-col>
 
             <v-col cols="12">
@@ -439,6 +500,7 @@
 import { useSupabase } from '@/composables/useSupabase'
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
 import { computed, onMounted, ref, watch } from 'vue'
+import Tesseract from 'tesseract.js'
 
 useHead({
   title: 'IOFD - Add a product to the database'
@@ -1147,9 +1209,162 @@ onMounted(async () => {
     loadLabels(),
   ])
 })
+
+// Détection mobile
+const isMobile = computed(() => {
+  if (typeof window === 'undefined') return false
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  ) || window.innerWidth < 768
+})
+
+// États
+const cameraDialog = ref(false)
+// Typage correct
+const capturedImage = ref<string | null>(null)
+const isScanning = ref(false)
+const scanProgress = ref(0)
+const scanStatus = ref('')
+
+const videoRef = ref<HTMLVideoElement | null>(null)
+const cameraReady = ref(false)
+let mediaStream: MediaStream | null = null
+
+const openCamera = async () => {
+  cameraDialog.value = true
+  capturedImage.value = null
+  cameraReady.value = false
+  await nextTick()
+
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' }
+    })
+
+    if (videoRef.value) {
+      videoRef.value.srcObject = mediaStream
+      videoRef.value.onloadedmetadata = () => {
+        cameraReady.value = true
+      }
+    }
+
+  } catch (err) {
+    console.error('Erreur accès caméra:', err)
+    alert("Impossible d'accéder à la caméra.")
+    closeCamera()
+  }
+}
+
+function closeCamera() {
+  if (mediaStream) {
+    mediaStream.getTracks().forEach(track => track.stop())
+    mediaStream = null
+  }
+  cameraDialog.value = false
+  capturedImage.value = null
+  cameraReady.value = false
+}
+const canvasRef = ref<HTMLCanvasElement | null>(null)
+
+function capturePhoto() {
+  if (!videoRef.value || !canvasRef.value) return
+
+  const video = videoRef.value
+  const canvas = canvasRef.value
+
+  canvas.width = video.videoWidth
+  canvas.height = video.videoHeight
+
+  const ctx = canvas.getContext('2d')
+  if (!ctx) {
+    console.error('Impossible d’obtenir le contexte 2D du canvas')
+    return
+  }
+
+  ctx.drawImage(video, 0, 0)
+
+  const dataUrl = canvas.toDataURL('image/png')
+  if (!dataUrl) {
+    console.error('Impossible de générer l’image depuis le canvas')
+    return
+  }
+
+  capturedImage.value = dataUrl // ici on est sûr que c’est une string
+
+  // Arrêter la vidéo après capture
+  if (mediaStream) {
+    mediaStream.getTracks().forEach(track => track.stop())
+  }
+}
+
+
+function retakePhoto() {
+  capturedImage.value = null
+  openCamera()
+}
+
+async function processImage() {
+  if (!capturedImage.value) return
+
+  isScanning.value = true
+  scanProgress.value = 0
+  scanStatus.value = 'Initialisation...'
+
+  try {
+    const result = await Tesseract.recognize(
+      capturedImage.value,
+      'fra', // Français
+      {
+        logger: (m) => {
+          if (m.status === 'recognizing text') {
+            scanProgress.value = Math.round(m.progress * 100)
+            scanStatus.value = 'Reconnaissance du texte...'
+          } else {
+            scanStatus.value = m.status
+          }
+        }
+      }
+    )
+
+    // Nettoyer et formater le texte reconnu
+    const cleanedText = cleanIngredients(result.data.text)
+    ingredientsInput.value = cleanedText
+
+    closeCamera()
+  } catch (err) {
+    console.error('Erreur OCR:', err)
+    alert('Erreur lors de l\'analyse de l\'image')
+  } finally {
+    isScanning.value = false
+  }
+}
+
+function cleanIngredients(text: string) {
+  return text
+    .replace(/\n/g, ', ')           // Remplacer sauts de ligne par virgules
+    .replace(/\s+/g, ' ')           // Normaliser espaces
+    .replace(/,\s*,/g, ',')         // Supprimer virgules doubles
+    .replace(/^[,\s]+|[,\s]+$/g, '') // Trim virgules/espaces début/fin
+    .trim()
+}
+
+// Import nextTick
+import { nextTick } from 'vue'
+
+// Cleanup
+onUnmounted(() => {
+  if (mediaStream) {
+    mediaStream.getTracks().forEach(track => track.stop())
+  }
+})
 </script>
 
 <style scoped>
+.camera-preview {
+  width: 100%;
+  max-height: 60vh;
+  object-fit: cover;
+}
 .image-upload {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
