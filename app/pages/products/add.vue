@@ -491,6 +491,9 @@
     </v-card>
   </v-dialog>
 
+  <ImageCropper v-model="showCropper" :image-src="imageToCrop || ''" @crop="onImageCropped"
+    @update:model-value="(v) => { if (!v) onCropCancel() }" />
+
 </template>
 
 <script setup lang="ts">
@@ -498,6 +501,7 @@ import { useSupabase } from '@/composables/useSupabase'
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
 import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import Tesseract from 'tesseract.js'
+import ImageCropper from '@/components/ImageCropper.vue'
 
 useHead({
   title: 'IOFD - Add a product to the database'
@@ -617,6 +621,9 @@ const ingredientsInput = ref('')
 const selectedAdditives = ref<any[]>([])
 const selectedAllergens = ref<string[]>([])
 const selectedLabels = ref<string[]>([])
+
+const showCropper = ref(false)
+const imageToCrop = ref<string | null>(null)
 
 const cleanBarcode = (v: string) => (v || '').toString().replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 32)
 
@@ -1275,11 +1282,24 @@ function capturePhoto() {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
   ctx.drawImage(video, 0, 0)
-  capturedImage.value = canvas.toDataURL('image/png')
+
+  imageToCrop.value = canvas.toDataURL('image/png')
 
   if (mediaStream) mediaStream.getTracks().forEach(track => track.stop())
 
+  cameraDialog.value = false
+  showCropper.value = true
+}
 
+function onImageCropped(croppedDataUrl: string) {
+  capturedImage.value = croppedDataUrl
+  imageToCrop.value = null
+  cameraDialog.value = true
+}
+
+function onCropCancel() {
+  imageToCrop.value = null
+  openCamera()
 }
 
 function cleanIngredients(text: string) {
@@ -1312,12 +1332,14 @@ function preprocessImage(imgDataUrl: string): string {
 }
 
 async function processImage() {
+  // On utilise capturedImage qui contient maintenant l'image croppée
   if (!capturedImage.value) return
   isScanning.value = true
   scanProgress.value = 0
   scanStatus.value = 'Initialisation...'
 
   try {
+    // Le preprocessing reste le même mais sur l'image déjà croppée
     let dataUrl = preprocessImage(capturedImage.value)
 
     const result = await Tesseract.recognize(dataUrl, 'fra', {
