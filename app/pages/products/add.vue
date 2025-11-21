@@ -222,7 +222,7 @@
                 </v-text-field>
 
                 <v-dialog v-model="cameraDialog" :max-width="500" persistent>
-                  <v-card>
+                  <v-card class="pa-4" style="width: 100%; max-width: 500px;">
                     <v-toolbar color="primary">
                       <v-btn icon @click="closeCamera">
                         <v-icon>mdi-close</v-icon>
@@ -252,13 +252,16 @@
                       </v-btn>
 
                       <template v-else>
-                        <v-btn size="small" variant="outlined" @click="retakePhoto" :disabled="isScanning">
-                          Reprendre
-                        </v-btn>
-                        <v-btn size="small" color="primary" @click="processImage" :loading="isScanning">
-                          <v-icon left>mdi-text-recognition</v-icon>
-                          Analyser
-                        </v-btn>
+                        <div class="d-flex flex-column flex-sm-row justify-center"
+                          style="gap: 8px; max-width: 300px; width: 100%;">
+                          <v-btn size="small" variant="outlined" @click="retakePhoto" :disabled="isScanning">
+                            Reprendre
+                          </v-btn>
+                          <v-btn size="small" color="primary" @click="processImage" :loading="isScanning">
+                            <v-icon left>mdi-text-recognition</v-icon>
+                            Analyser
+                          </v-btn>
+                        </div>
                       </template>
                     </v-card-actions>
                   </v-card>
