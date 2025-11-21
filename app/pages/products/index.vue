@@ -55,9 +55,9 @@
               </span>
             </div>
 
-            <div class="d-flex ga-2">
+            <div class="d-flex">
               <v-btn-toggle v-model="viewMode" mandatory density="compact" variant="outlined">
-                <v-btn value="grid" icon="mdi-view-grid" />
+                <v-btn value="grid" icon="mdi-view-grid" class="mr-1" />
                 <v-btn value="list" icon="mdi-view-list" />
               </v-btn-toggle>
             </div>
@@ -81,13 +81,12 @@
               </v-img>
 
               <v-card-text class="pb-4">
-                <div class="d-flex align-center gap-2 mb-2">
-                  <v-chip v-if="product.category" size="x-small" variant="tonal" color="primary">
+                <div class="d-flex align-center ga-2 mb-2">
+                  <v-chip v-if="product.category" size="small" variant="tonal" color="primary">
                     {{ product.category }}
                   </v-chip>
-                  <v-chip v-if="product.certified" size="x-small" variant="tonal" color="success">
-                    <v-icon start size="x-small">mdi-certificate</v-icon>
-                    Certifié
+                  <v-chip v-if="product.barcode" size="small" variant="tonal" color="secondary">
+                    <v-icon class="mr-1">mdi-barcode</v-icon> {{ product.barcode }}
                   </v-chip>
                 </div>
 
@@ -145,12 +144,12 @@
                           {{ product.brand }}
                         </p>
 
-                        <div class="d-flex align-center gap-2">
-                          <v-chip v-if="product.category" size="small" variant="tonal">
+                        <div class="d-flex align-center ga-2">
+                          <v-chip v-if="product.category" size="small" variant="tonal" color="primary">
                             {{ product.category }}
                           </v-chip>
-                          <v-chip size="small" variant="tonal">
-                            {{ product.barcode }}
+                          <v-chip size="small" variant="tonal" color="secondary">
+                            <v-icon class="mr-1">mdi-barcode</v-icon> {{ product.barcode }}
                           </v-chip>
                         </div>
                       </v-col>
@@ -167,11 +166,6 @@
                           </div>
                         </div>
 
-                        <div v-if="product.additives_count > 0">
-                          <v-chip size="small" variant="tonal" color="warning">
-                            {{ product.additives_count }} additif{{ product.additives_count > 1 ? 's' : '' }}
-                          </v-chip>
-                        </div>
                       </v-col>
 
                       <v-col cols="12" md="3" class="text-right">
@@ -475,6 +469,8 @@ const fetchProducts = async () => {
     return
   }
 
+  console.log(data)
+
   allProducts.value = (data as SupabaseProductRow[]).map(p => {
     const reviews = p.community_reviews || []
     const reviews_count = reviews.length
@@ -487,8 +483,10 @@ const fetchProducts = async () => {
       barcode: p.barcode,
       name: p.name,
       brand: p.brand,
-      category_id: p.category?.[0]?.id || null,
-      category: p.category?.[0]?.name || 'Autre',
+      // @ts-ignore
+      category_id: p.category?.id ?? null,
+      // @ts-ignore
+      category: p.category?.name ?? 'Autre',
       image_url: p.image_url || 'https://via.placeholder.com/400x400?text=Produit',
       // @ts-ignore
       halal_status: p.halal_info?.halal_status || 'non_verifie',
@@ -538,6 +536,7 @@ const filteredProducts = computed(() => {
   }
 
   products = sortProducts(products)
+  console.log(products)
 
   return products
 })
