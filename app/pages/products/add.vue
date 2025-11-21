@@ -625,6 +625,16 @@ const selectedLabels = ref<string[]>([])
 const showCropper = ref(false)
 const imageToCrop = ref<string | null>(null)
 
+const cameraDialog = ref(false)
+const capturedImage = ref<string | null>(null)
+const isScanning = ref(false)
+const scanProgress = ref(0)
+const scanStatus = ref('')
+
+const videoRef = ref<HTMLVideoElement | null>(null)
+const cameraReady = ref(false)
+let mediaStream: MediaStream | null = null
+
 const cleanBarcode = (v: string) => (v || '').toString().replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 32)
 
 const formatBarcode = (value: string) => {
@@ -1222,18 +1232,13 @@ const isMobile = computed(() => {
   ) || window.innerWidth < 768
 })
 
-const cameraDialog = ref(false)
-// Typage correct
-const capturedImage = ref<string | null>(null)
-const isScanning = ref(false)
-const scanProgress = ref(0)
-const scanStatus = ref('')
-
-const videoRef = ref<HTMLVideoElement | null>(null)
-const cameraReady = ref(false)
-let mediaStream: MediaStream | null = null
-
 const openCamera = async () => {
+
+  if (capturedImage.value) {
+    cameraDialog.value = true
+    return
+  }
+
   cameraDialog.value = true
   capturedImage.value = null
   cameraReady.value = false
@@ -1259,13 +1264,17 @@ const openCamera = async () => {
 }
 
 function closeCamera() {
-  if (mediaStream) mediaStream.getTracks().forEach(track => track.stop())
-  mediaStream = null
+  if (mediaStream) {
+    mediaStream.getTracks().forEach(track => track.stop())
+    mediaStream = null
+  }
   cameraDialog.value = false
   capturedImage.value = null
   cameraReady.value = false
-
+  imageToCrop.value = null
+  showCropper.value = false
 }
+
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 
 function retakePhoto() {
@@ -1332,14 +1341,12 @@ function preprocessImage(imgDataUrl: string): string {
 }
 
 async function processImage() {
-  // On utilise capturedImage qui contient maintenant l'image croppée
   if (!capturedImage.value) return
   isScanning.value = true
   scanProgress.value = 0
   scanStatus.value = 'Initialisation...'
 
   try {
-    // Le preprocessing reste le même mais sur l'image déjà croppée
     let dataUrl = preprocessImage(capturedImage.value)
 
     const result = await Tesseract.recognize(dataUrl, 'fra', {
