@@ -77,7 +77,7 @@
             <v-col cols="12" md="6">
               <v-text-field :model-value="displayBarcode" label="Code-barres" prepend-inner-icon="mdi-barcode"
                 placeholder="3017620422003" hint="Jusqu'à 32 caractères" persistent-hint :rules="[rules.barcode]"
-                @input="onBarcodeInput" maxlength="32" />
+                maxlength="32" />
             </v-col>
 
 
@@ -335,6 +335,8 @@
             </div>
           </div>
 
+          <v-alert type="info" variant="tonal" class="mb-2">Laissez vide si aucune valeur à fournir</v-alert>
+
           <v-row class="mb-2">
             <v-col v-for="field in nutritionFields" :key="field.key" cols="12" sm="6" md="4">
               <v-text-field v-model="form.nutrition[field.key]" :label="`${field.label} (${field.suffix})`"
@@ -500,6 +502,7 @@
 import { useSupabase } from '@/composables/useSupabase'
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
 import { computed, onMounted, ref, watch, nextTick } from 'vue'
+import { rules } from '@/utils/rules'
 import Tesseract from 'tesseract.js'
 import ImageCropper from '@/components/ImageCropper.vue'
 
@@ -545,36 +548,6 @@ const form = ref({
     water_ml: null,
   }
 })
-declare global {
-  interface Window {
-    __mobileLogs: string[];
-  }
-}
-
-onMounted(() => {
-  window.onerror = (msg, src, line, col, err) => {
-    logMobile("[ONERROR]", msg, src, line, col, err)
-  }
-
-  window.onunhandledrejection = (e) => {
-    logMobile("[PROMISE]", e.reason)
-  }
-})
-
-
-function logMobile(...args: any[]) {
-  const el = document.getElementById("mobile-log")
-  if (!el) return
-
-  const msg = args.map(a => typeof a === "object" ? JSON.stringify(a) : a).join(" ")
-  const line = document.createElement("div")
-  line.textContent = msg
-  el.appendChild(line)
-
-  window.__mobileLogs = window.__mobileLogs || []
-  window.__mobileLogs.push(msg)
-}
-
 
 type NutritionKey = keyof typeof form.value.nutrition
 
@@ -635,47 +608,6 @@ const scanStatus = ref('')
 const videoRef = ref<HTMLVideoElement | null>(null)
 const cameraReady = ref(false)
 let mediaStream: MediaStream | null = null
-
-const cleanBarcode = (v: string) => (v || '').toString().replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 32)
-
-const formatBarcode = (value: string) => {
-  const raw = cleanBarcode(value)
-  if (!raw) return ''
-  if (/^[0-9]+$/.test(raw)) {
-    const d = raw
-    if (d.length <= 3) return d
-    if (d.length <= 7) return d.replace(/^(\d{3})(\d+)/, '$1 $2')
-    if (d.length <= 12) return d.replace(/^(\d{3})(\d{4})(\d+)/, '$1 $2 $3')
-    return d.replace(/^(\d{3})(\d{4})(\d{5})(\d{1})/, '$1 $2 $3 $4')
-  }
-  return raw.match(/.{1,4}/g)?.join(' ') ?? raw
-}
-
-const barcodeRule = (v: any) => {
-  if (!v) return true
-  const cleaned = cleanBarcode(v)
-  if (/^[0-9]{8}$/.test(cleaned)) return true
-  if (/^[0-9]{12}$/.test(cleaned)) return true
-  if (/^[0-9]{13}$/.test(cleaned)) return true
-  if (/^[0-9]{10}$/.test(cleaned)) return true
-  if (/^[A-Z0-9]{8,32}$/.test(cleaned)) return true
-  return 'Code-barres invalide'
-}
-
-// @ts-ignore
-const rules = {
-  required: (v: any) => !!v || 'Ce champ est requis',
-  barcode: barcodeRule,
-}
-const onBarcodeInput = (e: any) => {
-  const raw = e?.target?.value ?? ''
-  form.value.barcode = cleanBarcode(raw)
-  displayBarcode.value = formatBarcode(raw)
-}
-
-watch(() => form.value.barcode, val => {
-  displayBarcode.value = formatBarcode(val || '')
-})
 
 const halalStatuses = [
   { value: 'halal', label: 'Halal', icon: 'mdi-check-circle', color: 'success' },
@@ -773,11 +705,6 @@ async function uploadImage(file: File): Promise<string | null> {
   uploadErrorLog.value = ''
 
   try {
-    logMobile("upload start", {
-      name: file.name,
-      size: file.size,
-      type: file.type
-    })
 
     let fileExt = 'jpg';
     if (file.name && file.name.includes('.')) {
@@ -845,7 +772,6 @@ async function uploadImage(file: File): Promise<string | null> {
       return null;
     }
 
-    logMobile("upload complete", publicUrl)
     uploadErrorLog.value += 'Success: ' + publicUrl + '\n';
     return publicUrl;
 
@@ -853,7 +779,6 @@ async function uploadImage(file: File): Promise<string | null> {
     uploadErrorLog.value += 'Exception: ' + (err?.message || JSON.stringify(err)) + '\n';
     errorMessage.value = err?.message || 'Erreur inattendue';
     errorSnackbar.value = true;
-    logMobile("upload exception", err)
     return null;
   } finally {
     uploadingImage.value = false;
@@ -1013,11 +938,17 @@ const submitProduct = async () => {
 
     const hasNutritionData = Object.values(form.value.nutrition).some(v => v !== null && v !== undefined && v !== '')
     if (hasNutritionData) {
+      const nutritionToSave = Object.fromEntries(
+        Object.entries(form.value.nutrition).map(([key, value]) => [key, value ?? 0])
+      )
+
       const { error: nutritionError } = await supabase
         .from('nutrition_facts')
-        .upsert([{ product_id: productId, ...form.value.nutrition }], { onConflict: 'product_id', ignoreDuplicates: true })
+        .upsert([{ product_id: productId, ...nutritionToSave }], { onConflict: 'product_id', ignoreDuplicates: true })
+
       if (nutritionError) throw nutritionError
     }
+
 
     const ingredientMappings = []
     for (let i = 0; i < selectedIngredients.value.length; i++) {
