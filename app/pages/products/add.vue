@@ -625,6 +625,7 @@ const selectedLabels = ref<string[]>([])
 const showCropper = ref(false)
 const imageToCrop = ref<string | null>(null)
 
+const canvasRef = ref<HTMLCanvasElement | null>(null)
 const cameraDialog = ref(false)
 const capturedImage = ref<string | null>(null)
 const isScanning = ref(false)
@@ -1275,8 +1276,6 @@ function closeCamera() {
   showCropper.value = false
 }
 
-const canvasRef = ref<HTMLCanvasElement | null>(null)
-
 function retakePhoto() {
   capturedImage.value = null
   openCamera()
@@ -1320,24 +1319,85 @@ function cleanIngredients(text: string) {
     .trim()
 }
 
-function preprocessImage(imgDataUrl: string): string {
-  const img = new Image()
-  img.src = imgDataUrl
-  const canvas = document.createElement('canvas')
-  canvas.width = img.width
-  canvas.height = img.height
-  const ctx = canvas.getContext('2d')!
-  ctx.drawImage(img, 0, 0)
-  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-  for (let i = 0; i < imgData.data.length; i += 4) {
-    // @ts-ignore
-    const avg = (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2]) / 3
-    imgData.data[i] = avg
-    imgData.data[i + 1] = avg
-    imgData.data[i + 2] = avg
+function applyDilation(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const imgData = ctx.getImageData(0, 0, w, h)
+  const data = imgData.data
+  const copy = new Uint8ClampedArray(data)
+
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      const idx = (y * w + x) * 4
+
+      let isNearBlack = false
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const nIdx = ((y + dy) * w + (x + dx)) * 4
+          if (copy[nIdx] === 0) {
+            isNearBlack = true
+            break
+          }
+        }
+        if (isNearBlack) break
+      }
+
+      if (isNearBlack) {
+        data[idx] = data[idx + 1] = data[idx + 2] = 0
+      }
+    }
   }
+
   ctx.putImageData(imgData, 0, 0)
-  return canvas.toDataURL('image/png')
+}
+
+function preprocessImage(imgDataUrl: string): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')!
+
+      const scale = 2
+      canvas.width = img.width * scale
+      canvas.height = img.height * scale
+
+      ctx.imageSmoothingEnabled = false
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+      const data = imgData.data
+
+      let totalBrightness = 0
+      for (let i = 0; i < data.length; i += 4) {
+        // @ts-ignore
+        const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]
+        totalBrightness += gray
+      }
+      const avgBrightness = totalBrightness / (data.length / 4)
+
+      const threshold = avgBrightness < 128 ? avgBrightness * 0.8 : avgBrightness * 1.1
+
+      for (let i = 0; i < data.length; i += 4) {
+        // @ts-ignore
+        let gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]
+
+        gray = ((gray - avgBrightness) * 1.5) + avgBrightness
+        gray = Math.max(0, Math.min(255, gray))
+
+        const binary = gray > threshold ? 255 : 0
+
+        data[i] = binary
+        data[i + 1] = binary
+        data[i + 2] = binary
+      }
+
+      ctx.putImageData(imgData, 0, 0)
+
+      applyDilation(ctx, canvas.width, canvas.height)
+
+      resolve(canvas.toDataURL('image/png'))
+    }
+    img.src = imgDataUrl
+  })
 }
 
 async function processImage() {
@@ -1347,7 +1407,7 @@ async function processImage() {
   scanStatus.value = 'Initialisation...'
 
   try {
-    let dataUrl = preprocessImage(capturedImage.value)
+    let dataUrl = await preprocessImage(capturedImage.value)
 
     const result = await Tesseract.recognize(dataUrl, 'fra', {
       logger: (m) => {
