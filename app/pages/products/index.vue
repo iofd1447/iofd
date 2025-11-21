@@ -82,11 +82,8 @@
 
               <v-card-text class="pb-4">
                 <div class="d-flex align-center ga-2 mb-2">
-                  <v-chip v-if="product.category" size="small" variant="tonal" color="primary">
+                  <v-chip v-if="product.category" size="x-small" variant="tonal" color="primary">
                     {{ product.category }}
-                  </v-chip>
-                  <v-chip v-if="product.barcode" size="small" variant="tonal" color="secondary">
-                    <v-icon class="mr-1">mdi-barcode</v-icon> {{ product.barcode }}
                   </v-chip>
                 </div>
 
