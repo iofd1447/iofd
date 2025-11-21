@@ -223,7 +223,7 @@
                 </v-text-field>
 
                 <!-- Dialog pour la caméra -->
-                <v-dialog v-model="cameraDialog" fullscreen>
+                <v-dialog v-model="cameraDialog" :max-width="500" persistent>
                   <v-card>
                     <v-toolbar color="primary">
                       <v-btn icon @click="closeCamera">
@@ -239,8 +239,7 @@
                       <!-- Canvas caché pour capture -->
                       <canvas ref="canvasRef" style="display: none;" />
 
-                      <!-- Aperçu de l'image capturée -->
-                      <v-img v-if="capturedImage" :src="capturedImage" max-height="300" class="my-4" />
+                      <img ref="cropperImg" v-if="capturedImage" :src="capturedImage" style="max-width: 100%;" />
 
                       <!-- Progression OCR -->
                       <v-progress-linear v-if="isScanning" :model-value="scanProgress" color="primary" class="mx-4 my-2"
@@ -501,6 +500,8 @@ import { useSupabase } from '@/composables/useSupabase'
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
 import { computed, onMounted, ref, watch } from 'vue'
 import Tesseract from 'tesseract.js'
+import Cropper from 'cropperjs'
+import 'cropperjs/dist/cropper.css'
 
 useHead({
   title: 'IOFD - Add a product to the database'
@@ -1210,7 +1211,6 @@ onMounted(async () => {
   ])
 })
 
-// Détection mobile
 const isMobile = computed(() => {
   if (typeof window === 'undefined') return false
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -1219,6 +1219,8 @@ const isMobile = computed(() => {
 })
 
 // États
+let cropper: Cropper | null = null
+const cropperImgRef = ref<HTMLImageElement | null>(null)
 const cameraDialog = ref(false)
 // Typage correct
 const capturedImage = ref<string | null>(null)
@@ -1256,87 +1258,50 @@ const openCamera = async () => {
 }
 
 function closeCamera() {
-  if (mediaStream) {
-    mediaStream.getTracks().forEach(track => track.stop())
-    mediaStream = null
-  }
+  if (mediaStream) mediaStream.getTracks().forEach(track => track.stop())
+  mediaStream = null
   cameraDialog.value = false
   capturedImage.value = null
   cameraReady.value = false
+  if (cropper) {
+    cropper.destroy()
+    cropper = null
+  }
 }
 const canvasRef = ref<HTMLCanvasElement | null>(null)
-
-function capturePhoto() {
-  if (!videoRef.value || !canvasRef.value) return
-
-  const video = videoRef.value
-  const canvas = canvasRef.value
-
-  canvas.width = video.videoWidth
-  canvas.height = video.videoHeight
-
-  const ctx = canvas.getContext('2d')
-  if (!ctx) {
-    console.error('Impossible d’obtenir le contexte 2D du canvas')
-    return
-  }
-
-  ctx.drawImage(video, 0, 0)
-
-  const dataUrl = canvas.toDataURL('image/png')
-  if (!dataUrl) {
-    console.error('Impossible de générer l’image depuis le canvas')
-    return
-  }
-
-  capturedImage.value = dataUrl // ici on est sûr que c’est une string
-
-  // Arrêter la vidéo après capture
-  if (mediaStream) {
-    mediaStream.getTracks().forEach(track => track.stop())
-  }
-}
-
 
 function retakePhoto() {
   capturedImage.value = null
   openCamera()
 }
 
-async function processImage() {
-  if (!capturedImage.value) return
+function capturePhoto() {
+  if (!videoRef.value || !canvasRef.value) return
+  const video = videoRef.value
+  const canvas = canvasRef.value
+  canvas.width = video.videoWidth
+  canvas.height = video.videoHeight
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  ctx.drawImage(video, 0, 0)
+  capturedImage.value = canvas.toDataURL('image/png')
 
-  isScanning.value = true
-  scanProgress.value = 0
-  scanStatus.value = 'Initialisation...'
+  if (mediaStream) mediaStream.getTracks().forEach(track => track.stop())
 
-  try {
-    const result = await Tesseract.recognize(
-      capturedImage.value,
-      'fra', // Français
-      {
-        logger: (m) => {
-          if (m.status === 'recognizing text') {
-            scanProgress.value = Math.round(m.progress * 100)
-            scanStatus.value = 'Reconnaissance du texte...'
-          } else {
-            scanStatus.value = m.status
-          }
-        }
-      }
-    )
-
-    // Nettoyer et formater le texte reconnu
-    const cleanedText = cleanIngredients(result.data.text)
-    ingredientsInput.value = cleanedText
-
-    closeCamera()
-  } catch (err) {
-    console.error('Erreur OCR:', err)
-    alert('Erreur lors de l\'analyse de l\'image')
-  } finally {
-    isScanning.value = false
-  }
+  nextTick(() => {
+    if (cropperImgRef.value) {
+      cropper = new Cropper(cropperImgRef.value, {
+        // @ts-ignore
+        viewMode: 1,
+        autoCropArea: 1,
+        movable: true,
+        zoomable: true,
+        scalable: false,
+        cropBoxResizable: true,
+        aspectRatio: NaN
+      })
+    }
+  })
 }
 
 function cleanIngredients(text: string) {
@@ -1346,6 +1311,41 @@ function cleanIngredients(text: string) {
     .replace(/,\s*,/g, ',')         // Supprimer virgules doubles
     .replace(/^[,\s]+|[,\s]+$/g, '') // Trim virgules/espaces début/fin
     .trim()
+}
+
+
+async function processImage() {
+  if (!capturedImage.value) return
+  isScanning.value = true
+  scanProgress.value = 0
+  scanStatus.value = 'Initialisation...'
+
+  try {
+    let dataUrl = capturedImage.value
+    if (cropper) {
+      const canvas = (cropper as any).getCroppedCanvas()
+      if (canvas) dataUrl = canvas.toDataURL('image/png')
+    }
+
+    const result = await Tesseract.recognize(dataUrl, 'fra', {
+      logger: (m) => {
+        if (m.status === 'recognizing text') {
+          scanProgress.value = Math.round(m.progress * 100)
+          scanStatus.value = 'Reconnaissance du texte...'
+        } else {
+          scanStatus.value = m.status
+        }
+      }
+    })
+
+    ingredientsInput.value = cleanIngredients(result.data.text)
+    closeCamera()
+  } catch (err) {
+    console.error('Erreur OCR:', err)
+    alert('Erreur lors de l\'analyse de l\'image')
+  } finally {
+    isScanning.value = false
+  }
 }
 
 // Import nextTick
