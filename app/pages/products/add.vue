@@ -244,7 +244,7 @@
                       </p>
                     </v-card-text>
 
-                    <v-card-actions class="justify-center pb-4">
+                    <v-card-actions class="justify-center pb-4" :max-width="400">
                       <v-btn v-if="!capturedImage" color="primary" size="large" @click="capturePhoto"
                         :disabled="!cameraReady">
                         <v-icon left>mdi-camera</v-icon>
