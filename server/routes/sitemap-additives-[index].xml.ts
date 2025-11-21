@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { defineEventHandler, getRouterParam } from 'h3'
 
 export default defineEventHandler(async (event) => {
-  const baseUrl = process.env.NUXT_PUBLIC_SITE_URL || 'https://iofd.netlify.app'
+  const baseUrl = process.env.NUXT_PUBLIC_SITE_URL || 'https://iofd.org'
   const index = parseInt(getRouterParam(event, 'index') || '1')
 
   const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.NUXT_PUBLIC_SUPABASE_URL || ''

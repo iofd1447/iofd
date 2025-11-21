@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { defineEventHandler } from 'h3'
 
 export default defineEventHandler(async (event) => {
-  const baseUrl = process.env.NUXT_PUBLIC_SITE_URL || process.env.VITE_SUPABASE_URL?.replace('/rest/v1', '') || 'https://iofd.netlify.app'
+  const baseUrl = process.env.NUXT_PUBLIC_SITE_URL || process.env.VITE_SUPABASE_URL?.replace('/rest/v1', '') || 'https://iofd.org'
 
   const supabaseUrl = process.env.VITE_SUPABASE_URL || ''
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || ''

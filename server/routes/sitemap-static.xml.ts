@@ -1,7 +1,7 @@
 import { defineEventHandler } from 'h3'
 
 export default defineEventHandler(async (event) => {
-  const baseUrl = process.env.NUXT_PUBLIC_SITE_URL || 'https://iofd.netlify.app'
+  const baseUrl = process.env.NUXT_PUBLIC_SITE_URL || 'https://iofd.org'
   const currentDate = new Date().toISOString()
 
   const staticPages = [
