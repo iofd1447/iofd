@@ -167,7 +167,7 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 Pour toute question ou suggestion :
 
 - **Email** : iofd1447@gmail.com
-- **Site web** : https://iofd.pages.dev (domaine disponible demain)
+- **Site web** : https://iofd.org
 
 ## 👊 Remerciements
 
