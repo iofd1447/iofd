@@ -222,7 +222,7 @@
                 </v-text-field>
 
                 <v-dialog v-model="cameraDialog" :max-width="500" persistent>
-                  <v-card class="pa-4" style="width: 100%; max-width: 500px;">
+                  <v-card>
                     <v-toolbar color="primary">
                       <v-btn icon @click="closeCamera">
                         <v-icon>mdi-close</v-icon>
