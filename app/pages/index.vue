@@ -447,7 +447,7 @@ const steps = [
   {
     icon: 'mdi-barcode-scan',
     title: 'Nutrition',
-    description: 'Ajoutez les données nutritionnelles de votre produit avec notre scanner intelligent',
+    description: 'Ajoutez les données nutritionnelles de votre produit',
     color: 'primary',
   },
   {

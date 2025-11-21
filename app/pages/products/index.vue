@@ -334,12 +334,6 @@ const theme = useTheme()
 const router = useRouter()
 const route = useRoute()
 
-const isDark = computed(() => theme.global.current.value.dark)
-
-const toggleTheme = () => {
-  theme.global.name.value = isDark.value ? 'light' : 'dark'
-}
-
 const loading = ref(false)
 const searchQuery = ref('')
 const viewMode = ref('grid')
@@ -469,8 +463,6 @@ const fetchProducts = async () => {
     return
   }
 
-  console.log(data)
-
   allProducts.value = (data as SupabaseProductRow[]).map(p => {
     const reviews = p.community_reviews || []
     const reviews_count = reviews.length
@@ -536,7 +528,6 @@ const filteredProducts = computed(() => {
   }
 
   products = sortProducts(products)
-  console.log(products)
 
   return products
 })
