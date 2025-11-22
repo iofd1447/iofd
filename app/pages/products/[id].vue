@@ -823,13 +823,43 @@ useHead({
   meta: [{ name: 'description', content: 'Chargement du produit...' }]
 })
 
-watch(product, (newProduct) => {
-  if (newProduct?.name) {
-    useHead({
-      title: newProduct.name,
-      meta: [{ name: 'description', content: newProduct.name }]
-    })
-  }
+watch(product, (p) => {
+  if (!p?.name) return
+
+  useHead({
+    title: `${p.name} - ${p.brand}`,
+    meta: [
+      {
+        name: 'description',
+        content: `${p.name} de la marque ${p.brand}. Catégorie : ${p.category}.`
+      },
+      { name: 'keywords', content: `${p.name}, ${p.brand}, halal, ${p.category}` },
+
+      { property: 'og:title', content: `${p.name} - ${p.brand}` },
+      { property: 'og:description', content: p.portion_description || 'Information produit' },
+      { property: 'og:image', content: p.image_url },
+      { property: 'og:type', content: 'product' },
+
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: `${p.name} - ${p.brand}` },
+      { name: 'twitter:description', content: p.portion_description },
+      { name: 'twitter:image', content: p.image_url }
+    ],
+    script: [
+      {
+        type: "application/ld+json",
+        innerHTML: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: p.name,
+          image: [p.image_url],
+          description: p.portion_description,
+          brand: { "@type": "Brand", name: p.brand },
+          category: p.category
+        })
+      }
+    ]
+  })
 })
 
 onMounted(async () => {
