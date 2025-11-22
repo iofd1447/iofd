@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://iofd.netlify.app/sitemap.xml
+Sitemap: https://iofd.org/sitemap.xml
