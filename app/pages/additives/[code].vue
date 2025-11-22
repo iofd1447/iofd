@@ -58,7 +58,7 @@
               <v-alert v-if="additive.health_concerns" type="warning" variant="tonal" rounded="lg" class="mt-3 mt-sm-4"
                 density="compact">
                 <div class="text-subtitle-2 font-weight-bold mb-2">
-                  ⚠️ Préoccupations santé
+                  Préoccupations santé
                 </div>
                 <div class="text-body-2 text-sm-body-2">
                   {{ additive.health_concerns }}
