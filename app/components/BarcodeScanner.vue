@@ -1,7 +1,6 @@
 <template>
   <v-dialog v-model="isOpen" :fullscreen="$vuetify.display.xs" max-width="500" persistent>
     <v-card rounded="xl">
-      <!-- Header -->
       <v-toolbar color="primary" density="compact">
         <v-btn icon @click="close">
           <v-icon>mdi-close</v-icon>
@@ -13,15 +12,30 @@
         </v-btn>
       </v-toolbar>
 
-      <!-- Scanner Area -->
       <v-card-text class="pa-0">
         <div class="scanner-container">
-          <!-- Video Preview -->
-          <div v-if="!error && !isInitializing" class="video-wrapper">
-            <video ref="videoElement" class="scanner-video" autoplay playsinline muted />
 
-            <!-- Scanning Overlay -->
-            <div class="scanner-overlay">
+          <!-- Loading -->
+          <div v-if="isInitializing" class="state-container">
+            <v-progress-circular indeterminate color="primary" size="64" />
+            <div class="text-h6 mt-4">Initialisation...</div>
+          </div>
+
+          <!-- Error -->
+          <div v-else-if="error" class="state-container">
+            <v-icon size="80" color="error">mdi-camera-off</v-icon>
+            <div class="text-h6 mt-4">{{ error.title }}</div>
+            <div class="text-body-2 text-medium-emphasis mb-4">{{ error.message }}</div>
+            <v-btn color="primary" variant="tonal" @click="initScanner">Réessayer</v-btn>
+          </div>
+
+          <!-- Video - TOUJOURS RENDU mais caché si loading/error -->
+          <div v-show="!isInitializing && !error" class="video-wrapper">
+            <video ref="videoElement" class="scanner-video" autoplay playsinline muted @loadedmetadata="onVideoReady"
+              @playing="onVideoPlaying" />
+
+            <!-- Overlay seulement quand vidéo prête -->
+            <div v-if="videoReady" class="scanner-overlay">
               <div class="scan-region" :class="{ 'detected': detectedBarcode }">
                 <div class="corner corner-tl" />
                 <div class="corner corner-tr" />
@@ -30,40 +44,23 @@
                 <div v-if="!detectedBarcode" class="scan-line scanning" />
               </div>
 
-              <!-- Status -->
               <div class="scan-status">
                 <v-chip v-if="!detectedBarcode" color="white" variant="flat" size="large">
                   <v-icon start color="primary">mdi-target</v-icon>
                   Alignez le code-barres
                 </v-chip>
-
                 <v-chip v-else color="success" variant="flat" size="large" class="success-chip">
                   <v-icon start>mdi-check-circle</v-icon>
                   {{ detectedBarcode }}
                 </v-chip>
               </div>
             </div>
-          </div>
 
-          <!-- Loading State -->
-          <div v-else-if="isInitializing" class="state-container">
-            <v-progress-circular indeterminate color="primary" size="64" width="5" />
-            <div class="text-h6 mt-4">Initialisation...</div>
-            <div class="text-body-2 text-medium-emphasis">
-              Autorisez l'accès à la caméra
+            <!-- Loading overlay pendant que la vidéo charge -->
+            <div v-if="!videoReady && !isInitializing" class="video-loading">
+              <v-progress-circular indeterminate color="white" size="48" />
+              <div class="text-white mt-2">Chargement caméra...</div>
             </div>
-          </div>
-
-          <!-- Error State -->
-          <div v-else-if="error" class="state-container">
-            <v-icon size="80" color="error">mdi-camera-off</v-icon>
-            <div class="text-h6 mt-4">{{ error.title }}</div>
-            <div class="text-body-2 text-medium-emphasis mb-4">
-              {{ error.message }}
-            </div>
-            <v-btn color="primary" variant="tonal" prepend-icon="mdi-refresh" @click="initScanner">
-              Réessayer
-            </v-btn>
           </div>
 
           <!-- Manual Input -->
@@ -71,7 +68,7 @@
             <div class="text-caption text-center text-medium-emphasis mb-3">
               Ou saisissez manuellement
             </div>
-            <v-text-field ref="manualInput" v-model="manualBarcode" label="Code-barres" prepend-inner-icon="mdi-barcode"
+            <v-text-field v-model="manualBarcode" label="Code-barres" prepend-inner-icon="mdi-barcode"
               placeholder="3017620422003" hide-details density="compact" variant="outlined" inputmode="numeric"
               @keyup.enter="submitManual">
               <template #append-inner>
@@ -98,6 +95,7 @@ const emit = defineEmits<{
 
 const isOpen = ref(false)
 const isInitializing = ref(false)
+const videoReady = ref(false)  // NOUVEAU: track si vidéo affiche bien
 const error = ref<{ title: string; message: string } | null>(null)
 const detectedBarcode = ref('')
 const manualBarcode = ref('')
@@ -105,7 +103,6 @@ const hasFlash = ref(false)
 const flashOn = ref(false)
 
 const videoElement = ref<HTMLVideoElement | null>(null)
-const manualInput = ref<HTMLInputElement | null>(null)
 const codeReader = ref<BrowserMultiFormatReader | null>(null)
 const stream = ref<MediaStream | null>(null)
 let scanInterval: number | null = null
@@ -114,7 +111,8 @@ watch(() => props.modelValue, async (v) => {
   isOpen.value = v
   if (v) {
     await nextTick()
-    initScanner()
+    // Petit délai pour laisser le DOM se rendre
+    setTimeout(() => initScanner(), 100)
   } else {
     stopScanner()
   }
@@ -122,9 +120,23 @@ watch(() => props.modelValue, async (v) => {
 
 watch(isOpen, (v) => emit('update:modelValue', v))
 
+// Quand la vidéo a ses métadonnées
+function onVideoReady() {
+  console.log('Video metadata loaded')
+}
+
+// Quand la vidéo commence vraiment à jouer
+function onVideoPlaying() {
+  console.log('Video is playing')
+  videoReady.value = true
+  // Démarrer le scan seulement quand la vidéo joue
+  startScanning()
+}
+
 async function initScanner() {
   error.value = null
   isInitializing.value = true
+  videoReady.value = false
   detectedBarcode.value = ''
 
   try {
@@ -132,61 +144,64 @@ async function initScanner() {
       throw { name: 'NotSupported' }
     }
 
+    // D'abord obtenir le stream
     stream.value = await navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: { ideal: 'environment' },
-        width: { ideal: 1280 },
-        height: { ideal: 720 }
+        width: { ideal: 1280, min: 640 },
+        height: { ideal: 720, min: 480 }
       }
     })
 
-    // Check flash support
     const track = stream.value.getVideoTracks()[0]
+    // @ts-ignore
     const caps = track.getCapabilities?.() as any
     hasFlash.value = !!caps?.torch
 
-    if (videoElement.value) {
-      videoElement.value.srcObject = stream.value
+    await nextTick()
+
+    if (!videoElement.value) {
+      console.error('Video element not found!')
+      throw { name: 'NotFound', message: 'Element video introuvable' }
+    }
+
+    videoElement.value.srcObject = stream.value
+
+    try {
       await videoElement.value.play()
+      console.log('Video play() success')
+    } catch (playErr) {
+      console.error('Play error:', playErr)
     }
 
     codeReader.value = new BrowserMultiFormatReader()
-    startScanning()
+
+    isInitializing.value = false
 
   } catch (err: any) {
-    const errors: Record<string, { title: string; message: string }> = {
-      NotAllowedError: {
-        title: 'Accès refusé',
-        message: 'Autorisez la caméra dans les paramètres du navigateur'
-      },
-      NotFoundError: {
-        title: 'Caméra introuvable',
-        message: 'Aucune caméra détectée sur cet appareil'
-      },
-      NotReadableError: {
-        title: 'Caméra occupée',
-        message: 'La caméra est utilisée par une autre application'
-      },
-      NotSupported: {
-        title: 'Non supporté',
-        message: 'Votre navigateur ne supporte pas la caméra'
-      }
-    }
-    error.value = errors[err.name] || {
-      title: 'Erreur',
-      message: err.message || 'Impossible d\'accéder à la caméra'
-    }
-  } finally {
+    console.error('Init error:', err)
     isInitializing.value = false
+
+    const errors: Record<string, { title: string; message: string }> = {
+      NotAllowedError: { title: 'Accès refusé', message: 'Autorisez la caméra dans les paramètres' },
+      NotFoundError: { title: 'Caméra introuvable', message: 'Aucune caméra détectée' },
+      NotReadableError: { title: 'Caméra occupée', message: 'Fermez les autres apps utilisant la caméra' },
+      NotSupported: { title: 'Non supporté', message: 'Navigateur incompatible' },
+      OverconstrainedError: { title: 'Caméra incompatible', message: 'Résolution non supportée' }
+    }
+    error.value = errors[err.name] || { title: 'Erreur', message: err.message || String(err) }
   }
 }
 
 function startScanning() {
-  if (!codeReader.value || !videoElement.value) return
+  if (!codeReader.value || !videoElement.value || scanInterval) return
 
-  // Scan toutes les 150ms pour de meilleures perfs
+  console.log('Starting barcode scanning...')
+
   scanInterval = window.setInterval(async () => {
     if (!codeReader.value || !videoElement.value || detectedBarcode.value) return
+
+    if (videoElement.value.readyState < 2) return
 
     try {
       const result = await codeReader.value.decodeFromVideoElement(videoElement.value)
@@ -195,30 +210,26 @@ function startScanning() {
       }
     } catch (err) {
       if (!(err instanceof NotFoundException)) {
-        console.error('Scan error:', err)
+        console.warn('Scan error:', err)
       }
     }
-  }, 150)
+  }, 200)
 }
 
 function handleDetected(barcode: string) {
   if (!barcode || detectedBarcode.value) return
 
+  console.log('Barcode detected:', barcode)
   detectedBarcode.value = barcode
 
-  // Stop scanning
   if (scanInterval) {
     clearInterval(scanInterval)
     scanInterval = null
   }
 
-  // Vibration feedback
   navigator.vibrate?.(100)
-
-  // Beep
   playBeep()
 
-  // Emit après animation
   setTimeout(() => {
     emit('detected', barcode)
     close()
@@ -243,9 +254,12 @@ async function toggleFlash() {
   if (!stream.value) return
   const track = stream.value.getVideoTracks()[0]
   flashOn.value = !flashOn.value
-  await track.applyConstraints({
-    advanced: [{ torch: flashOn.value } as any]
-  })
+  try {
+    // @ts-ignore
+    await track.applyConstraints({ advanced: [{ torch: flashOn.value } as any] })
+  } catch (e) {
+    console.warn('Flash toggle failed:', e)
+  }
 }
 
 function isValidBarcode(code: string): boolean {
@@ -255,25 +269,32 @@ function isValidBarcode(code: string): boolean {
 
 function submitManual() {
   if (!isValidBarcode(manualBarcode.value)) return
-  const clean = manualBarcode.value.replace(/\D/g, '')
-  emit('detected', clean)
+  emit('detected', manualBarcode.value.replace(/\D/g, ''))
   close()
 }
 
 function stopScanner() {
+
   if (scanInterval) {
     clearInterval(scanInterval)
     scanInterval = null
   }
+
   if (stream.value) {
-    stream.value.getTracks().forEach(t => t.stop())
+    stream.value.getTracks().forEach(t => {
+      t.stop()
+    })
     stream.value = null
   }
+
   if (videoElement.value) {
     videoElement.value.srcObject = null
   }
+
   codeReader.value?.reset()
   codeReader.value = null
+
+  videoReady.value = false
   detectedBarcode.value = ''
   manualBarcode.value = ''
   flashOn.value = false
@@ -297,12 +318,26 @@ onUnmounted(stopScanner)
   position: relative;
   height: 300px;
   overflow: hidden;
+  background: #000;
 }
 
 .scanner-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* FIX iOS: forcer l'affichage */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+.video-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
 }
 
 .scanner-overlay {
@@ -392,7 +427,6 @@ onUnmounted(stopScanner)
 .success-chip {
   animation: pop 0.3s ease-out;
 }
-
 @keyframes pop {
   0% {
     transform: scale(0.8);
