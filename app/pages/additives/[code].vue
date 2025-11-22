@@ -349,12 +349,33 @@ useHead({
 })
 
 watch(additive, (newAdditive) => {
-  if (newAdditive?.name) {
-    useHead({
-      title: `${newAdditive.code} - ${newAdditive.name}`,
-      meta: [{ name: 'description', content: newAdditive.name }]
-    })
-  }
+  if (!newAdditive?.name) return
+
+  useHead({
+    title: `${newAdditive.code} - ${newAdditive.name}`,
+    meta: [
+      { name: 'description', content: newAdditive.description || newAdditive.name },
+      { property: 'og:title', content: `${newAdditive.code} - ${newAdditive.name}` },
+      { property: 'og:description', content: newAdditive.description || newAdditive.name },
+      { property: 'og:type', content: 'product' },
+      { property: 'og:url', content: window.location.href },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: `${newAdditive.code} - ${newAdditive.name}` },
+      { name: 'twitter:description', content: newAdditive.description || newAdditive.name },
+    ],
+    script: [
+      {
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: newAdditive.name,
+          description: newAdditive.description,
+          sku: newAdditive.code,
+        })
+      }
+    ]
+  })
 })
 
 onMounted(async () => {
