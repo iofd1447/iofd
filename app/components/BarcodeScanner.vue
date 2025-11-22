@@ -61,7 +61,10 @@
 
 <script setup lang="ts">
 import { ref, watch, nextTick, onUnmounted } from 'vue'
-import Quagga from '@ericblade/quagga2'
+let Quagga: any
+if (process.client) {
+  Quagga = (await import('@ericblade/quagga2')).default
+}
 
 const props = defineProps<{ modelValue: boolean }>()
 const emit = defineEmits<{
@@ -108,7 +111,7 @@ async function initScanner() {
         readers: ["ean_reader", "ean_8_reader"]
       },
       locate: true
-    }, (err) => {
+    }, (err: any) => {
       if (err) {
         error.value = err.message || "Erreur lors de l'accès à la caméra"
         isInitializing.value = false

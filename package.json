@@ -20,6 +20,7 @@
     "hijri-date": "^0.2.2",
     "html2canvas": "^1.4.1",
     "moment-hijri": "^3.0.0",
+    "ndarray-pixels": "^5.0.1",
     "nuxt": "^4.2.0",
     "tesseract.js": "^6.0.1",
     "vue": "^3.5.22",
