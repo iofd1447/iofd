@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
 
 
   for (let i = 0; i < additivesSitemaps; i++) {
-    sitemaps.push(`${baseUrl}/sitemap-additives-${i + 1}.xml`)
+    sitemaps.push(`${baseUrl}/api/sitemap-additives/${i + 1}.xml`)
   }
 
   sitemaps.push(`${baseUrl}/sitemap-contributions.xml`)
