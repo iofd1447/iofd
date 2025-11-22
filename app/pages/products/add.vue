@@ -1250,36 +1250,6 @@ function cleanIngredients(text: string) {
     .trim()
 }
 
-function applyDilation(ctx: CanvasRenderingContext2D, w: number, h: number) {
-  const imgData = ctx.getImageData(0, 0, w, h)
-  const data = imgData.data
-  const copy = new Uint8ClampedArray(data)
-
-  for (let y = 1; y < h - 1; y++) {
-    for (let x = 1; x < w - 1; x++) {
-      const idx = (y * w + x) * 4
-
-      let isNearBlack = false
-      for (let dy = -1; dy <= 1; dy++) {
-        for (let dx = -1; dx <= 1; dx++) {
-          const nIdx = ((y + dy) * w + (x + dx)) * 4
-          if (copy[nIdx] === 0) {
-            isNearBlack = true
-            break
-          }
-        }
-        if (isNearBlack) break
-      }
-
-      if (isNearBlack) {
-        data[idx] = data[idx + 1] = data[idx + 2] = 0
-      }
-    }
-  }
-
-  ctx.putImageData(imgData, 0, 0)
-}
-
 function preprocessImage(imgDataUrl: string): Promise<string> {
   return new Promise((resolve) => {
     const img = new Image()
@@ -1322,8 +1292,6 @@ function preprocessImage(imgDataUrl: string): Promise<string> {
       }
 
       ctx.putImageData(imgData, 0, 0)
-
-      applyDilation(ctx, canvas.width, canvas.height)
 
       resolve(canvas.toDataURL('image/png'))
     }
