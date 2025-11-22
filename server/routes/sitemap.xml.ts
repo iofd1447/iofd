@@ -34,8 +34,6 @@ export default defineEventHandler(async (event) => {
     sitemaps.push(`${baseUrl}/api/sitemap-additives/${i + 1}.xml`)
   }
 
-  sitemaps.push(`${baseUrl}/sitemap-contributions.xml`)
-
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${sitemaps.map(sitemap => `  <sitemap>
