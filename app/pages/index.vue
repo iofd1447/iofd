@@ -331,11 +331,51 @@ import AOS from 'aos'
 import 'aos/dist/aos.css'
 
 useHead({
-  title: 'IOFD - Islamic Open Food Database',
+  title: 'IOFD – Islamic Open Food Database',
+  htmlAttrs: { lang: 'fr' },
   meta: [
-    { name: 'description', content: 'IOFD (Islamic Open Food Database) is a collaborative nutrition database specifically designed for the Ummah.' },
+    {
+      name: 'description',
+      content: 'IOFD est une base de données nutritionnelle ouverte et collaborative, pensée pour apporter transparence et confiance dans les produits consommés par la communauté musulmane.'
+    },
+    {
+      property: 'og:title',
+      content: 'IOFD – Islamic Open Food Database'
+    },
+    {
+      property: 'og:description',
+      content: 'Base de données nutritionnelle collaborative dédiée à la transparence alimentaire pour la communauté musulmane.'
+    },
+    {
+      property: 'og:type',
+      content: 'website'
+    },
+    {
+      property: 'og:url',
+      content: 'https://iofd.org/'
+    },
+    {
+      property: 'og:image',
+      content: 'https://iofd.org/logo.png'
+    },
+    {
+      name: 'twitter:card',
+      content: 'summary_large_image'
+    },
+    {
+      name: 'twitter:title',
+      content: 'IOFD – Islamic Open Food Database'
+    },
+    {
+      name: 'twitter:description',
+      content: 'Base de données nutritionnelle collaborative dédiée à la transparence alimentaire.'
+    }
+  ],
+  link: [
+    { rel: 'canonical', href: 'https://iofd.org/' }
   ]
 })
+
 
 const supabase = useSupabase()
 const { isLoggedIn, fetchUser } = useSupabaseAuth()
