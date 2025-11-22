@@ -77,8 +77,19 @@
             <v-col cols="12" md="6">
               <v-text-field :model-value="displayBarcode" label="Code-barres" prepend-inner-icon="mdi-barcode"
                 placeholder="3017620422003" hint="Jusqu'à 32 caractères" persistent-hint :rules="[rules.barcode]"
-                maxlength="32" />
+                maxlength="32">
+                <template #append-inner>
+                  <v-btn v-if="isMobile" icon variant="text" color="primary" size="small"
+                    @click="showBarcodeScanner = true">
+                    <v-icon>mdi-camera</v-icon>
+                    <v-tooltip activator="parent" location="top">
+                      Scanner le code-barres
+                    </v-tooltip>
+                  </v-btn>
+                </template>
+              </v-text-field>
             </v-col>
+
 
 
             <v-col cols="12" md="6">
@@ -493,6 +504,8 @@
     </v-card>
   </v-dialog>
 
+  <BarcodeScanner v-model="showBarcodeScanner" @detected="onBarcodeDetected" />
+
   <ImageCropper v-model="showCropper" :image-src="imageToCrop || ''" @crop="onImageCropped"
     @update:model-value="(v) => { if (!v) onCropCancel() }" />
 
@@ -505,6 +518,7 @@ import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import { rules } from '@/utils/rules'
 import Tesseract from 'tesseract.js'
 import ImageCropper from '@/components/ImageCropper.vue'
+import BarcodeScanner from '@/components/BarcodeScanner.vue'
 
 useHead({
   title: 'IOFD - Add a product to the database'
@@ -574,6 +588,7 @@ const imageFile = ref<File | null>(null)
 const uploadingImage = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
 const createdProductId = ref('')
+const showBarcodeScanner = ref(false)
 const displayBarcode = ref('')
 const showAdditivesDialog = ref(false)
 const additiveSearchQuery = ref('')
@@ -640,6 +655,29 @@ const prevStep = () => {
 
 const goBack = () => {
   navigateTo('/products')
+}
+
+async function onBarcodeDetected(barcode: string) {
+  form.value.barcode = barcode
+  displayBarcode.value = barcode
+
+  try {
+    const { data: existingProduct } = await supabase
+      .from('products')
+      .select('id, name, brand')
+      .eq('barcode', barcode)
+      .single()
+
+    if (existingProduct) {
+      const confirm = window.confirm(
+        `Le produit "${existingProduct.name}" existe déjà.\n\nVoulez-vous le modifier ?`
+      )
+      if (confirm) {
+        navigateTo(`/products/${existingProduct.id}/edit`)
+      }
+    }
+  } catch {
+  }
 }
 
 const selectImage = () => {

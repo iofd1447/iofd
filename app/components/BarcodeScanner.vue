@@ -1,356 +1,302 @@
 <template>
-  <v-dialog v-model="isOpen" max-width="600" persistent>
+  <v-dialog v-model="isOpen" :fullscreen="$vuetify.display.xs" max-width="500" persistent>
     <v-card rounded="xl">
       <!-- Header -->
-      <v-card-title class="pa-6 d-flex align-center">
-        <v-icon class="mr-3" color="primary" size="32">mdi-barcode-scan</v-icon>
-        <div>
-          <div class="text-h6 font-weight-bold">Scanner le code-barres</div>
-          <div class="text-caption text-medium-emphasis">Placez le code-barres devant la caméra</div>
-        </div>
+      <v-toolbar color="primary" density="compact">
+        <v-btn icon @click="close">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+        <v-toolbar-title>Scanner le code-barres</v-toolbar-title>
         <v-spacer />
-        <v-btn icon="mdi-close" variant="text" @click="close" />
-      </v-card-title>
-
-      <v-divider />
+        <v-btn v-if="hasFlash" icon @click="toggleFlash">
+          <v-icon>{{ flashOn ? 'mdi-flash' : 'mdi-flash-off' }}</v-icon>
+        </v-btn>
+      </v-toolbar>
 
       <!-- Scanner Area -->
       <v-card-text class="pa-0">
         <div class="scanner-container">
           <!-- Video Preview -->
-          <div v-if="!error && (isScanning || detectedBarcode)" class="video-wrapper">
+          <div v-if="!error && !isInitializing" class="video-wrapper">
             <video ref="videoElement" class="scanner-video" autoplay playsinline muted />
 
             <!-- Scanning Overlay -->
             <div class="scanner-overlay">
-              <div class="scan-region">
+              <div class="scan-region" :class="{ 'detected': detectedBarcode }">
                 <div class="corner corner-tl" />
                 <div class="corner corner-tr" />
                 <div class="corner corner-bl" />
                 <div class="corner corner-br" />
-                <div class="scan-line" :class="{ 'scanning': isScanning }" />
+                <div v-if="!detectedBarcode" class="scan-line scanning" />
               </div>
 
-              <!-- Instructions -->
-              <div class="scan-instructions">
-                <v-chip v-if="!detectedBarcode" color="primary" variant="flat" size="large" class="instruction-chip">
-                  <v-icon start>mdi-target</v-icon>
+              <!-- Status -->
+              <div class="scan-status">
+                <v-chip v-if="!detectedBarcode" color="white" variant="flat" size="large">
+                  <v-icon start color="primary">mdi-target</v-icon>
                   Alignez le code-barres
                 </v-chip>
 
-                <!-- Success Message -->
-                <v-chip v-else color="success" variant="flat" size="large" class="instruction-chip success-chip">
+                <v-chip v-else color="success" variant="flat" size="large" class="success-chip">
                   <v-icon start>mdi-check-circle</v-icon>
-                  Code détecté !
+                  {{ detectedBarcode }}
                 </v-chip>
               </div>
             </div>
           </div>
 
           <!-- Loading State -->
-          <div v-else-if="isInitializing" class="loading-state">
-            <v-progress-circular indeterminate color="primary" size="64" width="6" class="mb-4" />
-            <div class="text-h6 mb-2">Initialisation...</div>
+          <div v-else-if="isInitializing" class="state-container">
+            <v-progress-circular indeterminate color="primary" size="64" width="5" />
+            <div class="text-h6 mt-4">Initialisation...</div>
             <div class="text-body-2 text-medium-emphasis">
-              Autorisation de la caméra requise
+              Autorisez l'accès à la caméra
             </div>
           </div>
 
           <!-- Error State -->
-          <div v-else-if="error" class="error-state">
-            <v-icon size="80" color="error" class="mb-4">mdi-camera-off</v-icon>
-            <div class="text-h6 mb-2">Caméra non disponible</div>
+          <div v-else-if="error" class="state-container">
+            <v-icon size="80" color="error">mdi-camera-off</v-icon>
+            <div class="text-h6 mt-4">{{ error.title }}</div>
             <div class="text-body-2 text-medium-emphasis mb-4">
-              {{ error }}
+              {{ error.message }}
             </div>
             <v-btn color="primary" variant="tonal" prepend-icon="mdi-refresh" @click="initScanner">
               Réessayer
             </v-btn>
           </div>
 
-          <!-- Manual Input Fallback -->
-          <div class="manual-input-section pa-6">
-            <v-divider class="mb-4" />
-            <div class="text-subtitle-2 mb-3 text-center text-medium-emphasis">
-              Ou saisissez le code manuellement
+          <!-- Manual Input -->
+          <div class="manual-section pa-4">
+            <div class="text-caption text-center text-medium-emphasis mb-3">
+              Ou saisissez manuellement
             </div>
-            <v-text-field v-model="manualBarcode" label="Code-barres (13 chiffres)" prepend-inner-icon="mdi-barcode"
-              placeholder="3017620422003" hide-details density="comfortable" @keyup.enter="submitManualBarcode">
+            <v-text-field ref="manualInput" v-model="manualBarcode" label="Code-barres" prepend-inner-icon="mdi-barcode"
+              placeholder="3017620422003" hide-details density="compact" variant="outlined" inputmode="numeric"
+              @keyup.enter="submitManual">
               <template #append-inner>
-                <v-btn icon="mdi-check" variant="text" color="primary" :disabled="!isValidBarcode(manualBarcode)"
-                  @click="submitManualBarcode" />
+                <v-btn icon="mdi-arrow-right" variant="text" color="primary" size="small"
+                  :disabled="!isValidBarcode(manualBarcode)" @click="submitManual" />
               </template>
             </v-text-field>
           </div>
         </div>
       </v-card-text>
-
-      <!-- Actions -->
-      <v-card-actions class="pa-6 pt-0">
-        <v-btn variant="text" prepend-icon="mdi-keyboard" @click="focusManualInput">
-          Saisie manuelle
-        </v-btn>
-        <v-spacer />
-        <v-btn variant="text" @click="close">
-          Annuler
-        </v-btn>
-      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onUnmounted } from 'vue'
+import { ref, watch, onUnmounted, nextTick } from 'vue'
 import { BrowserMultiFormatReader, NotFoundException } from '@zxing/library'
 
-interface Props {
-  modelValue: boolean
-}
-
-interface Emits {
-  (e: 'update:modelValue', value: boolean): void
+const props = defineProps<{ modelValue: boolean }>()
+const emit = defineEmits<{
+  (e: 'update:modelValue', v: boolean): void
   (e: 'detected', barcode: string): void
-}
+}>()
 
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
-
-// State
 const isOpen = ref(false)
 const isInitializing = ref(false)
-const isScanning = ref(false)
-const error = ref('')
+const error = ref<{ title: string; message: string } | null>(null)
 const detectedBarcode = ref('')
 const manualBarcode = ref('')
+const hasFlash = ref(false)
+const flashOn = ref(false)
 
-// Refs
 const videoElement = ref<HTMLVideoElement | null>(null)
+const manualInput = ref<HTMLInputElement | null>(null)
 const codeReader = ref<BrowserMultiFormatReader | null>(null)
 const stream = ref<MediaStream | null>(null)
+let scanInterval: number | null = null
 
-// Watch for dialog open/close
-watch(() => props.modelValue, (value) => {
-  isOpen.value = value
-  if (value) {
+watch(() => props.modelValue, async (v) => {
+  isOpen.value = v
+  if (v) {
+    await nextTick()
     initScanner()
   } else {
     stopScanner()
   }
 })
 
-watch(isOpen, (value) => {
-  emit('update:modelValue', value)
-})
+watch(isOpen, (v) => emit('update:modelValue', v))
 
-// Initialize scanner
-const initScanner = async () => {
-  error.value = ''
+async function initScanner() {
+  error.value = null
   isInitializing.value = true
   detectedBarcode.value = ''
 
   try {
-    // Check if camera is available
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      throw new Error('Votre navigateur ne supporte pas l\'accès à la caméra')
+    if (!navigator.mediaDevices?.getUserMedia) {
+      throw { name: 'NotSupported' }
     }
 
-    // Request camera permission
     stream.value = await navigator.mediaDevices.getUserMedia({
       video: {
-        facingMode: 'environment', // Use back camera on mobile
+        facingMode: { ideal: 'environment' },
         width: { ideal: 1280 },
         height: { ideal: 720 }
       }
     })
 
-    // Set video source
+    // Check flash support
+    const track = stream.value.getVideoTracks()[0]
+    const caps = track.getCapabilities?.() as any
+    hasFlash.value = !!caps?.torch
+
     if (videoElement.value) {
       videoElement.value.srcObject = stream.value
       await videoElement.value.play()
     }
 
-    // Initialize ZXing reader
     codeReader.value = new BrowserMultiFormatReader()
-    isScanning.value = true
-
-    // Start continuous scanning
-    startContinuousScanning()
+    startScanning()
 
   } catch (err: any) {
-    console.error('Scanner initialization error:', err)
-
-    if (err.name === 'NotAllowedError') {
-      error.value = 'Autorisation de la caméra refusée. Veuillez autoriser l\'accès dans les paramètres.'
-    } else if (err.name === 'NotFoundError') {
-      error.value = 'Aucune caméra trouvée sur cet appareil.'
-    } else if (err.name === 'NotReadableError') {
-      error.value = 'La caméra est déjà utilisée par une autre application.'
-    } else {
-      error.value = err.message || 'Impossible d\'accéder à la caméra.'
+    const errors: Record<string, { title: string; message: string }> = {
+      NotAllowedError: {
+        title: 'Accès refusé',
+        message: 'Autorisez la caméra dans les paramètres du navigateur'
+      },
+      NotFoundError: {
+        title: 'Caméra introuvable',
+        message: 'Aucune caméra détectée sur cet appareil'
+      },
+      NotReadableError: {
+        title: 'Caméra occupée',
+        message: 'La caméra est utilisée par une autre application'
+      },
+      NotSupported: {
+        title: 'Non supporté',
+        message: 'Votre navigateur ne supporte pas la caméra'
+      }
+    }
+    error.value = errors[err.name] || {
+      title: 'Erreur',
+      message: err.message || 'Impossible d\'accéder à la caméra'
     }
   } finally {
     isInitializing.value = false
   }
 }
 
-// Continuous scanning loop
-const startContinuousScanning = () => {
-  if (!codeReader.value || !videoElement.value || !isScanning.value) return
+function startScanning() {
+  if (!codeReader.value || !videoElement.value) return
 
-  const scanFrame = async () => {
-    if (!isScanning.value || !videoElement.value) return
+  // Scan toutes les 150ms pour de meilleures perfs
+  scanInterval = window.setInterval(async () => {
+    if (!codeReader.value || !videoElement.value || detectedBarcode.value) return
 
     try {
-      const result = await codeReader.value!.decodeFromVideoElement(videoElement.value)
-
+      const result = await codeReader.value.decodeFromVideoElement(videoElement.value)
       if (result) {
-        const barcode = result.getText()
-
-        // Validate barcode (must be 13 digits for EAN-13)
-        if (isValidBarcode(barcode)) {
-          handleBarcodeDetected(barcode)
-          return // Stop scanning after successful detection
-        }
+        handleDetected(result.getText())
       }
     } catch (err) {
-      // NotFoundException is normal when no barcode is in frame
       if (!(err instanceof NotFoundException)) {
         console.error('Scan error:', err)
       }
     }
-
-    // Continue scanning
-    if (isScanning.value) {
-      requestAnimationFrame(scanFrame)
-    }
-  }
-
-  scanFrame()
+  }, 150)
 }
 
-// Handle barcode detection
-const handleBarcodeDetected = (barcode: string) => {
-  detectedBarcode.value = barcode
-  isScanning.value = false
+function handleDetected(barcode: string) {
+  if (!barcode || detectedBarcode.value) return
 
-  // Vibrate if supported
-  if (navigator.vibrate) {
-    navigator.vibrate(200)
+  detectedBarcode.value = barcode
+
+  // Stop scanning
+  if (scanInterval) {
+    clearInterval(scanInterval)
+    scanInterval = null
   }
 
-  // Play success sound (optional)
-  playSuccessSound()
+  // Vibration feedback
+  navigator.vibrate?.(100)
 
-  // Emit after a short delay to show success animation
+  // Beep
+  playBeep()
+
+  // Emit après animation
   setTimeout(() => {
     emit('detected', barcode)
     close()
-  }, 1000)
+  }, 800)
 }
 
-// Validate barcode format
-const isValidBarcode = (barcode: string): boolean => {
-  const cleaned = barcode.replace(/\D/g, '')
-  return cleaned.length === 13 || cleaned.length === 8 // EAN-13 or EAN-8
-}
-
-// Submit manual barcode
-const submitManualBarcode = () => {
-  if (isValidBarcode(manualBarcode.value)) {
-    const cleaned = manualBarcode.value.replace(/\D/g, '')
-    emit('detected', cleaned)
-    close()
-  }
-}
-
-// Focus manual input
-const focusManualInput = () => {
-  // Find and focus the input field
-  setTimeout(() => {
-    const input = document.querySelector('input[placeholder="3017620422003"]') as HTMLInputElement
-    input?.focus()
-  }, 100)
-}
-
-// Play success sound
-const playSuccessSound = () => {
+function playBeep() {
   try {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
-    const oscillator = audioContext.createOscillator()
-    const gainNode = audioContext.createGain()
-
-    oscillator.connect(gainNode)
-    gainNode.connect(audioContext.destination)
-
-    oscillator.frequency.value = 800
-    oscillator.type = 'sine'
-    gainNode.gain.value = 0.1
-
-    oscillator.start()
-
-    setTimeout(() => {
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1)
-      oscillator.stop(audioContext.currentTime + 0.1)
-    }, 50)
-  } catch (err) {
-    // Sound not critical, ignore errors
-  }
+    const ctx = new AudioContext()
+    const osc = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.connect(gain)
+    gain.connect(ctx.destination)
+    osc.frequency.value = 1200
+    gain.gain.value = 0.1
+    osc.start()
+    osc.stop(ctx.currentTime + 0.1)
+  } catch { }
 }
 
-// Stop scanner and cleanup
-const stopScanner = () => {
-  isScanning.value = false
+async function toggleFlash() {
+  if (!stream.value) return
+  const track = stream.value.getVideoTracks()[0]
+  flashOn.value = !flashOn.value
+  await track.applyConstraints({
+    advanced: [{ torch: flashOn.value } as any]
+  })
+}
 
-  // Stop video stream
+function isValidBarcode(code: string): boolean {
+  const clean = (code || '').replace(/\D/g, '')
+  return [8, 10, 12, 13].includes(clean.length)
+}
+
+function submitManual() {
+  if (!isValidBarcode(manualBarcode.value)) return
+  const clean = manualBarcode.value.replace(/\D/g, '')
+  emit('detected', clean)
+  close()
+}
+
+function stopScanner() {
+  if (scanInterval) {
+    clearInterval(scanInterval)
+    scanInterval = null
+  }
   if (stream.value) {
-    stream.value.getTracks().forEach(track => track.stop())
+    stream.value.getTracks().forEach(t => t.stop())
     stream.value = null
   }
-
-  // Clear video element
   if (videoElement.value) {
     videoElement.value.srcObject = null
   }
-
-  // Reset code reader
-  if (codeReader.value) {
-    codeReader.value.reset()
-    codeReader.value = null
-  }
-
-  // Reset state
+  codeReader.value?.reset()
+  codeReader.value = null
   detectedBarcode.value = ''
   manualBarcode.value = ''
-  error.value = ''
+  flashOn.value = false
 }
 
-// Close dialog
-const close = () => {
+function close() {
   stopScanner()
   isOpen.value = false
 }
 
-// Cleanup on unmount
-onUnmounted(() => {
-  stopScanner()
-})
+onUnmounted(stopScanner)
 </script>
 
 <style scoped>
 .scanner-container {
-  position: relative;
   background: #000;
-  min-height: 400px;
-  display: flex;
-  flex-direction: column;
+  min-height: 350px;
 }
 
 .video-wrapper {
   position: relative;
-  width: 100%;
-  height: 400px;
+  height: 300px;
   overflow: hidden;
-  background: #000;
 }
 
 .scanner-video {
@@ -361,10 +307,7 @@ onUnmounted(() => {
 
 .scanner-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -373,106 +316,86 @@ onUnmounted(() => {
 
 .scan-region {
   position: relative;
-  width: 280px;
-  height: 140px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
+  width: 260px;
+  height: 120px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.3);
-  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.scan-region.detected {
+  border-color: #4caf50;
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
 }
 
 .corner {
   position: absolute;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-color: #69f0ae;
   border-style: solid;
 }
-
 .corner-tl {
   top: -2px;
   left: -2px;
-  border-width: 4px 0 0 4px;
-  border-radius: 12px 0 0 0;
+  border-width: 3px 0 0 3px;
+  border-radius: 8px 0 0 0;
 }
-
 .corner-tr {
   top: -2px;
   right: -2px;
-  border-width: 4px 4px 0 0;
-  border-radius: 0 12px 0 0;
+  border-width: 3px 3px 0 0;
+  border-radius: 0 8px 0 0;
 }
-
 .corner-bl {
   bottom: -2px;
   left: -2px;
-  border-width: 0 0 4px 4px;
-  border-radius: 0 0 0 12px;
+  border-width: 0 0 3px 3px;
+  border-radius: 0 0 0 8px;
 }
-
 .corner-br {
   bottom: -2px;
   right: -2px;
-  border-width: 0 4px 4px 0;
-  border-radius: 0 0 12px 0;
+  border-width: 0 3px 3px 0;
+  border-radius: 0 0 8px 0;
 }
 
 .scan-line {
   position: absolute;
-  top: 0;
   left: 0;
-  width: 100%;
-  height: 3px;
+  right: 0;
+  height: 2px;
   background: linear-gradient(90deg, transparent, #69f0ae, transparent);
-  box-shadow: 0 0 10px #69f0ae;
-  opacity: 0;
+  box-shadow: 0 0 8px #69f0ae;
 }
-
 .scan-line.scanning {
-  animation: scanning 2s ease-in-out infinite;
-  opacity: 1;
+  animation: scan 1.5s ease-in-out infinite;
 }
 
-@keyframes scanning {
+@keyframes scan {
   0%,
   100% {
-    transform: translateY(0);
+    top: 0;
   }
   50% {
-    transform: translateY(137px);
+    top: calc(100% - 2px);
   }
 }
 
-.scan-instructions {
+.scan-status {
   position: absolute;
-  bottom: 20px;
+  bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
 }
 
-.instruction-chip {
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  animation: pulse 2s ease-in-out infinite;
-}
-
 .success-chip {
-  animation: successPop 0.5s ease-out;
+  animation: pop 0.3s ease-out;
 }
 
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-@keyframes successPop {
+@keyframes pop {
   0% {
-    transform: scale(0);
+    transform: scale(0.8);
   }
   50% {
     transform: scale(1.1);
@@ -482,62 +405,27 @@ onUnmounted(() => {
   }
 }
 
-.loading-state,
-.error-state {
+.state-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 400px;
+  min-height: 300px;
   padding: 2rem;
-  background: rgba(var(--v-theme-surface-variant), 0.5);
+  background: rgb(var(--v-theme-surface));
 }
 
-.manual-input-section {
-  background: rgba(var(--v-theme-surface), 1);
+.manual-section {
+  background: rgb(var(--v-theme-surface));
 }
 
-/* Mobile optimizations */
 @media (max-width: 600px) {
   .video-wrapper {
-    height: 300px;
+    height: 280px;
   }
-
   .scan-region {
-    width: 240px;
-    height: 120px;
-  }
-
-  .loading-state,
-  .error-state {
-    min-height: 300px;
-  }
-}
-
-/* Dark mode adjustments */
-.v-theme--dark .scan-region {
-  border-color: rgba(255, 255, 255, 0.3);
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.v-theme--dark .corner {
-  border-color: #18ffff;
-}
-
-.v-theme--dark .scan-line {
-  background: linear-gradient(90deg, transparent, #18ffff, transparent);
-  box-shadow: 0 0 10px #18ffff;
-}
-
-/* Accessibility */
-@media (prefers-reduced-motion: reduce) {
-  .scan-line.scanning {
-    animation: none;
-    opacity: 0.5;
-  }
-
-  .instruction-chip {
-    animation: none;
+    width: 220px;
+    height: 100px;
   }
 }
 </style>
