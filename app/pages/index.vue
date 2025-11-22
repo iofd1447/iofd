@@ -63,7 +63,7 @@
                   prepend-inner-icon="mdi-magnify" variant="solo" flat hide-details density="comfortable"
                   class="search-input" @keyup.enter="searchProducts">
                   <template #append-inner>
-                    <v-btn icon="mdi-barcode-scan" color="primary" variant="flat" class="scan-btn-pulse"
+                    <v-btn v-if="isMobile" icon="mdi-barcode-scan" color="primary" variant="flat" class="scan-btn-pulse"
                       to="/products/add" size="small" />
                   </template>
                 </v-text-field>
@@ -374,6 +374,13 @@ const communityLink = ref([
   { title: 'Contact', path: '/contact' },
   { title: 'À propos', path: '/about' }
 ])
+
+const isMobile = computed(() => {
+  if (typeof window === 'undefined') return false
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  ) || window.innerWidth < 768
+})
 
 const fetchStats = async () => {
   try {

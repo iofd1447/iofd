@@ -90,8 +90,6 @@
               </v-text-field>
             </v-col>
 
-
-
             <v-col cols="12" md="6">
               <v-text-field v-model="form.name" label="Nom du produit *" prepend-inner-icon="mdi-tag"
                 placeholder="Coca-Cola Zero" :rules="[rules.required]" />
@@ -604,6 +602,7 @@ const additives = ref<any[]>([])
 const allergensList = ref<any[]>([])
 const labelsList = ref<any[]>([])
 
+const uploadErrorLog = ref('')
 const selectedIngredients = ref<any[]>([])
 const ingredientsInput = ref('')
 const selectedAdditives = ref<any[]>([])
@@ -736,7 +735,6 @@ const handleImageUpload = async (event: Event) => {
     errorSnackbar.value = true;
   }
 }
-const uploadErrorLog = ref('')
 
 async function uploadImage(file: File): Promise<string | null> {
   uploadingImage.value = true;
