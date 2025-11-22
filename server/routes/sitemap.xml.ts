@@ -25,10 +25,11 @@ export default defineEventHandler(async (event) => {
     `${baseUrl}/sitemap-static.xml`,
   ]
 
-  /*
   for (let i = 0; i < productsSitemaps; i++) {
     sitemaps.push(`${baseUrl}/api/sitemap-products/${i + 1}`)
   }
+
+  /*
 
   for (let i = 0; i < additivesSitemaps; i++) {
     sitemaps.push(`${baseUrl}/sitemap-additives-${i + 1}.xml`)
