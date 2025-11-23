@@ -66,9 +66,8 @@
                   {{ typeof product.category === 'object' ? product.category.name : product.category }}
                 </v-chip>
 
-                <v-chip
-                  v-if="product.category && product.category.toLowerCase() !== 'fruits' || 'compléments alimentaires'"
-                  size="small" variant="tonal" :class="['text-caption']" color="secondary">
+                <v-chip v-if="product.category && product.category.toLowerCase() !== 'fruits'" size="small"
+                  variant="tonal" :class="['text-caption']" color="secondary">
                   <v-icon icon="mdi-barcode" class="mr-2"></v-icon>
                   {{ product.barcode }}
                 </v-chip>
