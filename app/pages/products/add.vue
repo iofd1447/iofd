@@ -215,11 +215,11 @@
 
           <v-row>
             <v-col cols="12">
-              <v-text-field v-if="!isMobile" v-model="ingredientsInput" label="Ingrédients"
-                prepend-inner-icon="mdi-leaf" placeholder="Eau, sucre, arômes..."
-                hint="Séparez par des virgules. Dans l'ordre de la liste" persistent-hint />
+              <v-text-field v-model="ingredientsInput" label="Ingrédients" prepend-inner-icon="mdi-leaf"
+                placeholder="Eau, sucre, arômes..." hint="Séparez par des virgules. Dans l'ordre de la liste"
+                persistent-hint />
 
-              <div v-else>
+              <!-- <div v-else>
                 <v-text-field v-model="ingredientsInput" label="Ingrédients" prepend-inner-icon="mdi-leaf"
                   placeholder="Scannez ou tapez les ingrédients..." hint="Utilisez le scan OCR ou tapez manuellement"
                   persistent-hint :loading="isScanning">
@@ -276,6 +276,7 @@
                   </v-card>
                 </v-dialog>
               </div>
+            -->
             </v-col>
 
             <v-col cols="12">
