@@ -48,15 +48,20 @@
           </div>
 
           <v-row :dense="$vuetify.display.xs">
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="4">
+              <v-text-field v-model="form.barcode" label="Code-barres" prepend-inner-icon="mdi-barcode"
+                placeholder="3017620422003" hint="Jusqu'à 32 caractères" persistent-hint maxlength="32">
+              </v-text-field>
+            </v-col>
+            <v-col cols="12" md="4">
               <v-text-field v-model="form.name" label="Nom du produit *" prepend-inner-icon="mdi-tag"
                 :rules="[v => !!v || 'Requis']" :density="$vuetify.display.xs ? 'comfortable' : 'default'" />
             </v-col>
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="4">
               <v-text-field v-model="form.brand" label="Marque" prepend-inner-icon="mdi-store"
                 :density="$vuetify.display.xs ? 'comfortable' : 'default'" />
             </v-col>
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="4">
               <v-select v-model="form.category_id" :items="categories" item-title="name" item-value="id"
                 label="Catégorie *" prepend-inner-icon="mdi-shape" :rules="[v => !!v || 'Requis']"
                 :loading="loadingCategories" :density="$vuetify.display.xs ? 'comfortable' : 'default'">
@@ -356,6 +361,7 @@ const defaultNutrition: Record<string, number | null> = {
 }
 
 const form = ref<EditForm>({
+  barcode: '',
   name: '',
   brand: '',
   category_id: undefined,
@@ -438,6 +444,7 @@ watch(() => props.product, (p) => {
   }).filter(Boolean)
 
   form.value = {
+    barcode: p.barcode || '',
     name: p.name || '',
     brand: p.brand || '',
     category_id: p.category_id || undefined,

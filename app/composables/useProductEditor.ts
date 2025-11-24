@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { useSupabase } from './useSupabase'
 
 export type EditableProductFields = {
+  barcode: string
   name: string
   brand?: string | null
   category_id?: string | null
@@ -72,6 +73,7 @@ export function useProductEditor() {
       const { error: productError } = await supabase
         .from('products')
         .update({
+          barcode: fields.barcode,
           name: fields.name,
           brand: fields.brand ?? null,
           category_id: fields.category_id ?? null,
