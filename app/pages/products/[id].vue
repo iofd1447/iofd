@@ -819,11 +819,22 @@ const nutritionChips = computed<NutritionChip[]>(() => [
 
 useHead({
   title: 'Chargement...',
-  meta: [{ name: 'description', content: 'Chargement du produit...' }]
+  meta: [
+    { name: 'description', content: 'Chargement du produit...' }
+  ]
 })
 
 watch(product, (p) => {
   if (!p?.name) return
+
+  const keywords = [
+    p.name,
+    p.brand,
+    p.category,
+    "halal",
+    `${p.name} ${p.brand}`,
+    `${p.category} halal`
+  ].filter(Boolean).join(', ')
 
   useHead({
     title: `${p.name} - ${p.brand}`,
@@ -832,7 +843,7 @@ watch(product, (p) => {
         name: 'description',
         content: `${p.name} de la marque ${p.brand}. Catégorie : ${p.category}.`
       },
-      { name: 'keywords', content: `${p.name}, ${p.brand}, halal, ${p.category}` },
+      { name: 'keywords', content: keywords },
 
       { property: 'og:title', content: `${p.name} - ${p.brand}` },
       { property: 'og:description', content: p.portion_description || 'Information produit' },
@@ -841,18 +852,19 @@ watch(product, (p) => {
 
       { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:title', content: `${p.name} - ${p.brand}` },
-      { name: 'twitter:description', content: p.portion_description },
+      { name: 'twitter:description', content: p.portion_description || `${p.name} - ${p.brand}` },
       { name: 'twitter:image', content: p.image_url }
     ],
     script: [
       {
         type: "application/ld+json",
-        innerHTML: JSON.stringify({
+        // @ts-ignore
+        children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Product",
           name: p.name,
           image: [p.image_url],
-          description: p.portion_description,
+          description: p.portion_description || `${p.name} de ${p.brand}`,
           brand: { "@type": "Brand", name: p.brand },
           category: p.category
         })
@@ -860,6 +872,7 @@ watch(product, (p) => {
     ]
   })
 })
+
 
 onMounted(async () => {
   await fetchProduct()

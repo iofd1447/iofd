@@ -355,6 +355,7 @@ watch(additive, (newAdditive) => {
     title: `${newAdditive.code} - ${newAdditive.name}`,
     meta: [
       { name: 'description', content: newAdditive.description || newAdditive.name },
+      { name: 'keywords', content: `${newAdditive.code}, ${newAdditive.name}, additif alimentaire` },
       { property: 'og:title', content: `${newAdditive.code} - ${newAdditive.name}` },
       { property: 'og:description', content: newAdditive.description || newAdditive.name },
       { property: 'og:type', content: 'product' },
