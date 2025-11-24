@@ -1,112 +1,149 @@
 <template>
-  <v-app-bar elevation="0" class="px-4" color="surface">
-    <v-btn icon="mdi-arrow-left" variant="text" @click="$router.push('/')" />
+  <v-app-bar elevation="0" class="px-2 px-sm-4" color="surface">
+    <v-btn icon="mdi-arrow-left" variant="text" size="small" @click="$router.push('/')" />
 
-    <v-app-bar-title class="text-h6 font-weight-bold">
+    <v-app-bar-title class="text-subtitle-1 text-sm-h6 font-weight-bold">
       <span class="text-primary">IOFD</span>
-      <span class="text-medium-emphasis ml-2">• Catalogue</span>
+      <span class="text-medium-emphasis ml-1 ml-sm-2 d-none d-sm-inline">• Catalogue</span>
     </v-app-bar-title>
 
+    <v-spacer />
+
+    <v-btn icon="mdi-magnify" variant="text" size="small" class="d-sm-none" @click="showMobileSearch = true" />
+    <v-btn icon="mdi-filter-variant" variant="text" size="small" @click="filterDrawer = true">
+      <v-badge v-if="activeFiltersCount > 0" :content="activeFiltersCount" color="primary" dot />
+      <v-icon>mdi-filter-variant</v-icon>
+    </v-btn>
   </v-app-bar>
 
-  <v-main class="bg-surface-variant">
-    <v-container class="py-6">
-      <v-row>
-        <v-col cols="12">
-          <v-card elevation="2" rounded="xl" class="mb-4">
-            <v-card-text class="pa-4">
-              <v-text-field v-model="searchQuery" placeholder="Rechercher un produit, marque ou code-barres..."
-                prepend-inner-icon="mdi-magnify" variant="solo" flat hide-details density="comfortable" class="mb-4"
-                @input="debouncedSearch">
-                <template #append-inner>
+  <v-main>
+    <section class="hero-section-products position-relative overflow-hidden">
+      <div class="hero-bg-mesh"></div>
+      <v-container class="py-6 py-sm-12 position-relative z-1">
+        <div class="text-center max-width-800 mx-auto">
+          <v-chip color="primary" variant="tonal" size="small" class="mb-4 font-weight-bold">
+            <v-icon start size="small">mdi-package-variant</v-icon>
+            Catalogue
+          </v-chip>
+          <h1 class="text-h4 text-sm-h3 font-weight-black mb-4 text-on-surface">
+            Explorez nos <span class="text-primary">produits</span>
+          </h1>
+          <p class="text-body-1 text-medium-emphasis mb-8" style="max-width: 600px; margin: 0 auto;">
+            Découvrez des milliers de produits alimentaires, vérifiez leur statut halal et consultez les avis de la
+            communauté.
+          </p>
+
+          <v-card elevation="0" class="search-card mx-auto" max-width="600" border rounded="xl">
+            <v-text-field v-model="searchQuery" placeholder="Rechercher un produit, une marque..."
+              prepend-inner-icon="mdi-magnify" variant="solo" flat hide-details density="comfortable" height="56"
+              @input="debouncedSearch" class="search-input">
+              <template #append-inner>
+                <v-fade-transition>
                   <v-btn v-if="searchQuery" icon="mdi-close" variant="text" size="small" @click="clearSearch" />
-                </template>
-              </v-text-field>
-
-              <div class="d-flex flex-wrap ga-2 align-center">
-                <v-chip v-for="filter in quickFilters" :key="filter.value"
-                  :color="selectedHalalFilter === filter.value ? filter.color : 'default'"
-                  :variant="selectedHalalFilter === filter.value ? 'flat' : 'tonal'"
-                  @click="toggleHalalFilter(filter.value)">
-                  <v-icon start size="small">{{ filter.icon }}</v-icon>
-                  {{ filter.label }}
-                </v-chip>
-
-                <v-divider vertical class="mx-2" />
-
-                <v-btn variant="tonal" prepend-icon="mdi-filter-variant" @click="filterDrawer = true">
-                  Filtres avancés
-                  <v-badge v-if="activeFiltersCount > 0" :content="activeFiltersCount" color="primary" inline
-                    class="ml-2" />
+                </v-fade-transition>
+                <v-divider vertical class="mx-2 my-3" />
+                <v-btn icon="mdi-barcode-scan" variant="text" color="primary" @click="openScanner">
+                  <v-tooltip activator="parent" location="top">Scanner un produit</v-tooltip>
                 </v-btn>
-
-                <v-btn variant="text" prepend-icon="mdi-sort" @click="sortMenu = true">
-                  {{ getSortLabel(sortBy) }}
-                </v-btn>
-              </div>
-            </v-card-text>
+              </template>
+            </v-text-field>
           </v-card>
+        </div>
+      </v-container>
+    </section>
 
-          <div class="d-flex justify-space-between align-center mb-4">
-            <div class="text-h6 font-weight-bold">
-              {{ filteredProducts.length }} produit{{ filteredProducts.length > 1 ? 's' : '' }}
-              <span v-if="searchQuery" class="text-medium-emphasis">
-                pour "{{ searchQuery }}"
-              </span>
-            </div>
+    <v-container class="py-6">
+      <div class="d-flex flex-column flex-sm-row justify-space-between align-center mb-6 gap-4">
+        <div class="d-flex flex-wrap justify-center justify-sm-start gap-2 w-100 w-sm-auto">
+          <v-chip v-for="filter in quickFilters" :key="filter.value"
+            :color="selectedHalalFilter === filter.value ? filter.color : undefined"
+            :variant="selectedHalalFilter === filter.value ? 'flat' : 'outlined'"
+            :class="{ 'text-medium-emphasis': selectedHalalFilter !== filter.value }" class="filter-chip" filter
+            @click="toggleHalalFilter(filter.value)">
+            <v-icon start size="18">{{ filter.icon }}</v-icon>
+            {{ filter.label }}
+          </v-chip>
+        </div>
 
-            <div class="d-flex">
-              <v-btn-toggle v-model="viewMode" mandatory density="compact" variant="outlined">
-                <v-btn value="grid" icon="mdi-view-grid" class="mr-1" />
-                <v-btn value="list" icon="mdi-view-list" />
-              </v-btn-toggle>
-            </div>
+        <div class="d-flex align-center gap-2 w-100 w-sm-auto justify-end">
+          <span class="text-caption text-medium-emphasis d-none d-sm-block">
+            {{ filteredProducts.length }} résultats
+          </span>
+          <v-divider vertical class="mx-2 d-none d-sm-block" />
+          <v-menu v-model="sortMenu" :close-on-content-click="true">
+            <template #activator="{ props }">
+              <v-btn variant="text" v-bind="props" prepend-icon="mdi-sort" class="text-none">
+                {{ getSortLabel(sortBy) }}
+              </v-btn>
+            </template>
+            <v-list density="compact" nav rounded="lg" elevation="4">
+              <v-list-subheader>Trier par</v-list-subheader>
+              <v-list-item v-for="option in sortOptions" :key="option.value" :value="option.value"
+                @click="changeSortBy(option.value)" :active="sortBy === option.value" color="primary">
+                <template #prepend>
+                  <v-icon size="small">{{ option.icon }}</v-icon>
+                </template>
+                <v-list-item-title>{{ option.label }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+
+          <div class="d-flex bg-surface-variant rounded-lg pa-1">
+            <v-btn :variant="viewMode === 'grid' ? 'flat' : 'text'" :color="viewMode === 'grid' ? 'white' : undefined"
+              size="x-small" icon="mdi-view-grid" @click="viewMode = 'grid'" class="rounded" />
+            <v-btn :variant="viewMode === 'list' ? 'flat' : 'text'" :color="viewMode === 'list' ? 'white' : undefined"
+              size="x-small" icon="mdi-view-list" @click="viewMode = 'list'" class="rounded" />
           </div>
-        </v-col>
-      </v-row>
+        </div>
+      </div>
 
       <v-row v-if="!loading">
         <template v-if="viewMode === 'grid'">
           <v-col v-for="product in paginatedProducts" :key="product.id" cols="12" sm="6" md="4" lg="3">
-            <v-card class="product-card h-100" elevation="2" rounded="xl" hover @click="goToProduct(product.id)">
-              <v-img :src="product.image_url" height="220" cover class="product-image">
-                <div class="pa-3 d-flex justify-space-between">
+            <v-card class="product-card h-100 d-flex flex-column" elevation="0" border rounded="xl"
+              @click="goToProduct(product.id)">
+              <div class="position-relative">
+                <v-img :src="product.image_url" height="200" cover class="bg-surface-variant">
+                  <template #placeholder>
+                    <div class="d-flex align-center justify-center fill-height">
+                      <v-progress-circular indeterminate color="primary" size="24" />
+                    </div>
+                  </template>
+                </v-img>
+                <div class="product-badges">
                   <v-chip :color="getHalalColor(product.halal_status)" size="small" variant="flat"
-                    class="font-weight-bold">
-                    <v-icon start size="x-small">{{ getHalalIcon(product.halal_status) }}</v-icon>
+                    class="font-weight-bold shadow-sm">
+                    <v-icon start size="14">{{ getHalalIcon(product.halal_status) }}</v-icon>
                     {{ getHalalLabel(product.halal_status) }}
                   </v-chip>
-
                 </div>
-              </v-img>
+              </div>
 
-              <v-card-text class="pb-4">
-                <div class="d-flex align-center ga-2 mb-2">
-                  <v-chip v-if="product.category" size="x-small" variant="tonal" color="primary">
+              <v-card-text class="flex-grow-1 pt-4">
+                <div class="d-flex align-center justify-space-between mb-2">
+                  <span class="text-caption text-medium-emphasis text-uppercase font-weight-medium ls-1">
+                    {{ product.brand || 'Marque inconnue' }}
+                  </span>
+                  <div class="d-flex align-center" v-if="product.rating > 0">
+                    <v-icon color="amber" size="14" class="mr-1">mdi-star</v-icon>
+                    <span class="text-caption font-weight-bold">{{ product.rating.toFixed(1) }}</span>
+                    <span class="text-caption text-disabled ml-1">({{ product.reviews_count }})</span>
+                  </div>
+                </div>
+
+                <h3 class="text-subtitle-1 font-weight-bold mb-1 line-clamp-2" style="min-height: 3rem;">
+                  {{ product.name }}
+                </h3>
+
+                <div class="d-flex flex-wrap gap-1 mt-2">
+                  <v-chip v-if="product.category" size="x-small" variant="tonal" color="secondary">
                     {{ product.category }}
                   </v-chip>
+                  <v-chip v-if="product.certified" size="x-small" variant="tonal" color="success">
+                    <v-icon start size="10">mdi-certificate</v-icon>
+                    Certifié
+                  </v-chip>
                 </div>
-
-                <h4 class="mb-1 text-truncate" style="font-size: 1rem;">
-                  {{ product.name }}
-                </h4>
-                <p class="text-caption text-medium-emphasis mb-3">
-                  {{ product.brand }}
-                </p>
-
-                <div class="d-flex align-center justify-space-between">
-                  <div class="d-flex align-center">
-                    <v-rating :model-value="product.rating" readonly density="compact" size="x-small" color="amber"
-                      half-increments />
-                    <span class="text-caption text-medium-emphasis ml-1">
-                      {{ product.rating }}
-                    </span>
-                  </div>
-                  <span class="text-caption text-medium-emphasis">
-                    {{ product.reviews_count }} avis
-                  </span>
-                </div>
-
               </v-card-text>
             </v-card>
           </v-col>
@@ -114,209 +151,168 @@
 
         <template v-else>
           <v-col cols="12">
-            <v-card v-for="product in paginatedProducts" :key="product.id" class="product-list-card mb-3" elevation="2"
-              rounded="xl" hover @click="goToProduct(product.id)">
-              <v-card-text class="pa-4">
-                <v-row align="center">
-                  <v-col cols="12" sm="3" md="2">
-                    <v-img :src="product.image_url" height="120" cover rounded="lg" class="product-thumbnail" />
-                  </v-col>
+            <v-card v-for="product in paginatedProducts" :key="product.id" class="product-list-card mb-3" elevation="0"
+              rounded="xl" @click="goToProduct(product.id)">
+              <div class="d-flex flex-column flex-sm-row">
+                <v-img :src="product.image_url" width="100%" max-width="180" height="180" cover
+                  class="bg-surface-variant rounded-t-xl rounded-sm-s-xl rounded-sm-e-0" />
 
-                  <v-col cols="12" sm="9" md="10">
-                    <v-row align="center">
-                      <v-col cols="12" md="6">
-                        <div class="d-flex align-center gap-2 mb-2">
-                          <v-chip :color="getHalalColor(product.halal_status)" size="small" variant="flat">
-                            <v-icon start size="small">{{ getHalalIcon(product.halal_status) }}</v-icon>
-                            {{ getHalalLabel(product.halal_status) }}
-                          </v-chip>
-                          <v-chip v-if="product.certified" size="small" variant="tonal" color="success">
-                            <v-icon start size="small">mdi-certificate</v-icon>
-                            Certifié
-                          </v-chip>
-                        </div>
+                <div class="pa-4 flex-grow-1 d-flex flex-column">
+                  <div class="d-flex justify-space-between align-start mb-2">
+                    <div>
+                      <div class="text-caption text-medium-emphasis text-uppercase font-weight-medium mb-1">
+                        {{ product.brand }}
+                      </div>
+                      <h3 class="text-h6 font-weight-bold mb-1">{{ product.name }}</h3>
+                    </div>
+                    <v-chip :color="getHalalColor(product.halal_status)" size="small" variant="flat">
+                      {{ getHalalLabel(product.halal_status) }}
+                    </v-chip>
+                  </div>
 
-                        <h3 class="text-h6 mb-1">{{ product.name }}</h3>
-                        <p class="text-body-2 text-medium-emphasis mb-2">
-                          {{ product.brand }}
-                        </p>
+                  <div class="d-flex align-center gap-2 mb-4">
+                    <v-chip v-if="product.category" size="small" variant="tonal" color="secondary">
+                      {{ product.category }}
+                    </v-chip>
+                    <v-chip v-if="product.certified" size="small" variant="tonal" color="success">
+                      Certifié
+                    </v-chip>
+                    <v-spacer />
+                    <div class="d-flex align-center">
+                      <v-rating :model-value="product.rating" readonly density="compact" size="small" color="amber"
+                        half-increments />
+                      <span class="text-caption text-medium-emphasis ml-2">({{ product.reviews_count }} avis)</span>
+                    </div>
+                  </div>
 
-                        <div class="d-flex align-center ga-2">
-                          <v-chip v-if="product.category" size="small" variant="tonal" color="primary">
-                            {{ product.category }}
-                          </v-chip>
-                          <v-chip size="small" variant="tonal" color="secondary">
-                            <v-icon class="mr-1">mdi-barcode</v-icon> {{ product.barcode }}
-                          </v-chip>
-                        </div>
-                      </v-col>
+                  <v-spacer />
 
-                      <v-col cols="12" md="3">
-                        <div class="mb-2">
-                          <div class="d-flex align-center mb-1">
-                            <v-rating :model-value="product.rating" readonly density="compact" size="small"
-                              color="amber" half-increments />
-                            <span class="text-body-2 ml-2">{{ product.rating }}</span>
-                          </div>
-                          <div class="text-caption text-medium-emphasis">
-                            {{ product.reviews_count }} avis
-                          </div>
-                        </div>
-
-                      </v-col>
-
-                      <v-col cols="12" md="3" class="text-right">
-                        <v-btn color="primary" variant="flat" rounded="lg" @click.stop="goToProduct(product.id)">
-                          Voir détails
-                          <v-icon end>mdi-arrow-right</v-icon>
-                        </v-btn>
-                      </v-col>
-                    </v-row>
-                  </v-col>
-                </v-row>
-              </v-card-text>
+                  <div class="d-flex justify-end">
+                    <v-btn variant="text" color="primary" append-icon="mdi-arrow-right" class="px-0">
+                      Voir les détails
+                    </v-btn>
+                  </div>
+                </div>
+              </div>
             </v-card>
           </v-col>
         </template>
       </v-row>
 
       <v-row v-else>
-        <v-col v-for="i in 12" :key="i" cols="12" sm="6" md="4" lg="3">
-          <v-skeleton-loader type="card" />
+        <v-col v-for="i in 8" :key="i" cols="12" sm="6" md="4" lg="3">
+          <v-skeleton-loader type="image, article" class="rounded-xl border" elevation="0" />
         </v-col>
       </v-row>
 
       <v-row v-if="!loading && filteredProducts.length === 0">
         <v-col cols="12">
-          <v-card elevation="0" class="text-center py-16" rounded="xl">
-            <v-icon size="120" color="grey-lighten-2">mdi-package-variant-closed</v-icon>
-            <h2 class="text-h5 mt-4 mb-2">Aucun produit trouvé</h2>
-            <p class="text-body-1 text-medium-emphasis mb-6">
-              Essayez de modifier vos filtres ou votre recherche
+          <v-card elevation="0" rounded="xl" class="text-center py-16 bg-surface-variant-lighten">
+            <div class="mb-6">
+              <v-avatar color="surface" size="80" class="elevation-1">
+                <v-icon size="40" color="medium-emphasis">mdi-magnify-remove-outline</v-icon>
+              </v-avatar>
+            </div>
+            <h2 class="text-h5 font-weight-bold mb-2">Aucun produit trouvé</h2>
+            <p class="text-body-1 text-medium-emphasis mb-8 max-width-500 mx-auto">
+              Nous n'avons pas trouvé de produits correspondant à votre recherche. Essayez d'autres mots-clés ou
+              filtres.
             </p>
-            <v-btn color="primary" variant="flat" @click="clearAllFilters">
-              Réinitialiser les filtres
-            </v-btn>
+            <div class="d-flex justify-center gap-4">
+              <v-btn variant="outlined" rounded="lg" @click="clearAllFilters">
+                Effacer les filtres
+              </v-btn>
+              <v-btn color="primary" variant="flat" rounded="lg" to="/products/add" prepend-icon="mdi-plus">
+                Ajouter un produit
+              </v-btn>
+            </div>
           </v-card>
         </v-col>
       </v-row>
 
-      <v-row v-if="filteredProducts.length > 0">
-        <v-col cols="12" class="d-flex justify-center mt-6">
-          <v-pagination v-model="page" :length="totalPages" :total-visible="7" rounded="circle" />
-        </v-col>
-      </v-row>
+      <div v-if="filteredProducts.length > 0" class="d-flex justify-center mt-8">
+        <v-pagination v-model="page" :length="totalPages" :total-visible="5" rounded="circle" active-color="primary" />
+      </div>
     </v-container>
   </v-main>
 
-  <v-navigation-drawer v-model="filterDrawer" location="right" temporary width="400">
-    <v-card flat>
-      <v-card-title class="d-flex align-center justify-space-between pa-4">
-        <span class="text-h6">Filtres avancés</span>
-        <v-btn icon="mdi-close" variant="text" @click="filterDrawer = false" />
-      </v-card-title>
+  <v-navigation-drawer v-model="filterDrawer" location="right" temporary width="360" class="filter-drawer">
+    <div class="d-flex flex-column h-100">
+      <div class="pa-4 border-b d-flex align-center justify-space-between bg-surface">
+        <span class="text-h6 font-weight-bold">Filtres</span>
+        <v-btn icon="mdi-close" variant="text" density="comfortable" @click="filterDrawer = false" />
+      </div>
 
-      <v-divider />
-
-      <v-card-text class="pa-4">
+      <div class="flex-grow-1 overflow-y-auto pa-4">
         <div class="mb-6">
-          <h3 class="text-subtitle-1 font-weight-bold mb-3">Catégories</h3>
-          <v-chip-group v-model="selectedCategories" multiple column>
-            <v-chip v-for="cat in dbCategories" :key="cat.id" :value="cat.id" filter variant="tonal">
+          <div class="text-subtitle-2 font-weight-bold mb-3 text-uppercase text-medium-emphasis ls-1">Catégories</div>
+          <v-chip-group v-model="selectedCategories" multiple column class="category-chips">
+            <v-chip v-for="cat in dbCategories" :key="cat.id" :value="cat.id" filter variant="outlined" size="small"
+              class="ma-1">
               {{ cat.name }}
             </v-chip>
           </v-chip-group>
         </div>
 
-        <v-divider class="my-4" />
+        <v-divider class="mb-6" />
 
         <div class="mb-6">
-          <h3 class="text-subtitle-1 font-weight-bold mb-3">Certifications</h3>
-          <v-checkbox v-model="filters.certified" label="Produits certifiés uniquement" hide-details
-            density="compact" />
-          <v-checkbox v-model="filters.communityVerified" label="Vérifiés par la communauté" hide-details
-            density="compact" />
-        </div>
-
-        <v-divider class="my-4" />
-
-        <div class="mb-6">
-          <h3 class="text-subtitle-1 font-weight-bold mb-3">Labels</h3>
-          <v-chip-group v-model="selectedLabels" multiple column>
-            <v-chip v-for="label in labels" :key="label.value" :value="label.value" filter variant="tonal">
-              <v-icon start size="small">{{ label.icon }}</v-icon>
-              {{ label.label }}
-            </v-chip>
-          </v-chip-group>
-        </div>
-
-        <v-divider class="my-4" />
-
-        <div class="mb-6">
-          <h3 class="text-subtitle-1 font-weight-bold mb-3">Additifs</h3>
-          <v-select v-model="filters.additivesFilter" :items="additivesOptions" label="Filtrer par additifs"
-            variant="outlined" density="compact" hide-details />
-        </div>
-
-        <v-divider class="my-4" />
-
-        <div class="mb-6">
-          <h3 class="text-subtitle-1 font-weight-bold mb-3">
-            Note minimale: {{ filters.minRating }}
-          </h3>
-          <v-slider v-model="filters.minRating" :min="0" :max="5" :step="0.5" thumb-label color="amber">
-            <template #thumb-label="{ modelValue }">
-              <v-icon size="small">mdi-star</v-icon>
-              {{ modelValue }}
+          <div class="text-subtitle-2 font-weight-bold mb-3 text-uppercase text-medium-emphasis ls-1">Préférences</div>
+          <v-checkbox v-model="filters.certified" label="Certifié Halal uniquement" hide-details density="compact"
+            color="primary" class="mb-2">
+            <template #label>
+              <span class="text-body-2">Certifié Halal uniquement</span>
             </template>
-          </v-slider>
+          </v-checkbox>
+          <v-checkbox v-model="filters.communityVerified" label="Vérifié par la communauté" hide-details
+            density="compact" color="primary">
+            <template #label>
+              <span class="text-body-2">Vérifié par la communauté</span>
+            </template>
+          </v-checkbox>
         </div>
 
-        <v-divider class="my-4" />
+        <v-divider class="mb-6" />
 
         <div class="mb-6">
-          <h3 class="text-subtitle-1 font-weight-bold mb-3">Exclure allergènes</h3>
-          <v-chip-group v-model="excludedAllergens" multiple column>
-            <v-chip v-for="allergen in allergens" :key="allergen.value" :value="allergen.value" filter variant="tonal"
-              color="error">
-              {{ allergen.label }}
-            </v-chip>
-          </v-chip-group>
+          <div class="text-subtitle-2 font-weight-bold mb-3 text-uppercase text-medium-emphasis ls-1">Note minimale
+          </div>
+          <div class="px-2">
+            <v-slider v-model="filters.minRating" :min="0" :max="5" :step="1" thumb-label show-ticks="always"
+              color="amber" track-color="grey-lighten-2">
+              <template #thumb-label="{ modelValue }">
+                {{ modelValue }}
+              </template>
+            </v-slider>
+          </div>
         </div>
-      </v-card-text>
+      </div>
 
-      <v-divider />
-
-      <v-card-actions class="pa-4">
-        <v-btn block color="primary" variant="flat" @click="applyFilters">
-          Appliquer les filtres
-        </v-btn>
-        <v-btn block variant="text" @click="resetFilters">
-          Réinitialiser
-        </v-btn>
-      </v-card-actions>
-    </v-card>
+      <div class="pa-4 border-t bg-surface">
+        <div class="d-flex gap-3">
+          <v-btn flex-grow-1 variant="outlined" height="48" rounded="lg" @click="resetFilters">
+            Réinitialiser
+          </v-btn>
+          <v-btn flex-grow-1 color="primary" variant="flat" height="48" rounded="lg" @click="applyFilters"
+            class="flex-grow-1">
+            Voir {{ filteredProducts.length }} résultats
+          </v-btn>
+        </div>
+      </div>
+    </div>
   </v-navigation-drawer>
 
-  <v-menu v-model="sortMenu" :close-on-content-click="false">
-    <v-card min-width="300">
-      <v-list>
-        <v-list-item v-for="option in sortOptions" :key="option.value" @click="changeSortBy(option.value)">
-          <template #prepend>
-            <v-icon :color="sortBy === option.value ? 'primary' : ''">
-              {{ option.icon }}
-            </v-icon>
-          </template>
-          <v-list-item-title :class="{ 'text-primary font-weight-bold': sortBy === option.value }">
-            {{ option.label }}
-          </v-list-item-title>
-          <template #append>
-            <v-icon v-if="sortBy === option.value" color="primary">mdi-check</v-icon>
-          </template>
-        </v-list-item>
-      </v-list>
+  <v-dialog v-model="showMobileSearch" fullscreen transition="dialog-bottom-transition">
+    <v-card class="bg-background">
+      <v-toolbar color="surface" elevation="1">
+        <v-btn icon="mdi-arrow-left" @click="showMobileSearch = false" />
+        <v-text-field v-model="searchQuery" placeholder="Rechercher..." variant="plain" hide-details autofocus
+          class="mx-2" @input="debouncedSearch" clearable />
+      </v-toolbar>
+      <v-card-text class="pa-0">
+      </v-card-text>
     </v-card>
-  </v-menu>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -326,13 +322,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { useTheme } from 'vuetify'
 
 const supabase = useSupabase()
-
 const theme = useTheme()
 const router = useRouter()
 const route = useRoute()
 
 const loading = ref(false)
 const searchQuery = ref('')
+const showMobileSearch = ref(false)
 const viewMode = ref('grid')
 const page = ref(1)
 const itemsPerPage = 24
@@ -374,40 +370,11 @@ const loadCategories = async () => {
   }
 }
 
-const labels = [
-  { label: 'Bio', value: 'bio', icon: 'mdi-leaf' },
-  { label: 'Sans OGM', value: 'sans-ogm', icon: 'mdi-dna' },
-  { label: 'Commerce équitable', value: 'equitable', icon: 'mdi-scale-balance' },
-  { label: 'Sans gluten', value: 'sans-gluten', icon: 'mdi-barley-off' },
-  { label: 'Végétarien', value: 'vegetarien', icon: 'mdi-leaf' },
-  { label: 'Vegan', value: 'vegan', icon: 'mdi-sprout' }
-]
-
-const allergens = [
-  { label: 'Gluten', value: 'gluten' },
-  { label: 'Lactose', value: 'lactose' },
-  { label: 'Arachides', value: 'arachides' },
-  { label: 'Fruits à coque', value: 'fruits-coque' },
-  { label: 'Œufs', value: 'oeufs' },
-  { label: 'Soja', value: 'soja' },
-  { label: 'Poisson', value: 'poisson' },
-  { label: 'Crustacés', value: 'crustaces' }
-]
-
-const additivesOptions = [
-  { title: 'Tous les produits', value: 'all' },
-  { title: 'Sans additifs', value: 'none' },
-  { title: 'Avec additifs halal uniquement', value: 'halal-only' },
-  { title: 'Avec additifs douteux', value: 'has-doubtful' }
-]
-
 const sortOptions = [
   { label: 'Plus récents', value: 'recent', icon: 'mdi-clock-outline' },
   { label: 'Mieux notés', value: 'rating', icon: 'mdi-star' },
   { label: 'Nom (A-Z)', value: 'name-asc', icon: 'mdi-sort-alphabetical-ascending' },
   { label: 'Nom (Z-A)', value: 'name-desc', icon: 'mdi-sort-alphabetical-descending' },
-  { label: 'Marque (A-Z)', value: 'brand-asc', icon: 'mdi-sort-alphabetical-ascending' },
-  { label: 'Plus commentés', value: 'reviews', icon: 'mdi-comment-multiple' }
 ]
 
 const allProducts = ref<any[]>([])
@@ -476,7 +443,7 @@ const fetchProducts = async () => {
       category_id: p.category?.id ?? null,
       // @ts-ignore
       category: p.category?.name ?? 'Autre',
-      image_url: p.image_url || 'https://via.placeholder.com/400x400?text=Produit',
+      image_url: p.image_url || '',
       // @ts-ignore
       halal_status: p.halal_info?.halal_status || 'non_verifie',
       certified: !!p.halal_info?.[0]?.certification_body,
@@ -520,10 +487,6 @@ const filteredProducts = computed(() => {
     products = products.filter(p => p.rating >= filters.value.minRating)
   }
 
-  if (filters.value.additivesFilter === 'none') {
-    products = products.filter(p => p.additives_count === 0)
-  }
-
   products = sortProducts(products)
 
   return products
@@ -542,11 +505,8 @@ const totalPages = computed(() => {
 const activeFiltersCount = computed(() => {
   let count = 0
   if (selectedCategories.value.length > 0) count += selectedCategories.value.length
-  if (selectedLabels.value.length > 0) count += selectedLabels.value.length
-  if (excludedAllergens.value.length > 0) count += excludedAllergens.value.length
   if (filters.value.certified) count++
   if (filters.value.communityVerified) count++
-  if (filters.value.additivesFilter !== 'all') count++
   if (filters.value.minRating > 0) count++
   return count
 })
@@ -561,10 +521,6 @@ const sortProducts = (products: any[]) => {
       return products.sort((a, b) => a.name.localeCompare(b.name))
     case 'name-desc':
       return products.sort((a, b) => b.name.localeCompare(a.name))
-    case 'brand-asc':
-      return products.sort((a, b) => a.brand.localeCompare(b.brand))
-    case 'reviews':
-      return products.sort((a, b) => b.reviews_count - a.reviews_count)
     default:
       return products
   }
@@ -585,7 +541,7 @@ const getHalalLabel = (status: string) => {
     haram: 'Haram',
     mashbuh: 'Mashbuh'
   }
-  return labels[status] || ''
+  return labels[status] || 'Non vérifié'
 }
 
 const getHalalIcon = (status: string) => {
@@ -594,7 +550,7 @@ const getHalalIcon = (status: string) => {
     haram: 'mdi-close-circle',
     mashbuh: 'mdi-alert-circle'
   }
-  return icons[status] || ''
+  return icons[status] || 'mdi-help-circle'
 }
 
 const getSortLabel = (value: string) => {
@@ -626,8 +582,6 @@ const clearAllFilters = () => {
   searchQuery.value = ''
   selectedHalalFilter.value = null
   selectedCategories.value = []
-  selectedLabels.value = []
-  excludedAllergens.value = []
   filters.value = {
     certified: false,
     communityVerified: false,
@@ -639,8 +593,6 @@ const clearAllFilters = () => {
 
 const resetFilters = () => {
   selectedCategories.value = []
-  selectedLabels.value = []
-  excludedAllergens.value = []
   filters.value = {
     certified: false,
     communityVerified: false,
@@ -691,3 +643,91 @@ onMounted(async () => {
 })
 
 </script>
+
+<style scoped>
+.hero-section-products {
+  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.05) 0%, rgba(var(--v-theme-surface), 1) 100%);
+  padding-bottom: 2rem;
+}
+
+.hero-bg-mesh {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 50% 50%, rgba(var(--v-theme-primary), 0.1) 0%, transparent 50%);
+  filter: blur(60px);
+  z-index: 0;
+}
+
+.z-1 {
+  z-index: 1;
+}
+
+.search-input :deep(.v-field) {
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05) !important;
+}
+
+.product-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  background: rgb(var(--v-theme-surface));
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+  border-color: rgba(var(--v-theme-primary), 0.5);
+}
+
+.product-badges {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+}
+
+.shadow-sm {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ls-1 {
+  letter-spacing: 1px;
+}
+
+.gap-1 {
+  gap: 4px;
+}
+.gap-2 {
+  gap: 8px;
+}
+.gap-3 {
+  gap: 12px;
+}
+.gap-4 {
+  gap: 16px;
+}
+
+.filter-chip {
+  transition: all 0.2s ease;
+}
+
+.filter-chip:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+  .hero-section-products {
+    border-radius: 0 0 24px 24px;
+  }
+}
+</style>

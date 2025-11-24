@@ -1304,7 +1304,6 @@ const searchProducts = () => {
   }
 }
 
-/* Dark Mode Adjustments */
 .v-theme--dark .glass-navbar {
   background: rgba(var(--v-theme-surface), 0.9) !important;
   border-bottom-color: rgba(255, 255, 255, 0.05);
@@ -1326,7 +1325,6 @@ const searchProducts = () => {
   opacity: 0.2;
 }
 
-/* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -1337,7 +1335,6 @@ const searchProducts = () => {
   }
 }
 
-/* Print Styles */
 @media print {
   .hero-section-enhanced,
   .cta-banner-enhanced,

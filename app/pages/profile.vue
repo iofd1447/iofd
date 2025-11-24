@@ -1,201 +1,198 @@
 <template>
-  <v-app-bar elevation="0" class="px-4" color="surface">
-    <v-btn icon="mdi-arrow-left" variant="text" @click="$router.push('/')" />
-    <v-app-bar-title class="text-h6 font-weight-bold">
+  <v-app-bar elevation="0" class="px-2 px-sm-4" color="surface">
+    <v-btn icon="mdi-arrow-left" variant="text" size="small" @click="$router.push('/')" />
+    <v-app-bar-title class="text-subtitle-1 text-sm-h6 font-weight-bold">
       <span class="text-primary">IOFD</span>
-      <span class="text-medium-emphasis ml-2">• Profil</span>
+      <span class="text-medium-emphasis ml-1 ml-sm-2 d-none d-sm-inline">• Profil</span>
     </v-app-bar-title>
     <v-spacer />
+    <v-btn icon="mdi-logout" variant="text" color="error" size="small" @click="handleLogout">
+      <v-tooltip activator="parent" location="bottom">Déconnexion</v-tooltip>
+      <v-icon>mdi-logout</v-icon>
+    </v-btn>
   </v-app-bar>
 
   <v-main>
-    <v-container v-if="!loading && !user" class="text-center py-8 py-md-16" style="max-width: 900px;">
-      <v-avatar size="80" size-md="100" color="error" class="mb-4 mb-md-6">
-        <v-icon size="40" size-md="50" color="white">mdi-account-off</v-icon>
-      </v-avatar>
-      <h2 class="text-h6 text-md-h5 mb-3 mb-md-4">Non connecté</h2>
-      <p class="text-body-2 text-md-subtitle-1 text-medium-emphasis mb-4 mb-md-6 px-4">
-        Vous devez être connecté pour accéder à votre profil
-      </p>
-      <v-btn color="primary" to="/auth/login" prepend-icon="mdi-login" size="large" block class="mx-auto"
-        style="max-width: 300px;">
-        Se connecter
-      </v-btn>
+    <v-container v-if="!loading && !user" class="fill-height justify-center">
+      <div class="text-center max-width-400">
+        <v-avatar size="80" color="surface-variant" class="mb-6">
+          <v-icon size="40" color="medium-emphasis">mdi-account-lock-outline</v-icon>
+        </v-avatar>
+        <h2 class="text-h5 font-weight-bold mb-3">Accès restreint</h2>
+        <p class="text-body-1 text-medium-emphasis mb-8">
+          Connectez-vous pour accéder à votre profil et gérer vos contributions.
+        </p>
+        <v-btn color="primary" to="/auth/login" size="large" block rounded="lg" elevation="0">
+          Se connecter
+        </v-btn>
+        <v-btn variant="text" to="/auth/signup" block rounded="lg" class="mt-4">
+          Créer un compte
+        </v-btn>
+      </div>
     </v-container>
 
-    <v-container v-else-if="user" class="py-4 py-md-8" style="max-width: 900px;">
-      <v-row class="mb-4 mb-md-8">
-        <v-col cols="12">
-          <v-card elevation="4" rounded="xl" class="profile-hero-card">
-            <v-card-text class="pa-4 pa-md-8">
-              <v-row align="center">
-                <v-col cols="12" md="auto" class="text-center text-md-left">
-                  <v-avatar size="80" size-md="120" color="primary" class="mb-4 mb-md-0">
-                    <span class="text-h3 text-md-h2">{{ userInitials }}</span>
-                  </v-avatar>
-                </v-col>
-                <v-col cols="12" md="8">
-                  <div class="text-center text-md-left">
-                    <h1 class="text-h5 text-md-h4 font-weight-bold mb-2">
-                      Mon profil
-                    </h1>
-                    <v-chip :color="getRoleColor(userProfile.role)" variant="flat" size="default" size-md="large"
-                      prepend-icon="mdi-shield-check" class="mb-3 mb-md-4">
-                      {{ getRoleLabel(userProfile.role) }}
-                    </v-chip>
-                    <p class="text-body-2 text-md-subtitle-1 text-medium-emphasis mb-2">
-                      <v-icon start size="small">mdi-email</v-icon>
-                      <span class="word-break">{{ user.email }}</span>
-                    </p>
-                    <p class="text-caption text-md-body-2 text-medium-emphasis">
-                      <v-icon start size="small">mdi-calendar</v-icon>
-                      Membre depuis {{ formatDate(user.created_at) }}
-                    </p>
-                  </div>
-                </v-col>
-                <v-col cols="12" md="auto" class="text-center text-md-right">
-                  <div class="d-flex flex-column flex-md-row ga-2 justify-center justify-md-end">
-                    <v-btn color="error" variant="text" prepend-icon="mdi-logout" @click="handleLogout">
-                      Déconnexion
-                    </v-btn>
-                    <v-btn color="error" variant="outlined" prepend-icon="mdi-delete"
-                      @click="deleteAccountDialog = true">
-                      Supprimer le compte
-                    </v-btn>
-                  </div>
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <v-row class="mb-4 mb-md-8">
-        <v-col v-for="stat in stats" :key="stat.label" cols="6" class="px-2 px-md-3">
-          <v-card elevation="2" rounded="xl" class="stat-card h-100">
-            <v-card-text class="text-center pa-4 pa-md-6">
-              <v-avatar :color="stat.color" size="50" size-md="60" class="mb-2 mb-md-4">
-                <v-icon :color="stat.iconColor" size="24" size-md="30">{{ stat.icon }}</v-icon>
+    <div v-else-if="user">
+      <section class="profile-hero position-relative overflow-hidden pt-8 pb-12">
+        <div class="hero-bg-mesh"></div>
+        <v-container class="position-relative z-1">
+          <div class="d-flex flex-column align-center text-center">
+            <div class="position-relative mb-6">
+              <v-avatar size="100" color="surface" class="elevation-2">
+                <span class="text-h3 font-weight-black text-primary">{{ userInitials }}</span>
               </v-avatar>
-              <div class="stat-number mb-1 mb-md-2">{{ stat.value }}</div>
-              <div class="stat-label text-medium-emphasis">{{ stat.label }}</div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
+              <v-chip :color="getRoleColor(userProfile.role)" size="small" variant="flat"
+                class="position-absolute bottom-0 right-0 font-weight-bold border-2 border-surface">
+                {{ getRoleLabel(userProfile.role) }}
+              </v-chip>
+            </div>
 
-      <v-row class="mb-4 mb-md-0">
-        <v-col cols="12" md="6" class="mb-4 mb-md-0">
-          <v-card elevation="2" rounded="xl" class="h-100">
-            <v-card-title class="d-flex align-center mb-2 mb-md-4 text-h6 text-md-h5">
-              <v-icon start color="primary" size="20" size-md="24">mdi-account-edit</v-icon>
-              <span class="text-body-1 text-md-h6">Informations personnelles</span>
-            </v-card-title>
-            <v-card-text class="pa-4 pa-md-6">
-              <v-form>
-                <v-text-field v-model="userProfile.username" label="Nom d'utilisateur" variant="outlined"
-                  density="comfortable" rounded="lg" prepend-inner-icon="mdi-account" class="mb-3 mb-md-4" />
-                <v-btn color="primary" block variant="flat" prepend-icon="mdi-content-save" :loading="saving"
-                  @click="saveProfile" size="large">
-                  Enregistrer
-                </v-btn>
-              </v-form>
-            </v-card-text>
-          </v-card>
-        </v-col>
+            <h1 class="text-h4 font-weight-bold mb-1">{{ userProfile.username || 'Utilisateur' }}</h1>
+            <p class="text-body-2 text-medium-emphasis mb-6">{{ user.email }}</p>
 
-        <v-col cols="12" md="6">
-          <v-card elevation="2" rounded="xl" class="h-100">
-            <v-card-title class="d-flex align-center mb-2 mb-md-4 text-h6 text-md-h5">
-              <v-icon start color="success" size="20" size-md="24">mdi-account-plus</v-icon>
-              <span class="text-body-1 text-md-h6">Actions rapides</span>
-            </v-card-title>
-            <v-card-text class="pa-2 pa-md-4">
-              <v-list bg-color="transparent" density="comfortable">
-                <v-list-item prepend-icon="mdi-plus-circle" title="Ajouter un produit"
-                  subtitle="Contribuez à la base de données" to="/products/add" variant="text" class="py-2" />
-                <v-divider class="my-1" />
-                <v-list-item prepend-icon="mdi-history" title="Mes contributions" subtitle="Historique de mes ajouts"
-                  to="/contributions" variant="text" class="py-2" />
-              </v-list>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
+            <div class="d-flex gap-4 mb-8">
+              <v-card v-for="stat in stats" :key="stat.label" class="px-6 py-3 d-flex flex-column align-center"
+                elevation="0" rounded="xl" color="surface">
+                <span class="text-h5 font-weight-black text-primary">{{ stat.value }}</span>
+                <span class="text-caption text-medium-emphasis font-weight-bold text-uppercase">{{ stat.label }}</span>
+              </v-card>
+            </div>
 
-      <v-row class="mt-4">
-        <v-col cols="12">
-          <v-card variant="tonal" color="primary" rounded="xl">
-            <v-card-text class="pa-4 pa-md-6">
-              <div class="d-flex flex-column flex-md-row align-start align-md-center">
-                <v-icon size="32" size-md="40" start class="mb-2 mb-md-0">mdi-trophy</v-icon>
-                <div class="flex-grow-1 mb-3 mb-md-0">
-                  <h3 class="text-h6 text-md-h6 mb-1">Contributeur actif</h3>
-                  <p class="text-body-2 mb-0">
-                    Merci de contribuer à la croissance de la communauté IOFD !
-                  </p>
-                </div>
-                <v-chip color="primary" size="default" size-md="large" prepend-icon="mdi-star" class="mt-auto mt-md-0">
-                  Niveau {{ userLevel }}
-                </v-chip>
+            <div class="w-100 max-width-400 mb-4">
+              <div class="d-flex justify-space-between text-caption font-weight-bold mb-1">
+                <span>Niveau {{ userLevel }}</span>
+                <span class="text-medium-emphasis">{{ nextLevelProgress }}%</span>
               </div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+              <v-progress-linear :model-value="nextLevelProgress" color="primary" height="8" rounded />
+              <div class="text-caption text-medium-emphasis mt-2">
+                Plus que {{ itemsToNextLevel }} contributions pour le niveau {{ userLevel + 1 }}
+              </div>
+            </div>
+          </div>
+        </v-container>
+      </section>
+
+      <v-container class="py-6" style="max-width: 900px;">
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-card elevation="0" rounded="xl" class="h-100">
+              <v-card-title class="d-flex align-center py-4 px-6">
+                <v-icon start color="primary" class="mr-3">mdi-account-cog-outline</v-icon>
+                Informations
+              </v-card-title>
+              <v-divider />
+              <v-card-text class="pa-6">
+                <v-form @submit.prevent="saveProfile">
+                  <div class="mb-4">
+                    <label class="text-caption font-weight-bold text-medium-emphasis mb-1 d-block">Nom
+                      d'utilisateur</label>
+                    <v-text-field v-model="userProfile.username" variant="outlined" density="comfortable" hide-details
+                      rounded="lg" bg-color="surface-variant-lighten">
+                      <template #append-inner>
+                        <v-icon size="small" color="medium-emphasis">mdi-pencil</v-icon>
+                      </template>
+                    </v-text-field>
+                  </div>
+
+                  <div class="mb-6">
+                    <label class="text-caption font-weight-bold text-medium-emphasis mb-1 d-block">Membre depuis</label>
+                    <div class="text-body-2 d-flex align-center text-medium-emphasis">
+                      <v-icon start size="small" class="mr-2">mdi-calendar</v-icon>
+                      {{ formatDate(user.created_at) }}
+                    </div>
+                  </div>
+
+                  <v-btn type="submit" color="primary" variant="flat" block rounded="lg" :loading="saving">
+                    Enregistrer les modifications
+                  </v-btn>
+                </v-form>
+              </v-card-text>
+            </v-card>
+          </v-col>
+
+          <v-col cols="12" md="6">
+            <v-card elevation="0" rounded="xl" class="h-100">
+              <v-card-title class="d-flex align-center py-4 px-6">
+                <v-icon start color="success" class="mr-3">mdi-flash-outline</v-icon>
+                Actions rapides
+              </v-card-title>
+              <v-divider />
+              <v-list class="pa-2">
+                <v-list-item to="/products/add" rounded="lg" class="mb-1">
+                  <template #prepend>
+                    <v-avatar color="primary-lighten-5" class="mr-3">
+                      <v-icon color="primary">mdi-plus</v-icon>
+                    </v-avatar>
+                  </template>
+                  <v-list-item-title class="font-weight-bold">Ajouter un produit</v-list-item-title>
+                  <v-list-item-subtitle>Contribuer à la base de données</v-list-item-subtitle>
+                  <template #append>
+                    <v-icon size="small" color="medium-emphasis">mdi-chevron-right</v-icon>
+                  </template>
+                </v-list-item>
+
+                <v-list-item to="/contributions" rounded="lg">
+                  <template #prepend>
+                    <v-avatar color="secondary-lighten-5" class="mr-3">
+                      <v-icon color="secondary">mdi-history</v-icon>
+                    </v-avatar>
+                  </template>
+                  <v-list-item-title class="font-weight-bold">Mes contributions</v-list-item-title>
+                  <v-list-item-subtitle>Voir l'historique de mes ajouts</v-list-item-subtitle>
+                  <template #append>
+                    <v-icon size="small" color="medium-emphasis">mdi-chevron-right</v-icon>
+                  </template>
+                </v-list-item>
+              </v-list>
+
+              <v-divider class="mx-4 my-2" />
+
+              <div class="pa-4">
+                <v-btn variant="text" color="error" block rounded="lg" class="justify-start px-4"
+                  prepend-icon="mdi-delete-outline" @click="deleteAccountDialog = true">
+                  Supprimer mon compte
+                </v-btn>
+              </div>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
   </v-main>
 
-  <v-dialog v-model="logoutDialog" max-width="400" :fullscreen="$vuetify.display.mobile">
-    <v-card :rounded="$vuetify.display.mobile ? 't-xl' : 'xl'">
-      <v-card-title class="text-h6 font-weight-bold pa-4 pa-md-6">
-        Confirmer la déconnexion
+  <v-dialog v-model="logoutDialog" max-width="400">
+    <v-card rounded="xl" elevation="0">
+      <v-card-title class="text-h6 font-weight-bold pa-6 pb-2">
+        Déconnexion
       </v-card-title>
-      <v-card-text class="pa-4 pa-md-6">
+      <v-card-text class="px-6 pb-6 text-medium-emphasis">
         Êtes-vous sûr de vouloir vous déconnecter ?
       </v-card-text>
-      <v-card-actions class="pa-4 pa-md-6">
+      <v-card-actions class="px-6 pb-6 pt-0">
         <v-spacer />
-        <v-btn variant="text" @click="logoutDialog = false" block class="d-md-inline-block mb-2 mb-md-0">
-          Annuler
-        </v-btn>
-        <v-btn color="error" variant="flat" @click="confirmLogout" block class="d-md-inline-block">
-          Déconnexion
-        </v-btn>
+        <v-btn variant="text" rounded="lg" @click="logoutDialog = false">Annuler</v-btn>
+        <v-btn color="error" variant="flat" rounded="lg" @click="confirmLogout">Déconnexion</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 
-  <v-dialog v-model="deleteAccountDialog" max-width="500" :fullscreen="$vuetify.display.mobile">
-    <v-card :rounded="$vuetify.display.mobile ? 't-xl' : 'xl'">
-      <v-card-title class="text-h6 font-weight-bold pa-4 pa-md-6">
-        <v-icon color="error" start>mdi-alert-circle</v-icon>
-        Supprimer définitivement mon compte
+  <v-dialog v-model="deleteAccountDialog" max-width="500">
+    <v-card rounded="xl" elevation="0">
+      <v-card-title class="text-h6 font-weight-bold pa-6 pb-2 text-error d-flex align-center">
+        <v-icon start class="mr-2">mdi-alert-circle-outline</v-icon>
+        Supprimer le compte
       </v-card-title>
-      <v-card-text class="pa-4 pa-md-6">
-        <v-alert type="error" variant="tonal" rounded="lg" class="mb-4">
-          <strong>Attention : Cette action est irréversible !</strong>
+      <v-card-text class="px-6 pb-6">
+        <p class="text-body-1 mb-4">Cette action est <strong>irréversible</strong>. Toutes vos données personnelles
+          seront
+          supprimées.</p>
+        <v-alert type="warning" variant="tonal" rounded="lg" density="compact" class="mb-0">
+          Vos contributions à la base de données (produits ajoutés) seront conservées mais anonymisées.
         </v-alert>
-        <p class="text-body-1 mb-2">
-          La suppression de votre compte entraînera :
-        </p>
-        <v-list density="compact" bg-color="transparent">
-          <v-list-item prepend-icon="mdi-delete" title="Suppression de votre profil utilisateur" />
-          <v-list-item prepend-icon="mdi-delete" title="Suppression de toutes vos contributions" />
-          <v-list-item prepend-icon="mdi-delete" title="Suppression de tous vos avis" />
-          <v-list-item prepend-icon="mdi-delete" title="Suppression de votre historique" />
-        </v-list>
-        <p class="text-body-2 text-medium-emphasis mt-4">
-          Êtes-vous absolument sûr de vouloir continuer ?
-        </p>
       </v-card-text>
-      <v-card-actions class="pa-4 pa-md-6">
+      <v-card-actions class="px-6 pb-6 pt-0">
         <v-spacer />
-        <v-btn variant="text" @click="deleteAccountDialog = false" block class="d-md-inline-block mb-2 mb-md-0">
-          Annuler
-        </v-btn>
-        <v-btn color="error" variant="flat" @click="confirmDeleteAccount" :loading="deleting" block
-          class="d-md-inline-block">
+        <v-btn variant="text" rounded="lg" @click="deleteAccountDialog = false">Annuler</v-btn>
+        <v-btn color="error" variant="flat" rounded="lg" :loading="deleting" @click="confirmDeleteAccount">
           Supprimer définitivement
         </v-btn>
       </v-card-actions>
@@ -210,21 +207,21 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 useHead({
-  title: 'IOFD - Manage my account'
+  title: 'IOFD - Mon Profil'
 })
 
-const { user, fetchUser, signOut, loading, deleteAccount, syncUser } = useSupabaseAuth()
+const { user, fetchUser, signOut, loading, deleteAccount } = useSupabaseAuth()
 const supabase = useSupabase()
 const router = useRouter()
 
 const saving = ref(false)
-
 const logoutDialog = ref(false)
 const deleteAccountDialog = ref(false)
 const deleting = ref(false)
+
 const stats = ref([
-  { label: 'Produits ajoutés', value: 0, icon: 'mdi-plus-circle', color: 'primary', iconColor: 'white' },
-  { label: 'Avis laissés', value: 0, icon: 'mdi-comment', color: 'secondary', iconColor: 'white' }
+  { label: 'Produits', value: 0 },
+  { label: 'Avis', value: 0 }
 ])
 
 const userProfile = ref({
@@ -232,16 +229,49 @@ const userProfile = ref({
   role: 'user'
 })
 
+const totalStats = computed(() => {
+  const products = stats.value[0]?.value || 0
+  const reviews = stats.value[1]?.value || 0
+  return products + reviews
+})
+
 const userLevel = computed(() => {
-  const contributions = stats.value[0]?.value || 0
-  if (contributions >= 50) return 5
-  if (contributions >= 30) return 4
-  if (contributions >= 15) return 3
-  if (contributions >= 5) return 2
+  const total = totalStats.value
+  if (total >= 50) return 5
+  if (total >= 30) return 4
+  if (total >= 15) return 3
+  if (total >= 5) return 2
   return 1
 })
 
+const itemsToNextLevel = computed(() => {
+  const total = totalStats.value
+  if (total >= 50) return 0
+  if (total >= 30) return 50 - total
+  if (total >= 15) return 30 - total
+  if (total >= 5) return 15 - total
+  return 5 - total
+})
+
+const nextLevelProgress = computed(() => {
+  const total = totalStats.value
+  const currentLevelBase = [0, 5, 15, 30, 50]
+  const level = userLevel.value
+
+  if (level >= 5) return 100
+
+  const start = currentLevelBase[level - 1]
+  const end = currentLevelBase[level]
+  // @ts-ignore
+  const progress = ((total - start) / (end - start)) * 100
+
+  return Math.min(100, Math.max(0, Math.round(progress)))
+})
+
 const userInitials = computed(() => {
+  if (userProfile.value.username) {
+    return userProfile.value.username.substring(0, 2).toUpperCase()
+  }
   if (user.value?.email) {
     return user.value.email.substring(0, 2).toUpperCase()
   }
@@ -250,28 +280,20 @@ const userInitials = computed(() => {
 
 const formatDate = (date: string) => {
   if (!date) return 'Date inconnue'
-  const d = new Date(date)
-  if (isNaN(d.getTime())) return 'Date invalide'
-
-  const hijriFormatter = new Intl.DateTimeFormat('fr-FR-u-ca-islamic', {
+  return new Date(date).toLocaleDateString('fr-FR', {
     year: 'numeric',
-    month: 'long'
+    month: 'long',
+    day: 'numeric'
   })
-
-  let formatted = hijriFormatter.format(d)
-
-  formatted = formatted.replace(/\s?AH$/, '')
-
-  return formatted
 }
 
 const getRoleLabel = (role: string) => {
   const labels: Record<string, string> = {
-    admin: 'Administrateur',
+    admin: 'Admin',
     contributor: 'Contributeur',
-    user: 'Utilisateur'
+    user: 'Membre'
   }
-  return labels[role] || 'Utilisateur'
+  return labels[role] || 'Membre'
 }
 
 const getRoleColor = (role: string) => {
@@ -287,58 +309,70 @@ const fetchStats = async () => {
   if (!user.value) return
 
   try {
+    const userId = user.value.id
+    const userEmail = user.value.email
 
-    const userIdInDB = user.value.id
-    const userEmail = user.value.email || ''
+    // Get contributions count
+    const { count: contribCount } = await supabase
+      .from('product_contributors')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
 
-    let contributions = 0
-    let reviews = 0
-
-    if (userIdInDB) {
-      const { count: contribCount } = await supabase
-        .from('product_contributors')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userIdInDB)
-
-      const { count: reviewCount } = await supabase
-        .from('community_reviews')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_email', userEmail)
-
-      contributions = contribCount || 0
-      reviews = reviewCount || 0
-
-    }
+    // Get reviews count
+    const { count: reviewCount } = await supabase
+      .from('community_reviews')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_email', userEmail)
 
     stats.value = [
-      { label: 'Produits ajoutés', value: contributions || 0, icon: 'mdi-plus-circle', color: 'primary', iconColor: 'white' },
-      { label: 'Avis laissés', value: reviews || 0, icon: 'mdi-comment', color: 'secondary', iconColor: 'white' }
+      { label: 'Produits', value: contribCount || 0 },
+      { label: 'Avis', value: reviewCount || 0 }
     ]
 
+    // Get profile data
     const { data } = await supabase
       .from('users')
       .select('*')
-      .eq('id', user.value.id)
+      .eq('id', userId)
       .single()
 
     if (data) {
       userProfile.value = {
-        username: data.username || '',
+        username: data.username || userEmail?.split('@')[0] || '',
         role: data.role || 'user'
       }
     } else {
-      await supabase.from('users').insert([{ id: user.value.id, username: user.value.email.split('@')[0], role: 'user' }])
-      userProfile.value.username = user.value.email.split('@')[0]
+      const username = userEmail?.split('@')[0] || 'User'
+      await supabase.from('users').insert([{ id: userId, username, role: 'user' }])
+      userProfile.value = { username, role: 'user' }
     }
   } catch (error) {
-    console.error('Erreur lors du chargement des statistiques:', error)
+    console.error('Error fetching stats:', error)
   }
 }
 
-onMounted(async () => {
-  await fetchUser()
-  await fetchStats()
-})
+const saveProfile = async () => {
+  if (!user.value) return
+  saving.value = true
+
+  try {
+    const { error } = await supabase
+      .from('users')
+      .update({ username: userProfile.value.username })
+      .eq('id', user.value.id)
+
+    if (error) throw error
+
+    await supabase.auth.updateUser({
+      data: { full_name: userProfile.value.username }
+    })
+
+  } catch (error) {
+    console.error('Error updating profile:', error)
+  } finally {
+    saving.value = false
+  }
+}
 
 const handleLogout = () => {
   logoutDialog.value = true
@@ -356,90 +390,49 @@ const confirmDeleteAccount = async () => {
     await deleteAccount()
     deleteAccountDialog.value = false
     router.push('/')
-  } catch (error: any) {
-    console.error('Erreur lors de la suppression du compte:', error)
-    alert('Erreur lors de la suppression du compte. Veuillez réessayer.')
+  } catch (error) {
+    console.error('Error deleting account:', error)
   } finally {
     deleting.value = false
   }
 }
 
-const saveProfile = async () => {
-  if (!user.value) return
-  saving.value = true
-  try {
-    const { data: userRecord, error: userError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', user.value.email)
-      .single()
-
-    if (userError || !userRecord) throw userError || new Error('Utilisateur introuvable dans la table users')
-
-    const { data, error } = await supabase
-      .from('users')
-      .update({ username: userProfile.value.username })
-      .eq('id', userRecord.id)
-      .select()
-
-    if (error) throw error
-
-    const { error: metadataError } = await supabase.auth.updateUser({
-      data: { full_name: userProfile.value.username }
-    })
-
-    if (metadataError) throw metadataError
-
-  } catch (error) {
-    console.error('Erreur lors de la mise à jour du profil:', error)
-  } finally {
-    saving.value = false
-  }
-}
+onMounted(async () => {
+  await fetchUser()
+  await fetchStats()
+})
 </script>
 
 <style scoped>
-.profile-hero-card {
-  background: linear-gradient(135deg, rgba(46, 125, 50, 0.08) 0%, rgba(38, 198, 218, 0.08) 100%);
+.profile-hero {
+  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.05) 0%, rgba(var(--v-theme-surface), 1) 100%);
 }
 
-.stat-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(var(--v-border-color), 0.1);
+.hero-bg-mesh {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 50% 50%, rgba(var(--v-theme-primary), 0.1) 0%, transparent 50%);
+  filter: blur(60px);
+  z-index: 0;
 }
 
-.stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+.z-1 {
+  z-index: 1;
 }
 
-.stat-number {
-  font-size: 1.75rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: rgb(var(--v-theme-primary));
+.border-2 {
+  border-width: 2px !important;
 }
-
-@media (min-width: 960px) {
-  .stat-number {
-    font-size: 2.5rem;
-  }
+.gap-4 {
+  gap: 16px;
 }
-
-.stat-label {
-  font-size: 0.75rem;
-  font-weight: 500;
-  line-height: 1.2;
+.bottom-0 {
+  bottom: 0;
 }
-
-@media (min-width: 960px) {
-  .stat-label {
-    font-size: 0.875rem;
-  }
-}
-
-.word-break {
-  word-break: break-word;
-  overflow-wrap: break-word;
+.right-0 {
+  right: 0;
 }
 </style>
