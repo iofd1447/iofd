@@ -243,7 +243,7 @@
                 <v-window-item value="ingredients">
                   <v-row>
                     <v-col cols="12" md="8">
-                      <v-card elevation="0" border rounded="xl" class="mb-4 bg-surface">
+                      <v-card elevation="0" rounded="xl" class="mb-4 bg-surface border">
                         <v-card-title class="pa-4 d-flex align-center text-on-surface">
                           <v-icon color="secondary" class="mr-2">mdi-format-list-bulleted</v-icon>
                           Liste des ingrédients
@@ -261,7 +261,7 @@
                           product.additives.length }})</h3>
                         <v-row dense>
                           <v-col v-for="additive in product.additives" :key="additive.code" cols="12" sm="6">
-                            <v-card elevation="0" border rounded="lg" class="bg-surface">
+                            <v-card elevation="0" rounded="lg" class="bg-surface border">
                               <v-card-text class="d-flex align-center pa-3">
                                 <v-avatar :color="getIngredientColor(additive.halal_status)" size="40"
                                   class="mr-3 text-caption font-weight-bold">
@@ -279,8 +279,8 @@
                     </v-col>
 
                     <v-col cols="12" md="4">
-                      <v-card v-if="product.allergens?.length" elevation="0" border rounded="xl" color="red-lighten-5"
-                        class="border-red-lighten-4">
+                      <v-card v-if="product.allergens?.length" elevation="0" rounded="xl" color="red-lighten-5"
+                        class="border-red-lighten-4 border">
                         <v-card-title class="text-red-darken-2 font-weight-bold">
                           <v-icon color="red-darken-2" class="mr-2">mdi-alert-circle</v-icon>
                           Allergènes
@@ -718,11 +718,17 @@ useHead({
 
 watch(product, (p) => {
   if (!p?.name) return
-  const keywords = [p.name, p.brand, p.category, "halal"].filter(Boolean).join(', ')
+
+  const brand = p.brand || ''
+  const category = p.category || ''
+
+  const titleParts = [p.name, brand].filter(Boolean).join(' - ')
+  const keywords = [p.name, brand, category, "halal"].filter(Boolean).join(', ')
+
   useHead({
-    title: `${p.name} - ${p.brand}`,
+    title: titleParts,
     meta: [
-      { name: 'description', content: `${p.name} de la marque ${p.brand}.` },
+      { name: 'description', content: `${p.name}${brand ? ' de la marque ' + brand : ''}.` },
       { name: 'keywords', content: keywords }
     ]
   })
