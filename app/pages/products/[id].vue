@@ -68,7 +68,7 @@
                 <v-window-item value="overview">
                   <v-row>
                     <v-col cols="12" md="8">
-                      <v-card elevation="0" border rounded="xl" class="mb-4 bg-surface">
+                      <v-card elevation="0" rounded="xl" class="mb-4 bg-surface border">
                         <v-card-text class="pa-6">
                           <h3 class="text-h6 font-weight-bold mb-4 d-flex align-center text-on-surface">
                             <v-icon color="primary" class="mr-2">mdi-information-outline</v-icon>
@@ -76,7 +76,7 @@
                           </h3>
 
                           <v-row>
-                            <v-col cols="12" sm="6">
+                            <v-col v-if="product.barcode" cols="12" sm="6">
                               <div class="info-group mb-4">
                                 <div class="text-caption text-medium-emphasis mb-1">Code-barres</div>
                                 <div class="text-body-1 font-weight-medium d-flex align-center text-on-surface">
@@ -85,7 +85,7 @@
                                 </div>
                               </div>
                             </v-col>
-                            <v-col cols="12" sm="6">
+                            <v-col cols="12" :sm="product.barcode ? 6 : 12">
                               <div class="info-group mb-4">
                                 <div class="text-caption text-medium-emphasis mb-1">Portion</div>
                                 <div class="d-flex align-center">
