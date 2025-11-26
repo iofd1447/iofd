@@ -109,6 +109,14 @@ definePageMeta({
   layout: 'blank'
 })
 
+useHead({
+  title: 'Connexion - IOFD',
+  meta: [
+    { name: 'description', content: 'Connectez-vous pour accéder à votre espace.' },
+    { name: 'keywords', content: 'connexion, IOFD, Open Food Database' }
+  ]
+})
+
 const { signIn, loading } = useSupabaseAuth()
 const router = useRouter()
 

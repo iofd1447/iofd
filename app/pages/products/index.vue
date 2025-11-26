@@ -121,8 +121,9 @@
 
               <v-card-text class="flex-grow-1 pt-4">
                 <div class="d-flex align-center justify-space-between mb-2">
-                  <span class="text-caption text-medium-emphasis text-uppercase font-weight-medium ls-1">
-                    {{ product.brand || 'Marque inconnue' }}
+                  <span v-if="product.brand"
+                    class="text-caption text-medium-emphasis text-uppercase font-weight-medium ls-1">
+                    {{ product.brand }}
                   </span>
                   <div class="d-flex align-center" v-if="product.rating > 0">
                     <v-icon color="amber" size="14" class="mr-1">mdi-star</v-icon>
