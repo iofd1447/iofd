@@ -627,18 +627,22 @@ const onProductSaved = async () => {
 
 const mainMacros = [
   { key: 'calories_kcal', label: 'Énergie', unit: 'kcal', icon: 'mdi-fire', color: 'error', max: 500 },
-  { key: 'protein_g', label: 'Protéines', unit: 'g', icon: 'mdi-dumbbell', color: 'primary', max: 30 },
-  { key: 'carbs_g', label: 'Glucides', unit: 'g', icon: 'mdi-grain', color: 'warning', max: 70 },
-  { key: 'fats_g', label: 'Lipides', unit: 'g', icon: 'mdi-water', color: 'secondary', max: 30 },
+  { key: 'protein_g', label: 'Protéines', unit: 'g', icon: 'mdi-dumbbell', color: 'primary', max: 50 },
+  { key: 'carbs_g', label: 'Glucides', unit: 'g', icon: 'mdi-grain', color: 'warning', max: 300 },
+  { key: 'fats_g', label: 'Lipides', unit: 'g', icon: 'mdi-water', color: 'secondary', max: 70 },
 ]
 
 const secondaryNutrients = [
-  { key: 'sugars_g', label: 'dont Sucres', unit: 'g', icon: 'mdi-candy', color: 'error', max: 50 },
-  { key: 'saturated_fats_g', label: 'dont Acides gras saturés', unit: 'g', icon: 'mdi-food-drumstick', color: 'warning', max: 20 },
-  { key: 'fibres_g', label: 'Fibres', unit: 'g', icon: 'mdi-leaf', color: 'success', max: 15 },
-  { key: 'sodium_mg', label: 'Sodium', unit: 'mg', icon: 'mdi-shaker', color: 'tertiary', max: 2000 },
-  { key: 'calcium_mg', label: 'Calcium', unit: 'mg', icon: 'mdi-water', color: 'info', max: 900 },
+  { key: 'sugars_g', label: 'dont Sucres', unit: 'g', icon: 'mdi-candy', color: 'error', max: 90 },
+  { key: 'starch_g', label: 'dont amidons', unit: 'g', icon: 'mdi-rice', color: 'brown', max: 300 },
+  { key: 'saturated_fats_g', label: 'Graisses saturées', unit: 'g', icon: 'mdi-food-drumstick', color: 'warning', max: 20 },
+  { key: 'fibres_g', label: 'Fibres', unit: 'g', icon: 'mdi-leaf', color: 'success', max: 30 },
+  { key: 'vitamin_c_mg', label: 'Vit. C', unit: 'mg', icon: 'mdi-pill', color: 'info', max: 90 },
+  { key: 'sodium_mg', label: 'Sodium', unit: 'mg', icon: 'mdi-shaker', color: 'tertiary', max: 2400 },
+  { key: 'calcium_mg', label: 'Calcium', unit: 'mg', icon: 'mdi-water', color: 'info', max: 1000 },
+  { key: 'iron_mg', label: 'Fer', unit: 'mg', icon: 'mdi-hospital-box', color: 'info', max: 18 },
 ]
+
 
 function parsePortion(desc: string | undefined | null): { size: number, unit: 'g' | 'ml' } {
   const text = String(desc || '').trim()

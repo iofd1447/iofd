@@ -335,6 +335,7 @@
 
       <v-card v-show="step === 4" class="mb-4 card-enhanced" elevation="4" rounded="xl">
         <v-card-text class="pa-8">
+
           <div class="d-flex align-center mb-6">
             <v-avatar color="tertiary" size="48" class="mr-4">
               <v-icon color="white" size="24">mdi-nutrition</v-icon>
@@ -345,15 +346,95 @@
             </div>
           </div>
 
-          <v-alert type="info" variant="tonal" class="mb-2">Laissez vide si aucune valeur à fournir</v-alert>
+          <v-alert type="info" variant="tonal" class="mb-4">
+            Laissez vide si aucune valeur à fournir. Unités par {{ form.portion_description || '100g' }}.
+          </v-alert>
 
-          <v-row class="mb-2">
-            <v-col v-for="field in nutritionFields" :key="field.key" cols="12" sm="6" md="4">
-              <v-text-field v-model="form.nutrition[field.key]" :label="`${field.label} (${field.suffix})`"
-                type="number" step="any" inputmode="decimal" :prepend-inner-icon="field.icon" variant="outlined"
-                density="compact" clearable />
-            </v-col>
-          </v-row>
+          <v-expansion-panels variant="accordion" class="nutrition-accordion">
+
+            <v-expansion-panel title="Énergie et Macronutriments" value="macros">
+              <v-expansion-panel-text>
+                <v-row>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.calories_kcal" label="Énergie (kcal)"
+                      prepend-inner-icon="mdi-fire" type="number" step="any" inputmode="decimal" variant="outlined" />
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.carbs_g" label="Glucides (g) *" prepend-inner-icon="mdi-pasta"
+                      type="number" step="any" inputmode="decimal" variant="outlined" />
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.sugars_g" label="Dont Sucres (g)"
+                      prepend-inner-icon="mdi-candy" type="number" step="any" inputmode="decimal" variant="outlined" />
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.starch_g" label="Dont Amidon (g)"
+                      prepend-inner-icon="mdi-rice" type="number" step="any" inputmode="decimal" variant="outlined"
+                      clearable />
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.fats_g" label="Lipides (g) *" prepend-inner-icon="mdi-oil"
+                      type="number" step="any" inputmode="decimal" variant="outlined" />
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.saturated_fats_g" label="Dont Graisses saturées (g)"
+                      prepend-inner-icon="mdi-food-drumstick" type="number" step="any" inputmode="decimal"
+                      variant="outlined" />
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.protein_g" label="Protéines (g) *"
+                      prepend-inner-icon="mdi-food-steak" type="number" step="any" inputmode="decimal"
+                      variant="outlined" />
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.fibres_g" label="Fibres (g)" prepend-inner-icon="mdi-barley"
+                      type="number" step="any" inputmode="decimal" variant="outlined" />
+                  </v-col>
+                </v-row>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+
+            <v-expansion-panel title="Vitamines et Minéraux" value="micros">
+              <v-expansion-panel-text>
+                <v-row>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.sodium_mg" label="Sodium (mg)" prepend-inner-icon="mdi-shaker"
+                      type="number" step="any" inputmode="decimal" variant="outlined" />
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.calcium_mg" label="Calcium (mg)" prepend-inner-icon="mdi-egg"
+                      type="number" step="any" inputmode="decimal" variant="outlined" />
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.vitamin_c_mg" label="Vitamine C (mg)"
+                      prepend-inner-icon="mdi-pill" type="number" step="any" inputmode="decimal" variant="outlined"
+                      clearable />
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.iron_mg" label="Fer (mg)" prepend-inner-icon="mdi-atom"
+                      type="number" step="any" inputmode="decimal" variant="outlined" clearable />
+                  </v-col>
+                </v-row>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+
+            <v-expansion-panel title="Autres (Graisses Trans, Eau, etc.)" value="others">
+              <v-expansion-panel-text>
+                <v-row>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.trans_fats_g" label="Graisses Trans (g)"
+                      prepend-inner-icon="mdi-food-fork-drink" type="number" step="any" inputmode="decimal"
+                      variant="outlined" />
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.water_ml" label="Eau (ml)" prepend-inner-icon="mdi-water"
+                      type="number" step="any" inputmode="decimal" variant="outlined" />
+                  </v-col>
+                </v-row>
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+
+          </v-expansion-panels>
 
         </v-card-text>
 
@@ -559,6 +640,9 @@ const form = ref({
     sodium_mg: null,
     calcium_mg: null,
     water_ml: null,
+    starch_g: null,
+    vitamin_c_mg: null,
+    iron_mg: null,
   }
 })
 
@@ -575,6 +659,9 @@ const nutritionFields: { key: NutritionKey, label: string, icon: string, suffix:
   { key: 'fibres_g', label: 'Fibres', icon: 'mdi-barley', suffix: 'g', color: 'green', reference: 25 },
   { key: 'sodium_mg', label: 'Sodium', icon: 'mdi-shaker', suffix: 'mg', color: 'cyan', reference: 2300 },
   { key: 'calcium_mg', label: 'Calcium', icon: 'mdi-egg', suffix: 'mg', color: 'blue-darken-2', reference: 900 },
+  { key: 'starch_g', label: 'Amidon', icon: 'mdi-rice', suffix: 'g', color: 'brown' },
+  { key: 'vitamin_c_mg', label: 'Vitamine C', icon: 'mdi-pill', suffix: 'mg', color: 'orange' },
+  { key: 'iron_mg', label: 'Fer', icon: 'mdi-atom', suffix: 'mg', color: 'red-darken-3' },
 ]
 
 const loading = ref(false)
@@ -1090,6 +1177,9 @@ const resetForm = () => {
       sodium_mg: null,
       calcium_mg: null,
       water_ml: null,
+      starch_g: null,
+      vitamin_c_mg: null,
+      iron_mg: null,
     }
   }
   imagePreview.value = ''
@@ -1723,6 +1813,38 @@ onUnmounted(() => {
 .card-enhanced .v-textarea:focus-within {
   transform: translateY(-1px);
   transition: transform 0.2s ease;
+}
+
+/* Nouveaux styles pour l'accordéon de nutrition */
+.nutrition-accordion {
+  /* Assurer une meilleure séparation visuelle */
+  border-radius: 12px;
+}
+
+.nutrition-accordion .v-expansion-panel-title {
+  /* Meilleure visibilité du titre */
+  font-weight: 600;
+  color: rgb(var(--v-theme-primary));
+  padding: 16px 24px;
+}
+
+.nutrition-accordion .v-expansion-panel {
+  margin-bottom: 8px;
+  /* Espacement entre les panneaux */
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  /* Légère ombre */
+  border: 1px solid rgba(var(--v-border-color), 0.1);
+}
+
+.nutrition-accordion .v-expansion-panel-text {
+  padding: 8px 24px 24px;
+  /* Ajuster le padding interne */
+}
+
+/* Pour le thème sombre, ajuster la couleur des titres */
+.v-theme--dark .nutrition-accordion .v-expansion-panel-title {
+  color: rgb(var(--v-theme-info));
 }
 
 .card-enhanced .image-upload {
