@@ -13,7 +13,7 @@
       <v-container class="hero-content h-100 d-flex flex-column justify-end pb-6 mt-12">
         <v-row align="end">
           <v-col cols="12" sm="4" md="3" lg="2" class="text-center text-sm-left">
-            <v-card elevation="8" rounded="xl" class="product-image-card mx-auto mx-sm-0">
+            <v-card elevation="8" rounded="xl" class="product-image-card mx-auto mx-sm-0 mt-2">
               <v-img :src="product.image_url" aspect-ratio="1" cover bg-color="surface-variant" />
             </v-card>
           </v-col>
@@ -760,8 +760,8 @@ onMounted(async () => {
   height: 100%;
   background-size: cover;
   background-position: center;
-  filter: blur(20px) brightness(0.4);
-  transform: scale(1.1);
+  filter: blur(10px) brightness(0.5);
+  transform: scale(1.05);
 }
 
 .hero-overlay {
@@ -770,7 +770,7 @@ onMounted(async () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8));
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.6));
 }
 
 .hero-content {
@@ -779,7 +779,7 @@ onMounted(async () => {
 }
 
 .product-image-card {
-  border: 4px solid rgb(var(--v-theme-surface));
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
   overflow: hidden;
 }
 
