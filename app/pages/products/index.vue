@@ -321,6 +321,14 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTheme } from 'vuetify'
 
+useHead({
+  title: 'Produits - IOFD',
+  meta: [
+    { name: 'description', content: 'Découvrez les produits, leurs status, leurs valeur nutritionnelle et contribuez au besoin.' },
+    { name: 'keywords', content: 'produits, halal, haram, IOFD, Open Food Database' }
+  ]
+})
+
 const supabase = useSupabase()
 const theme = useTheme()
 const router = useRouter()
