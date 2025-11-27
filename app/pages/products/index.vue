@@ -153,7 +153,7 @@
         <template v-else>
           <v-col cols="12">
             <v-card v-for="product in paginatedProducts" :key="product.id" class="product-list-card mb-3" elevation="0"
-              rounded="xl" @click="goToProduct(product.id)">
+              rounded="xl" @click="goToProduct(product)">
               <div class="d-flex flex-column flex-sm-row">
                 <v-img :src="product.image_url" width="100%" max-width="180" height="180" cover
                   class="bg-surface-variant rounded-t-xl rounded-sm-s-xl rounded-sm-e-0" />
@@ -625,9 +625,25 @@ const applyFilters = () => {
   page.value = 1
 }
 
-const goToProduct = (id: string) => {
-  router.push(`/products/${id}`)
+function normalizeName(name: string) {
+  if (!name) return ''
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '')
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .toLowerCase();
 }
+
+const goToProduct = (productOrId: any) => {
+  const product = typeof productOrId === 'object' ? productOrId : allProducts.value.find(p => p.id === productOrId)
+  if (!product?.name || !product?.id) return
+
+  const slug = normalizeName(product.name)
+
+  router.push(`/product/${product.id}/${slug}`)
+}
+
 
 const openScanner = () => {
   router.push('/products/scan')
@@ -660,7 +676,6 @@ onMounted(async () => {
     loading.value = false
   }, 500)
 })
-
 </script>
 
 <style scoped>
