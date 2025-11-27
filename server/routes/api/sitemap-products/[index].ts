@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
 
   const { data: products, error } = await supabase
     .from('products')
-    .select('id, name, updated_at, created_at')
+    .select('id, name, image_url, updated_at, created_at')
     .range(from, to)
     .order('updated_at', { ascending: false })
 
@@ -36,15 +36,22 @@ export default defineEventHandler(async (event) => {
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${(products || []).map(product => {
     const lastmod = product.updated_at || product.created_at || new Date().toISOString()
     const slug = normalizeName(product.name)
+    const imageUrl = product.image_url || `${baseUrl}/placeholder.png`
     return `  <url>
     <loc>${baseUrl}/products/${product.id}/${slug}</loc>
     <lastmod>${new Date(lastmod).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>${imageUrl}</image:loc>
+      <image:caption>${product.name}</image:caption>
+      <image:title>${product.name}</image:title>
+    </image:image>
   </url>`
   }).join('\n')}
 </urlset>`
