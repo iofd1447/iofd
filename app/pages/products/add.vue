@@ -347,7 +347,7 @@
           </div>
 
           <v-alert type="info" variant="tonal" class="mb-4">
-            Laissez vide si aucune valeur à fournir. Unités par {{ form.portion_description || '100g' }}.
+            Laissez vide si aucune valeur à fournir.
           </v-alert>
 
           <v-expansion-panels variant="accordion" class="nutrition-accordion">
