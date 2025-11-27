@@ -346,8 +346,6 @@ const sortMenu = ref(false)
 const sortBy = ref('recent')
 const selectedHalalFilter = ref<string | null>(null)
 const selectedCategories = ref<string[]>([])
-const selectedLabels = ref<string[]>([])
-const excludedAllergens = ref<string[]>([])
 
 const filters = ref({
   certified: false,
@@ -364,6 +362,26 @@ const quickFilters = [
 
 type Category = { id: string; name: string; description?: string }
 const dbCategories = ref<Category[]>([])
+
+const paginatedProducts = computed(() => {
+  const start = (page.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return filteredProducts.value.slice(start, end)
+})
+
+const totalPages = computed(() => {
+  const count = allProducts.value.length
+  return Math.ceil(count / itemsPerPage)
+})
+
+const activeFiltersCount = computed(() => {
+  let count = 0
+  if (selectedCategories.value.length > 0) count += selectedCategories.value.length
+  if (filters.value.certified) count++
+  if (filters.value.communityVerified) count++
+  if (filters.value.minRating > 0) count++
+  return count
+})
 
 const loadCategories = async () => {
   try {
@@ -411,57 +429,64 @@ type SupabaseProductRow = {
 
 const fetchProducts = async () => {
   loading.value = true
-  const from = (page.value - 1) * itemsPerPage
-  const to = from + itemsPerPage - 1
+  try {
+    const from = (page.value - 1) * itemsPerPage
+    const to = from + itemsPerPage - 1
 
-  const { data, count, error } = await supabase
-    .from('products')
-    .select(`
-      id,
-      barcode,
-      name,
-      brand,
-      image_url,
-      created_at,
-      category:categories(id, name),
-      halal_info:halal_certifications(halal_status, certification_body),
-      additives:product_additives(count),
-      community_reviews:community_reviews(rating, user_name, user_email, halal_vote, comment, helpful_count, created_at)
-    `, { count: 'exact' })
-    .range(from, to)
-    .order('created_at', { ascending: false })
+    const { data, count, error } = await supabase
+      .from('products')
+      .select(`
+        id,
+        barcode,
+        name,
+        brand,
+        image_url,
+        created_at,
+        category:categories(id, name),
+        halal_info:halal_certifications(halal_status, certification_body),
+        additives:product_additives(count),
+        community_reviews:community_reviews(rating, user_name, user_email, halal_vote, comment, helpful_count, created_at)
+      `, { count: 'exact' })
+      .order('created_at', { ascending: false })
 
-  if (error) {
-    console.error('Erreur de fetch:', error)
-    return
-  }
-
-  allProducts.value = (data as SupabaseProductRow[]).map(p => {
-    const reviews = p.community_reviews || []
-    const reviews_count = reviews.length
-    const rating = reviews_count
-      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews_count
-      : 0
-
-    return {
-      id: p.id,
-      barcode: p.barcode,
-      name: p.name,
-      brand: p.brand,
-      // @ts-ignore
-      category_id: p.category?.id ?? null,
-      // @ts-ignore
-      category: p.category?.name ?? 'Autre',
-      image_url: p.image_url || '',
-      // @ts-ignore
-      halal_status: p.halal_info?.halal_status || 'non_verifie',
-      certified: !!p.halal_info?.[0]?.certification_body,
-      rating,
-      reviews_count,
-      reviews,
-      additives_count: p.additives?.length || 0
+    if (error) {
+      console.error('Erreur de fetch:', error)
+      return
     }
-  })
+
+    const mappedProducts = (data as SupabaseProductRow[]).map(p => {
+      const reviews = p.community_reviews || []
+      const reviews_count = reviews.length
+      const rating = reviews_count
+        ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews_count
+        : 0
+
+      return {
+        id: p.id,
+        barcode: p.barcode,
+        name: p.name,
+        brand: p.brand,
+        // @ts-ignore
+        category_id: p.category?.id ?? null,
+        // @ts-ignore
+        category: p.category?.name ?? 'Autre',
+        image_url: p.image_url || '',
+        // @ts-ignore
+        halal_status: p.halal_info?.halal_status || 'non_verifie',
+        certified: !!p.halal_info?.[0]?.certification_body,
+        rating,
+        reviews_count,
+        reviews,
+        additives_count: p.additives?.length || 0
+      }
+    })
+
+    allProducts.value = mappedProducts
+  } catch (err) {
+    console.error('Erreur fetchProducts:', err)
+  } finally {
+    loading.value = false
+  }
 }
 
 watch(page, () => fetchProducts())
@@ -499,25 +524,6 @@ const filteredProducts = computed(() => {
   products = sortProducts(products)
 
   return products
-})
-
-const paginatedProducts = computed(() => {
-  const start = (page.value - 1) * itemsPerPage
-  const end = start + itemsPerPage
-  return filteredProducts.value.slice(start, end)
-})
-
-const totalPages = computed(() => {
-  return Math.ceil(filteredProducts.value.length / itemsPerPage)
-})
-
-const activeFiltersCount = computed(() => {
-  let count = 0
-  if (selectedCategories.value.length > 0) count += selectedCategories.value.length
-  if (filters.value.certified) count++
-  if (filters.value.communityVerified) count++
-  if (filters.value.minRating > 0) count++
-  return count
 })
 
 const sortProducts = (products: any[]) => {
