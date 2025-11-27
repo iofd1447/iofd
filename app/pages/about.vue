@@ -63,7 +63,7 @@
 import { ref } from 'vue'
 
 useHead({
-  title: 'IFOD - About'
+  title: 'IOFD - About'
 })
 
 const values = ref([

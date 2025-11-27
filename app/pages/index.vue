@@ -7,9 +7,9 @@
 
     <v-spacer />
 
-    <v-btn variant="text" to="/products" class="nav-btn d-none d-sm-inline-flex">Produits</v-btn>
-    <v-btn variant="text" to="/additives" class="nav-btn d-none d-sm-inline-flex">Additifs</v-btn>
-    <v-btn variant="text" to="/about" class="nav-btn d-none d-md-inline-flex">À propos</v-btn>
+    <v-btn variant="text" to="/products" class="nav-btn d-none d-sm-inline-flex" aria-label="Produits">Produits</v-btn>
+    <v-btn variant="text" to="/additives" class="nav-btn d-none d-sm-inline-flex" aria-label="Additifs">Additifs</v-btn>
+    <v-btn variant="text" to="/about" class="nav-btn d-none d-md-inline-flex" aria-label="A propos">À propos</v-btn>
 
     <v-menu location="bottom end">
       <template #activator="{ props }">

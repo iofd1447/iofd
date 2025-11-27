@@ -355,6 +355,7 @@ const filters = ref({
 })
 
 const quickFilters = [
+  { label: 'Mustahab', value: 'mustahab', icon: 'mdi-check-decagram', color: 'mustahab' },
   { label: 'Halal', value: 'halal', icon: 'mdi-check-circle', color: 'success' },
   { label: 'Mashbuh', value: 'mashbuh', icon: 'mdi-alert-circle', color: 'warning' },
   { label: 'Haram', value: 'haram', icon: 'mdi-close-circle', color: 'error' },
@@ -543,6 +544,7 @@ const sortProducts = (products: any[]) => {
 
 const getHalalColor = (status: string) => {
   const colors: Record<string, string> = {
+    mustahab: 'mustahab',
     halal: 'success',
     haram: 'error',
     mashbuh: 'warning'
@@ -552,6 +554,7 @@ const getHalalColor = (status: string) => {
 
 const getHalalLabel = (status: string) => {
   const labels: Record<string, string> = {
+    mustahab: 'Mustahab',
     halal: 'Halal',
     haram: 'Haram',
     mashbuh: 'Mashbuh'
@@ -561,6 +564,7 @@ const getHalalLabel = (status: string) => {
 
 const getHalalIcon = (status: string) => {
   const icons: Record<string, string> = {
+    mustahab: 'mdi-check-decagram',
     halal: 'mdi-check-circle',
     haram: 'mdi-close-circle',
     mashbuh: 'mdi-alert-circle'

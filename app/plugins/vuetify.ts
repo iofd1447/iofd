@@ -44,6 +44,8 @@ export default defineNuxtPlugin((nuxtapp) => {
             'on-info': '#ffffff',
             success: '#388e3c',
             'on-success': '#ffffff',
+            mustahab: '#9CCC65',
+            'on-mustahab': '#003d1a',
 
             'on-background': '#0d1f0d',
             'on-surface': '#1a1a1a',
@@ -104,13 +106,15 @@ export default defineNuxtPlugin((nuxtapp) => {
             'on-info': '#002633',
             success: '#69f0ae',
             'on-success': '#003d1a',
+            mustahab: '#9CCC65',
+            'on-mustahab': '#003d1a',
 
             'on-background': '#e8f5e9',
             'on-surface': '#f5f5f5',
             'on-surface-variant': '#b0bec5',
 
             outline: '#37474f',
-            'outline-variant': '#263238',
+            'outline-variant': '#263238'
           },
           dark: true,
           variables: {

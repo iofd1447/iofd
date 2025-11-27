@@ -355,40 +355,12 @@
             <v-expansion-panel title="Énergie et Macronutriments" value="macros">
               <v-expansion-panel-text>
                 <v-row>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.calories_kcal" label="Énergie (kcal)"
-                      prepend-inner-icon="mdi-fire" type="number" step="any" inputmode="decimal" variant="outlined" />
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.protein_g" label="Protéines (g) *"
-                      prepend-inner-icon="mdi-food-steak" type="number" step="any" inputmode="decimal"
-                      variant="outlined" />
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.carbs_g" label="Glucides (g) *" prepend-inner-icon="mdi-pasta"
-                      type="number" step="any" inputmode="decimal" variant="outlined" />
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.sugars_g" label="Dont Sucres (g)"
-                      prepend-inner-icon="mdi-candy" type="number" step="any" inputmode="decimal" variant="outlined" />
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.starch_g" label="Dont Amidon (g)"
-                      prepend-inner-icon="mdi-rice" type="number" step="any" inputmode="decimal" variant="outlined"
-                      clearable />
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.fats_g" label="Lipides (g) *" prepend-inner-icon="mdi-oil"
-                      type="number" step="any" inputmode="decimal" variant="outlined" />
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.saturated_fats_g" label="Dont Graisses saturées (g)"
-                      prepend-inner-icon="mdi-food-drumstick" type="number" step="any" inputmode="decimal"
-                      variant="outlined" />
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.fibres_g" label="Fibres (g)" prepend-inner-icon="mdi-barley"
-                      type="number" step="any" inputmode="decimal" variant="outlined" />
+                  <v-col
+                    v-for="field in nutritionFields.filter(f => ['calories_kcal', 'protein_g', 'carbs_g', 'sugars_g', 'starch_g', 'fats_g', 'saturated_fats_g', 'fibres_g'].includes(f.key))"
+                    :key="field.key" cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition[field.key]"
+                      :label="field.label + (field.suffix ? ` (${field.suffix})` : '')" :prepend-inner-icon="field.icon"
+                      type="number" step="any" inputmode="decimal" variant="outlined" clearable />
                   </v-col>
                 </v-row>
               </v-expansion-panel-text>
@@ -397,22 +369,12 @@
             <v-expansion-panel title="Vitamines et Minéraux" value="micros">
               <v-expansion-panel-text>
                 <v-row>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.sodium_mg" label="Sodium (mg)" prepend-inner-icon="mdi-shaker"
-                      type="number" step="any" inputmode="decimal" variant="outlined" />
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.calcium_mg" label="Calcium (mg)" prepend-inner-icon="mdi-egg"
-                      type="number" step="any" inputmode="decimal" variant="outlined" />
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.iron_mg" label="Fer (mg)" prepend-inner-icon="mdi-atom"
+                  <v-col
+                    v-for="field in nutritionFields.filter(f => ['sodium_mg', 'calcium_mg', 'iron_mg', 'vitamin_c_mg'].includes(f.key))"
+                    :key="field.key" cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition[field.key]"
+                      :label="field.label + (field.suffix ? ` (${field.suffix})` : '')" :prepend-inner-icon="field.icon"
                       type="number" step="any" inputmode="decimal" variant="outlined" clearable />
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.vitamin_c_mg" label="Vitamine C (mg)"
-                      prepend-inner-icon="mdi-pill" type="number" step="any" inputmode="decimal" variant="outlined"
-                      clearable />
                   </v-col>
                 </v-row>
               </v-expansion-panel-text>
@@ -421,14 +383,11 @@
             <v-expansion-panel title="Autres (Graisses Trans, Eau, etc.)" value="others">
               <v-expansion-panel-text>
                 <v-row>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.trans_fats_g" label="Graisses Trans (g)"
-                      prepend-inner-icon="mdi-food-fork-drink" type="number" step="any" inputmode="decimal"
-                      variant="outlined" />
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.water_ml" label="Eau (ml)" prepend-inner-icon="mdi-water"
-                      type="number" step="any" inputmode="decimal" variant="outlined" />
+                  <v-col v-for="field in nutritionFields.filter(f => ['trans_fats_g', 'water_ml'].includes(f.key))"
+                    :key="field.key" cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition[field.key]"
+                      :label="field.label + (field.suffix ? ` (${field.suffix})` : '')" :prepend-inner-icon="field.icon"
+                      type="number" step="any" inputmode="decimal" variant="outlined" clearable />
                   </v-col>
                 </v-row>
               </v-expansion-panel-text>
@@ -712,9 +671,10 @@ const cameraReady = ref(false)
 let mediaStream: MediaStream | null = null
 
 const halalStatuses = [
+  { value: 'mustahab', label: 'Mustahab', icon: 'mdi-check-decagram', color: 'mustahab' },
   { value: 'halal', label: 'Halal', icon: 'mdi-check-circle', color: 'success' },
-  { value: 'haram', label: 'Haram', icon: 'mdi-check-circle', color: 'error' },
-  { value: 'mashbuh', label: 'Mashbuh', icon: 'mdi-check-circle', color: 'warning' },
+  { value: 'mashbuh', label: 'Mashbuh', icon: 'mdi-alert-circle', color: 'warning' },
+  { value: 'haram', label: 'Haram', icon: 'mdi-close-circle', color: 'error' }
 ]
 
 const certificationBodies = [
