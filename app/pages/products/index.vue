@@ -641,7 +641,7 @@ const goToProduct = (productOrId: any) => {
 
   const slug = normalizeName(product.name)
 
-  router.push(`/product/${product.id}/${slug}`)
+  router.push(`/products/${product.id}/${slug}`)
 }
 
 

@@ -725,15 +725,30 @@ watch(product, (p) => {
 
   const brand = p.brand || ''
   const category = p.category || ''
-
-  const titleParts = [p.name, brand].filter(Boolean).join(' - ')
-  const keywords = [p.name, brand, category, "halal"].filter(Boolean).join(', ')
+  const image = p.image_url || 'https://via.placeholder.com/600x400?text=Image+indisponible'
+  const description = `${p.name}${brand ? ' de la marque ' + brand : ''}.`
+  const url = window.location.href
+  const keywords = [p.name, brand, category, p.halal_status].filter(Boolean).join(', ')
 
   useHead({
-    title: titleParts,
+    title: `${p.name}${brand ? ' - ' + brand : ''}`,
     meta: [
-      { name: 'description', content: `${p.name}${brand ? ' de la marque ' + brand : ''}.` },
-      { name: 'keywords', content: keywords }
+      { name: 'description', content: description },
+      { name: 'keywords', content: keywords },
+
+      { property: 'og:title', content: `${p.name}${brand ? ' - ' + brand : ''}` },
+      { property: 'og:description', content: description },
+      { property: 'og:image', content: image },
+      { property: 'og:url', content: url },
+      { property: 'og:type', content: 'product' },
+
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: `${p.name}${brand ? ' - ' + brand : ''}` },
+      { name: 'twitter:description', content: description },
+      { name: 'twitter:image', content: image },
+    ],
+    link: [
+      { rel: 'canonical', href: url }
     ]
   })
 })
