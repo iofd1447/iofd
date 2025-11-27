@@ -360,6 +360,11 @@
                       prepend-inner-icon="mdi-fire" type="number" step="any" inputmode="decimal" variant="outlined" />
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.protein_g" label="Protéines (g) *"
+                      prepend-inner-icon="mdi-food-steak" type="number" step="any" inputmode="decimal"
+                      variant="outlined" />
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
                     <v-text-field v-model="form.nutrition.carbs_g" label="Glucides (g) *" prepend-inner-icon="mdi-pasta"
                       type="number" step="any" inputmode="decimal" variant="outlined" />
                   </v-col>
@@ -382,11 +387,6 @@
                       variant="outlined" />
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.protein_g" label="Protéines (g) *"
-                      prepend-inner-icon="mdi-food-steak" type="number" step="any" inputmode="decimal"
-                      variant="outlined" />
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
                     <v-text-field v-model="form.nutrition.fibres_g" label="Fibres (g)" prepend-inner-icon="mdi-barley"
                       type="number" step="any" inputmode="decimal" variant="outlined" />
                   </v-col>
@@ -406,13 +406,13 @@
                       type="number" step="any" inputmode="decimal" variant="outlined" />
                   </v-col>
                   <v-col cols="12" sm="6" md="4">
+                    <v-text-field v-model="form.nutrition.iron_mg" label="Fer (mg)" prepend-inner-icon="mdi-atom"
+                      type="number" step="any" inputmode="decimal" variant="outlined" clearable />
+                  </v-col>
+                  <v-col cols="12" sm="6" md="4">
                     <v-text-field v-model="form.nutrition.vitamin_c_mg" label="Vitamine C (mg)"
                       prepend-inner-icon="mdi-pill" type="number" step="any" inputmode="decimal" variant="outlined"
                       clearable />
-                  </v-col>
-                  <v-col cols="12" sm="6" md="4">
-                    <v-text-field v-model="form.nutrition.iron_mg" label="Fer (mg)" prepend-inner-icon="mdi-atom"
-                      type="number" step="any" inputmode="decimal" variant="outlined" clearable />
                   </v-col>
                 </v-row>
               </v-expansion-panel-text>
