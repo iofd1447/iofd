@@ -545,9 +545,6 @@
 
   <BarcodeScanner v-model="showBarcodeScanner" @detected="onBarcodeDetected" />
 
-  <ImageCropper v-model="showCropper" :image-src="imageToCrop || ''" @crop="onImageCropped"
-    @update:model-value="(v) => { if (!v) onCropCancel() }" />
-
 </template>
 
 <script setup lang="ts">
@@ -558,6 +555,8 @@ import { rules } from '@/utils/rules'
 import Tesseract from 'tesseract.js'
 import ImageCropper from '@/components/ImageCropper.vue'
 import BarcodeScanner from '@/components/BarcodeScanner.vue'
+import { step, steps, halalStatuses, certificationBodies, form, nutritionFields, additiveFilterStatuses } from '@/utils/ProductFunctions'
+import { selectImage, removeImage } from '@/utils/ImagesUtils'
 
 useHead({
   title: 'IOFD - Add a product to the database'
@@ -565,63 +564,6 @@ useHead({
 
 const supabase = useSupabase()
 const { user, fetchUser, logContribution } = useSupabaseAuth()
-
-const step = ref(1)
-const steps = [
-  { title: 'Informations', value: 1 },
-  { title: 'Statut Halal', value: 2 },
-  { title: 'Composition', value: 3 },
-  { title: 'Nutrition', value: 4 },
-]
-
-const form = ref({
-  barcode: '',
-  name: '',
-  brand: '',
-  category_id: null,
-  portion_description: '',
-  image_url: '',
-  halal_status: 'halal',
-  certification_body: '',
-  certificate_number: '',
-  certified_date: '',
-  expiry_date: '',
-  halal_notes: '',
-  nutrition: {
-    calories_kcal: null,
-    protein_g: null,
-    carbs_g: null,
-    sugars_g: null,
-    fats_g: null,
-    saturated_fats_g: null,
-    trans_fats_g: null,
-    fibres_g: null,
-    sodium_mg: null,
-    calcium_mg: null,
-    water_ml: null,
-    starch_g: null,
-    vitamin_c_mg: null,
-    iron_mg: null,
-  }
-})
-
-type NutritionKey = keyof typeof form.value.nutrition
-
-const nutritionFields: { key: NutritionKey, label: string, icon: string, suffix: string, color?: string, reference?: number }[] = [
-  { key: 'calories_kcal', label: 'Calories', icon: 'mdi-fire', suffix: 'kcal', color: 'orange', reference: 2000 },
-  { key: 'water_ml', label: 'Water', icon: 'mdi-water', suffix: 'ml', color: 'blue', reference: 100 },
-  { key: 'protein_g', label: 'Protéines', icon: 'mdi-food-steak', suffix: 'g', color: 'blue', reference: 50 },
-  { key: 'carbs_g', label: 'Glucides', icon: 'mdi-pasta', suffix: 'g', color: 'purple', reference: 260 },
-  { key: 'sugars_g', label: 'Sucres', icon: 'mdi-candy', suffix: 'g', color: 'pink', reference: 90 },
-  { key: 'fats_g', label: 'Lipides', icon: 'mdi-oil', suffix: 'g', color: 'amber', reference: 70 },
-  { key: 'saturated_fats_g', label: 'Graisses saturées', icon: 'mdi-food-drumstick', suffix: 'g', color: 'red', reference: 20 },
-  { key: 'fibres_g', label: 'Fibres', icon: 'mdi-barley', suffix: 'g', color: 'green', reference: 25 },
-  { key: 'sodium_mg', label: 'Sodium', icon: 'mdi-shaker', suffix: 'mg', color: 'cyan', reference: 2300 },
-  { key: 'calcium_mg', label: 'Calcium', icon: 'mdi-egg', suffix: 'mg', color: 'blue-darken-2', reference: 900 },
-  { key: 'starch_g', label: 'Amidon', icon: 'mdi-rice', suffix: 'g', color: 'brown' },
-  { key: 'vitamin_c_mg', label: 'Vitamine C', icon: 'mdi-pill', suffix: 'mg', color: 'orange' },
-  { key: 'iron_mg', label: 'Fer', icon: 'mdi-atom', suffix: 'mg', color: 'red-darken-3' },
-]
 
 const loading = ref(false)
 const successDialog = ref(false)
@@ -670,20 +612,6 @@ const videoRef = ref<HTMLVideoElement | null>(null)
 const cameraReady = ref(false)
 let mediaStream: MediaStream | null = null
 
-const halalStatuses = [
-  { value: 'mustahab', label: 'Mustahab', icon: 'mdi-check-decagram', color: 'mustahab' },
-  { value: 'halal', label: 'Halal', icon: 'mdi-check-circle', color: 'success' },
-  { value: 'mashbuh', label: 'Mashbuh', icon: 'mdi-alert-circle', color: 'warning' },
-  { value: 'haram', label: 'Haram', icon: 'mdi-close-circle', color: 'error' }
-]
-
-const certificationBodies = [
-  'AVS',
-  'Halal Monitoring Committee',
-  'Taiwan Halal Integrity Development Association',
-  'Autre'
-]
-
 const isStep1Valid = computed(() => {
   return form.value.name && form.value.category_id
 })
@@ -725,10 +653,6 @@ async function onBarcodeDetected(barcode: string) {
     }
   } catch {
   }
-}
-
-const selectImage = () => {
-  fileInput.value?.click()
 }
 
 async function compressImage(file: File, maxSizeMB = 5, quality = 0.8): Promise<Blob> {
@@ -869,13 +793,6 @@ async function uploadImage(file: File): Promise<string | null> {
   }
 }
 
-const removeImage = () => {
-  imagePreview.value = ''
-  imageFile.value = null
-  form.value.image_url = ''
-}
-
-
 watch(ingredientsInput, (val) => {
   const parts = (val || '').split(',').map(s => s.trim()).filter(Boolean)
   selectedIngredients.value = parts
@@ -908,12 +825,6 @@ const getAdditiveIcon = (additive: any) => {
   }
   return 'mdi-circle'
 }
-
-const additiveFilterStatuses = [
-  { value: 'halal', label: 'Halal', color: 'success', icon: 'mdi-check-circle' },
-  { value: 'haram', label: 'Haram', color: 'error', icon: 'mdi-close-circle' },
-  { value: 'mashbuh', label: 'Mashbuh', color: 'warning', icon: 'mdi-alert-circle' }
-]
 
 const filteredAdditives = computed(() => {
   let filtered = additives.value
@@ -1294,35 +1205,6 @@ function closeCamera() {
   showCropper.value = false
 }
 
-function retakePhoto() {
-  capturedImage.value = null
-  openCamera()
-}
-
-function capturePhoto() {
-  if (!videoRef.value || !canvasRef.value) return
-  const video = videoRef.value
-  const canvas = canvasRef.value
-  canvas.width = video.videoWidth
-  canvas.height = video.videoHeight
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return
-  ctx.drawImage(video, 0, 0)
-
-  imageToCrop.value = canvas.toDataURL('image/png')
-
-  if (mediaStream) mediaStream.getTracks().forEach(track => track.stop())
-
-  cameraDialog.value = false
-  showCropper.value = true
-}
-
-function onImageCropped(croppedDataUrl: string) {
-  capturedImage.value = croppedDataUrl
-  imageToCrop.value = null
-  cameraDialog.value = true
-}
-
 function onCropCancel() {
   imageToCrop.value = null
   openCamera()
@@ -1384,36 +1266,6 @@ function preprocessImage(imgDataUrl: string): Promise<string> {
     }
     img.src = imgDataUrl
   })
-}
-
-async function processImage() {
-  if (!capturedImage.value) return
-  isScanning.value = true
-  scanProgress.value = 0
-  scanStatus.value = 'Initialisation...'
-
-  try {
-    let dataUrl = await preprocessImage(capturedImage.value)
-
-    const result = await Tesseract.recognize(dataUrl, 'fra', {
-      logger: (m) => {
-        if (m.status === 'recognizing text') {
-          scanProgress.value = Math.round(m.progress * 100)
-          scanStatus.value = 'Reconnaissance du texte...'
-        } else {
-          scanStatus.value = m.status
-        }
-      }
-    })
-
-    ingredientsInput.value = cleanIngredients(result.data.text)
-    closeCamera()
-  } catch (err) {
-    console.error('Erreur OCR:', err)
-    alert('Erreur lors de l\'analyse de l\'image')
-  } finally {
-    isScanning.value = false
-  }
 }
 
 onUnmounted(() => {

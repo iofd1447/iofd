@@ -152,15 +152,15 @@
                         </v-card-text>
                       </v-card>
 
-                      <v-card v-if="hasCertificationInfo" elevation="0" border rounded="xl"
-                        class="bg-green-lighten-5 border-green-lighten-4">
+                      <v-card v-if="hasCertificationInfo" elevation="0" border rounded="xl" class="">
                         <v-card-text class="pa-4">
                           <div class="d-flex align-center mb-3">
                             <v-icon color="success" size="large" class="mr-3">mdi-certificate</v-icon>
                             <div>
-                              <div class="text-subtitle-1 font-weight-bold text-success-darken-2">Certification Halal
+                              <div class="text-subtitle-1 font-weight-bold text-success-darken-2">Détails
+                                supplémentaires
                               </div>
-                              <div class="text-caption text-success-darken-1">Détails de la certification</div>
+                              <div class="text-caption text-success-darken-1">Bénéfices, valeur ajoutées...</div>
                             </div>
                           </div>
 

@@ -197,25 +197,71 @@
         </div>
 
         <div v-show="step === 4">
-          <div class="d-flex align-center mb-4 mb-sm-6">
-            <v-avatar color="tertiary" :size="$vuetify.display.xs ? '40' : '48'" class="mr-3 mr-sm-4">
-              <v-icon color="white" :size="$vuetify.display.xs ? '20' : '24'">mdi-nutrition</v-icon>
-            </v-avatar>
-            <div>
-              <h2 class="text-h6 text-sm-h5 font-weight-bold mb-1">Valeurs nutritionnelles</h2>
-              <p class="text-caption text-sm-body-2 text-medium-emphasis mb-0 d-none d-sm-block">
-                Pour {{ form.portion_description || '100g' }}
-              </p>
-            </div>
-          </div>
+          <v-card-text class="pa-8">
 
-          <v-row :dense="$vuetify.display.xs">
-            <v-col v-for="field in nutritionFields" :key="field.key" cols="12" sm="6" md="4">
-              <v-text-field v-model="form.nutrition[field.key]" :label="`${field.label} ${field.suffix}`" type="number"
-                step="any" inputmode="decimal" :prepend-inner-icon="field.icon" :suffix="field.suffix"
-                :density="$vuetify.display.xs ? 'comfortable' : 'default'" />
-            </v-col>
-          </v-row>
+            <div class="d-flex align-center mb-6">
+              <v-avatar color="tertiary" size="48" class="mr-4">
+                <v-icon color="white" size="24">mdi-nutrition</v-icon>
+              </v-avatar>
+              <div>
+                <h2 class="text-h5 font-weight-bold mb-1">Valeurs nutritionnelles</h2>
+                <p class="text-medium-emphasis mb-0">Pour {{ form.portion_description || '100g' }}</p>
+              </div>
+            </div>
+
+            <v-alert type="info" variant="tonal" class="mb-4">
+              Laissez vide si aucune valeur à fournir.
+            </v-alert>
+
+            <v-expansion-panels variant="accordion" class="nutrition-accordion">
+
+              <v-expansion-panel title="Énergie et Macronutriments" value="macros">
+                <v-expansion-panel-text>
+                  <v-row>
+                    <v-col
+                      v-for="field in nutritionFields.filter(f => ['calories_kcal', 'protein_g', 'carbs_g', 'sugars_g', 'starch_g', 'fats_g', 'saturated_fats_g', 'fibres_g'].includes(f.key))"
+                      :key="field.key" cols="12" sm="6" md="4">
+                      <v-text-field v-model="form.nutrition[field.key]"
+                        :label="field.label + (field.suffix ? ` (${field.suffix})` : '')"
+                        :prepend-inner-icon="field.icon" type="number" step="any" inputmode="decimal" variant="outlined"
+                        clearable />
+                    </v-col>
+                  </v-row>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel title="Vitamines et Minéraux" value="micros">
+                <v-expansion-panel-text>
+                  <v-row>
+                    <v-col
+                      v-for="field in nutritionFields.filter(f => ['sodium_mg', 'calcium_mg', 'iron_mg', 'vitamin_c_mg'].includes(f.key))"
+                      :key="field.key" cols="12" sm="6" md="4">
+                      <v-text-field v-model="form.nutrition[field.key]"
+                        :label="field.label + (field.suffix ? ` (${field.suffix})` : '')"
+                        :prepend-inner-icon="field.icon" type="number" step="any" inputmode="decimal" variant="outlined"
+                        clearable />
+                    </v-col>
+                  </v-row>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel title="Autres (Graisses Trans, Eau, etc.)" value="others">
+                <v-expansion-panel-text>
+                  <v-row>
+                    <v-col v-for="field in nutritionFields.filter(f => ['trans_fats_g', 'water_ml'].includes(f.key))"
+                      :key="field.key" cols="12" sm="6" md="4">
+                      <v-text-field v-model="form.nutrition[field.key]"
+                        :label="field.label + (field.suffix ? ` (${field.suffix})` : '')"
+                        :prepend-inner-icon="field.icon" type="number" step="any" inputmode="decimal" variant="outlined"
+                        clearable />
+                    </v-col>
+                  </v-row>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+            </v-expansion-panels>
+
+          </v-card-text>
         </div>
       </v-card-text>
 
@@ -311,6 +357,7 @@ import { useSupabase } from '#imports';
 import { useProductEditor, type EditableProductFields } from '@/composables/useProductEditor';
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth';
 import { computed, ref, watch } from 'vue';
+import { halalStatuses, certificationBodies, nutritionFields } from '@/utils/ProductFunctions';
 
 type Category = { id: string; name: string }
 type Allergen = { id: string; name: string }
@@ -340,7 +387,6 @@ const steps = [
   { title: 'Nutrition', value: 4 },
 ]
 
-const formRef = ref()
 
 type EditForm = Omit<EditableProductFields, 'nutrition'> & {
   nutrition: Record<string, number | null>
@@ -358,6 +404,9 @@ const defaultNutrition: Record<string, number | null> = {
   sodium_mg: null,
   calcium_mg: null,
   water_ml: null,
+  starch_g: null,
+  vitamin_c_mg: null,
+  iron_mg: null,
 }
 
 const form = ref<EditForm>({
@@ -399,31 +448,6 @@ const ingredientsInput = ref('')
 const showAdditivesDialog = ref(false)
 const additiveSearchQuery = ref('')
 const selectedAdditiveFilter = ref<string | null>(null)
-
-const halalStatuses = [
-  { value: 'halal', label: 'Halal', icon: 'mdi-check-circle', color: 'success' },
-  { value: 'haram', label: 'Haram', icon: 'mdi-close-circle', color: 'error' },
-  { value: 'mashbuh', label: 'Mashbuh', icon: 'mdi-alert-circle', color: 'warning' }
-]
-
-const certificationBodies = [
-  'AVS',
-  'Halal Monitoring Committee',
-  'Taiwan Halal Integrity Development Association',
-  'Autre'
-]
-
-const nutritionFields = [
-  { key: 'calories_kcal', label: 'Calories', icon: 'mdi-fire', suffix: 'kcal' },
-  { key: 'protein_g', label: 'Protéines', icon: 'mdi-egg', suffix: 'g' },
-  { key: 'carbs_g', label: 'Glucides', icon: 'mdi-pasta', suffix: 'g' },
-  { key: 'sugars_g', label: 'Sucres', icon: 'mdi-candy', suffix: 'g' },
-  { key: 'fats_g', label: 'Lipides', icon: 'mdi-oil', suffix: 'g' },
-  { key: 'saturated_fats_g', label: 'Graisses saturées', icon: 'mdi-food-drumstick', suffix: 'g' },
-  { key: 'fibres_g', label: 'Fibres', icon: 'mdi-barley', suffix: 'g' },
-  { key: 'sodium_mg', label: 'Sodium', icon: 'mdi-shaker', suffix: 'mg' },
-  { key: 'calcium_mg', label: 'Calcium', icon: 'mdi-water', suffix: 'mg' },
-]
 
 const supabase = useSupabase()
 const { saving, updateProduct } = useProductEditor()

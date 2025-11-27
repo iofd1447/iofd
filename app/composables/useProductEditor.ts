@@ -73,7 +73,7 @@ export function useProductEditor() {
       const { error: productError } = await supabase
         .from('products')
         .update({
-          barcode: fields.barcode,
+          barcode: fields.barcode || null,
           name: fields.name,
           brand: fields.brand ?? null,
           category_id: fields.category_id ?? null,
@@ -113,29 +113,34 @@ export function useProductEditor() {
       }
 
       if (fields.ingredients !== undefined) {
-        await supabase.from('product_ingredients').delete().eq('product_id', productId)
+        if (fields.ingredients.length > 0) {
+          await supabase.from('product_ingredients').delete().eq('product_id', productId)
 
-        const ingredientMappings = []
-        for (let i = 0; i < fields.ingredients.length; i++) {
-          const ingredient = fields.ingredients[i]
-          let ingredientId: string
-          if (typeof ingredient === 'string') {
-            const { data: existing } = await supabase.from('ingredients').select('id').eq('name', ingredient).single()
-            if (existing) ingredientId = existing.id
-            else {
-              const { data: newIngredient, error } = await supabase.from('ingredients').insert([{ name: ingredient }]).select().single()
-              if (error) continue
-              ingredientId = newIngredient.id
+          const ingredientMappings: any[] = []
+
+          for (let i = 0; i < fields.ingredients.length; i++) {
+            const ingredient = fields.ingredients[i]
+            let ingredientId: string
+            if (typeof ingredient === 'string') {
+              const { data: existing } = await supabase.from('ingredients').select('id').eq('name', ingredient).single()
+              if (existing) ingredientId = existing.id
+              else {
+                const { data: newIngredient, error } = await supabase.from('ingredients').insert([{ name: ingredient }]).select().single()
+                if (error) continue
+                ingredientId = newIngredient.id
+              }
+            } else {
+              continue
             }
-          } else {
-            continue
+            ingredientMappings.push({ product_id: productId, ingredient_id: ingredientId, position: i + 1 })
           }
-          ingredientMappings.push({ product_id: productId, ingredient_id: ingredientId, position: i + 1 })
-        }
-        if (ingredientMappings.length) {
-          await supabase.from('product_ingredients').upsert(ingredientMappings, { ignoreDuplicates: true })
+
+          if (ingredientMappings.length) {
+            await supabase.from('product_ingredients').upsert(ingredientMappings, { ignoreDuplicates: true })
+          }
         }
       }
+
 
       if (fields.additives !== undefined) {
         await supabase.from('product_additives').delete().eq('product_id', productId)

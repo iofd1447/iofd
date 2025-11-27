@@ -13,6 +13,7 @@ const formatHijriDate = (date: string): string => {
 
 const getHalalColor = (status: string) => {
   const colors: Record<string, string> = {
+    mustahab: 'mustahab',
     halal: 'success',
     haram: 'error',
     mashbuh: 'warning'
@@ -22,6 +23,7 @@ const getHalalColor = (status: string) => {
 
 const getHalalLabel = (status: string) => {
   const labels: Record<string, string> = {
+    mustahab: 'Mustahab',
     halal: 'Halal',
     haram: 'Haram',
     mashbuh: 'Douteux'
