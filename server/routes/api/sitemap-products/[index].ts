@@ -1,6 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 import { defineEventHandler, getRouterParam } from 'h3'
 
+function normalizeName(name: string) {
+  if (!name) return ''
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
 export default defineEventHandler(async (event) => {
   const baseUrl = process.env.NUXT_PUBLIC_SITE_URL || 'https://iofd.org'
   const index = parseInt(getRouterParam(event, 'index') || '1')
@@ -15,7 +26,7 @@ export default defineEventHandler(async (event) => {
 
   const { data: products, error } = await supabase
     .from('products')
-    .select('id, updated_at, created_at')
+    .select('id, name, updated_at, created_at')
     .range(from, to)
     .order('updated_at', { ascending: false })
 
@@ -28,8 +39,9 @@ export default defineEventHandler(async (event) => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${(products || []).map(product => {
     const lastmod = product.updated_at || product.created_at || new Date().toISOString()
+    const slug = normalizeName(product.name)
     return `  <url>
-    <loc>${baseUrl}/products/${product.id}</loc>
+    <loc>${baseUrl}/products/${product.id}/${slug}</loc>
     <lastmod>${new Date(lastmod).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

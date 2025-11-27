@@ -630,9 +630,10 @@ function normalizeName(name: string) {
   return name
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, '')
-    .replace(/[^a-zA-Z0-9]/g, '')
-    .toLowerCase();
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
 const goToProduct = (productOrId: any) => {
