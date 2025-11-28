@@ -36,7 +36,7 @@
             Votre impact sur la communauté IOFD en chiffres.
           </p>
 
-          <div class="d-flex justify-center gap-4">
+          <div class="d-flex justify-center gap-4 mb-4">
             <div class="text-center px-4">
               <div class="text-h4 font-weight-black text-primary">{{ contributions.length }}</div>
               <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Produits</div>
