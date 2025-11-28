@@ -142,7 +142,7 @@
                       <span class="text-caption font-weight-bold" :class="`text-${getHalalColor(review.halal_vote)}`">
                         {{ getHalalLabel(review.halal_vote) }}
                       </span>
-                      <span class="text-caption text-medium-emphasis">• {{ formatDate(review.created_at) }}</span>
+                      <span class="text-caption text-medium-emphasis">• {{ formatHijriDate(review.created_at) }}</span>
                     </div>
                     <v-rating :model-value="review.rating" readonly density="compact" size="small" color="amber"
                       half-increments />
