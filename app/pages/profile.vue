@@ -205,6 +205,7 @@ import { useSupabase } from '@/composables/useSupabase'
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { formatHijriDate } from '@/utils/function'
 
 useHead({
   title: 'IOFD - Mon Profil'
