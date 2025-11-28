@@ -140,7 +140,7 @@
                     <v-col cols="12" md="4">
 
 
-                      <v-card v-if="hasCertificationInfo" elevation="0" border rounded="xl" class="">
+                      <v-card v-if="hasCertificationInfo" elevation="0" border rounded="xl" class="mb-4">
                         <v-card-text class="pa-4">
                           <div class="d-flex align-center mb-3">
                             <v-icon color="success" size="large" class="mr-3">mdi-certificate</v-icon>
