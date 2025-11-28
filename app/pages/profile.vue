@@ -97,7 +97,7 @@
                     <label class="text-caption font-weight-bold text-medium-emphasis mb-1 d-block">Membre depuis</label>
                     <div class="text-body-2 d-flex align-center text-medium-emphasis">
                       <v-icon start size="small" class="mr-2">mdi-calendar</v-icon>
-                      {{ formatDate(user.created_at) }}
+                      {{ formatHijriDate(user.created_at) }}
                     </div>
                   </div>
 
@@ -235,46 +235,39 @@ const totalStats = computed(() => {
   return products + reviews
 })
 
+const levelThresholds = [0, 10, 50, 100, 500, 1000, 5000, 10000]
+
 const userLevel = computed(() => {
   const total = totalStats.value
-  if (total >= 50) return 5
-  if (total >= 30) return 4
-  if (total >= 15) return 3
-  if (total >= 5) return 2
+  for (let i = levelThresholds.length - 1; i >= 0; i--) {
+    if (total >= levelThresholds[i]) return i + 1
+  }
   return 1
 })
 
 const itemsToNextLevel = computed(() => {
   const total = totalStats.value
-  if (total >= 50) return 0
-  if (total >= 30) return 50 - total
-  if (total >= 15) return 30 - total
-  if (total >= 5) return 15 - total
-  return 5 - total
+  const level = userLevel.value
+  if (level >= levelThresholds.length) return 0
+  return levelThresholds[level] - total
 })
 
 const nextLevelProgress = computed(() => {
   const total = totalStats.value
-  const currentLevelBase = [0, 5, 15, 30, 50]
   const level = userLevel.value
 
-  if (level >= 5) return 100
+  if (level >= levelThresholds.length) return 100
 
-  const start = currentLevelBase[level - 1]
-  const end = currentLevelBase[level]
-  // @ts-ignore
+  const start = levelThresholds[level - 1]
+  const end = levelThresholds[level]
+
   const progress = ((total - start) / (end - start)) * 100
-
   return Math.min(100, Math.max(0, Math.round(progress)))
 })
 
 const userInitials = computed(() => {
-  if (userProfile.value.username) {
-    return userProfile.value.username.substring(0, 2).toUpperCase()
-  }
-  if (user.value?.email) {
-    return user.value.email.substring(0, 2).toUpperCase()
-  }
+  if (userProfile.value.username) return userProfile.value.username.slice(0, 2).toUpperCase()
+  if (user.value?.email) return user.value.email.slice(0, 2).toUpperCase()
   return 'IO'
 })
 
