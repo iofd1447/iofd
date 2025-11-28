@@ -24,7 +24,7 @@
     </v-container>
 
     <div v-else-if="user">
-      <section class="contributions-hero position-relative overflow-hidden pt-8 pb-8 mt-4">
+      <section class="contributions-hero position-relative overflow-hidden pt-8 pb-8">
         <div class="hero-bg-mesh"></div>
         <v-container class="position-relative z-1 text-center">
           <v-chip color="secondary" variant="tonal" size="small" class="mb-4 font-weight-bold">
@@ -36,7 +36,7 @@
             Votre impact sur la communauté IOFD en chiffres.
           </p>
 
-          <div class="d-flex justify-center gap-4 mb-2 mt-4">
+          <div class="d-flex justify-center gap-4 mb-2">
             <div class="text-center px-4">
               <div class="text-h4 font-weight-black text-primary">{{ contributions.length }}</div>
               <div class="text-caption text-uppercase font-weight-bold text-medium-emphasis">Produits</div>
@@ -50,7 +50,7 @@
         </v-container>
       </section>
 
-      <v-container class="py-0" style="max-width: 800px;">
+      <v-container class="py-0 mt-4" style="max-width: 800px;">
         <v-tabs v-model="activeTab" align-tabs="center" color="primary" class="mb-6 bg-surface rounded-xl border"
           height="48">
           <v-tab value="contributions" class="text-none px-8" rounded="xl">Contributions</v-tab>
