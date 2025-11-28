@@ -138,19 +138,7 @@
                     </v-col>
 
                     <v-col cols="12" md="4">
-                      <v-card elevation="0" border rounded="xl" class="mb-4 bg-surface">
-                        <v-card-text class="pa-4">
-                          <v-btn block color="primary" size="large" variant="flat" rounded="lg" class="mb-3"
-                            @click="reviewDialog = true">
-                            <v-icon start>mdi-star</v-icon>
-                            Noter ce produit
-                          </v-btn>
-                          <v-btn block variant="outlined" size="large" rounded="lg" @click="editDialog = true">
-                            <v-icon start>mdi-pencil</v-icon>
-                            Modifier
-                          </v-btn>
-                        </v-card-text>
-                      </v-card>
+
 
                       <v-card v-if="hasCertificationInfo" elevation="0" border rounded="xl" class="">
                         <v-card-text class="pa-4">
@@ -160,7 +148,7 @@
                               <div class="text-subtitle-1 font-weight-bold text-success-darken-2">Détails
                                 supplémentaires
                               </div>
-                              <div class="text-caption text-success-darken-1">Bénéfices, valeur ajoutées...</div>
+                              <div class="text-caption text-success-darken-1">Bénéfices, certifications...</div>
                             </div>
                           </div>
 
@@ -176,6 +164,21 @@
                           </div>
                         </v-card-text>
                       </v-card>
+
+                      <v-card elevation="0" border rounded="xl" class="mb-4 bg-surface">
+                        <v-card-text class="pa-4">
+                          <v-btn block color="primary" size="large" variant="flat" rounded="lg" class="mb-3"
+                            @click="reviewDialog = true">
+                            <v-icon start>mdi-star</v-icon>
+                            Noter ce produit
+                          </v-btn>
+                          <v-btn block variant="outlined" size="large" rounded="lg" @click="editDialog = true">
+                            <v-icon start>mdi-pencil</v-icon>
+                            Modifier
+                          </v-btn>
+                        </v-card-text>
+                      </v-card>
+
                     </v-col>
                   </v-row>
                 </v-window-item>
