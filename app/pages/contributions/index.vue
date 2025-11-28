@@ -94,7 +94,7 @@
                             class="font-weight-bold text-uppercase">
                             {{ getChangeTypeLabel(item.change_type) }}
                           </v-chip>
-                          <span class="text-caption text-medium-emphasis">{{ formatDate(item.created_at) }}</span>
+                          <span class="text-caption text-medium-emphasis">{{ formatHijriDate(item.created_at) }}</span>
                         </div>
                       </div>
 
@@ -170,6 +170,7 @@
 import { useSupabase } from '@/composables/useSupabase'
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
 import { onMounted, ref } from 'vue'
+import { formatHijriDate } from '@/utils/function'
 
 useHead({
   title: 'IOFD - Mes Contributions'
