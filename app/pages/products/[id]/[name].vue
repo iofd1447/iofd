@@ -376,8 +376,8 @@
               </v-col>
             </v-row>
 
-            <v-select v-model="newReview.halal_vote" label="Selon vous, ce produit est..."
-              :items="['halal', 'haram', 'mashbuh']" variant="outlined" density="comfortable" rounded="lg"
+            <v-select v-model="newReview.halal_vote" label="Ce produit est..."
+              :items="['mustahab', 'halal', 'haram', 'mashbuh']" variant="outlined" density="comfortable" rounded="lg"
               class="mb-2" />
 
             <v-textarea v-model="newReview.comment" label="Votre commentaire" variant="outlined" rows="3"
