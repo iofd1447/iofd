@@ -24,7 +24,7 @@
     </v-container>
 
     <div v-else-if="user">
-      <section class="contributions-hero position-relative overflow-hidden pt-8 pb-8">
+      <section class="contributions-hero position-relative overflow-hidden pt-8 pb-8 mt-4">
         <div class="hero-bg-mesh"></div>
         <v-container class="position-relative z-1 text-center">
           <v-chip color="secondary" variant="tonal" size="small" class="mb-4 font-weight-bold">
