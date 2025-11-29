@@ -29,6 +29,7 @@
             Notre objectif est de fournir aux consommateurs musulmans une ressource fiable et accessible
             pour faire des choix éclairés dans leur alimentation quotidienne.
           </p>
+          <p>Une partie des données est ici de la base de donnée Ciqual.</p>
         </v-card-text>
       </v-card>
 

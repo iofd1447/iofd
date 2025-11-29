@@ -9,3 +9,4 @@ export const useSupabase = () => {
   client = createClient(supabaseUrl, supabaseKey)
   return client
 }
+
