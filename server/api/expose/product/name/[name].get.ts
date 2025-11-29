@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = await supabase
     .from('products')
-    .select('*')
+    .select('*, nutrition_facts(*)')
     .ilike('name', `%${name}%`)
     .limit(20)
 

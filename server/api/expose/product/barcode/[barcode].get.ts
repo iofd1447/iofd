@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
 
   const { data, error } = await supabase
     .from('products')
-    .select('*')
+    .select('*, nutrition_facts(*)')
     .eq('barcode', barcode)
     .single()
 
