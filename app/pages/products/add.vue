@@ -552,11 +552,8 @@ import { useSupabase } from '@/composables/useSupabase'
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
 import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import { rules } from '@/utils/rules'
-import Tesseract from 'tesseract.js'
-import ImageCropper from '@/components/ImageCropper.vue'
 import BarcodeScanner from '@/components/BarcodeScanner.vue'
 import { step, steps, halalStatuses, certificationBodies, form, nutritionFields, additiveFilterStatuses } from '@/utils/ProductFunctions'
-import { selectImage, removeImage } from '@/utils/ImagesUtils'
 
 useHead({
   title: 'IOFD - Add a product to the database'
@@ -601,12 +598,8 @@ const selectedLabels = ref<string[]>([])
 const showCropper = ref(false)
 const imageToCrop = ref<string | null>(null)
 
-const canvasRef = ref<HTMLCanvasElement | null>(null)
 const cameraDialog = ref(false)
 const capturedImage = ref<string | null>(null)
-const isScanning = ref(false)
-const scanProgress = ref(0)
-const scanStatus = ref('')
 
 const videoRef = ref<HTMLVideoElement | null>(null)
 const cameraReady = ref(false)
@@ -630,6 +623,16 @@ const prevStep = () => {
 
 const goBack = () => {
   navigateTo('/products')
+}
+
+const selectImage = () => {
+  fileInput.value?.click()
+}
+
+const removeImage = () => {
+  imagePreview.value = ''
+  imageFile.value = null
+  form.value.image_url = ''
 }
 
 async function onBarcodeDetected(barcode: string) {
