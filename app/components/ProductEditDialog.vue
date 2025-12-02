@@ -479,7 +479,7 @@ watch(() => props.product, (p) => {
     certification_body: p.certification?.body || '',
     halal_notes: p.certification?.notes || '',
     nutrition: { ...defaultNutrition, ...((p.nutrition as any) || {}) },
-    ingredients: [],
+    ingredients: (p.ingredients || []).map((i: any) => i.name),
     additives: [],
     allergens: [],
     labels: [],
