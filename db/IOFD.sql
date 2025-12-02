@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS nutrition_facts (
 CREATE TABLE IF NOT EXISTS halal_certifications (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   product_id uuid NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-  halal_status text NOT NULL CHECK (halal_status IN ('halal', 'haram', 'douteux', 'non_verifie')),
+  halal_status text NOT NULL CHECK (halal_status IN ('mustahab', 'halal', 'haram', 'douteux')),
   certification_body text, 
   certificate_number text,
   certified_date date,

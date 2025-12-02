@@ -12,7 +12,8 @@ const halalStatuses = [
   { value: 'mustahab', label: 'Mustahab', icon: 'mdi-check-decagram', color: 'mustahab' },
   { value: 'halal', label: 'Halal', icon: 'mdi-check-circle', color: 'success' },
   { value: 'mashbuh', label: 'Mashbuh', icon: 'mdi-alert-circle', color: 'warning' },
-  { value: 'haram', label: 'Haram', icon: 'mdi-close-circle', color: 'error' }
+  { value: 'haram', label: 'Haram', icon: 'mdi-close-circle', color: 'error' },
+  { value: 'makruh', label: 'Makruh', icon: 'mdi-alert-decagram', color: 'makruh' }
 ]
 
 const certificationBodies = [

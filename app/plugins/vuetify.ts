@@ -108,6 +108,9 @@ export default defineNuxtPlugin((nuxtapp) => {
             'on-success': '#003d1a',
             mustahab: '#9CCC65',
             'on-mustahab': '#003d1a',
+            makruh: '#B0BEC5',
+            'on-makruh': '#1A2327',
+
 
             'on-background': '#e8f5e9',
             'on-surface': '#f5f5f5',

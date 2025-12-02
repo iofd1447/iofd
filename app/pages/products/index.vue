@@ -547,7 +547,8 @@ const getHalalColor = (status: string) => {
     mustahab: 'mustahab',
     halal: 'success',
     haram: 'error',
-    mashbuh: 'warning'
+    mashbuh: 'warning',
+    makruh: 'makruh'
   }
   return colors[status] || 'grey'
 }
@@ -557,7 +558,8 @@ const getHalalLabel = (status: string) => {
     mustahab: 'Mustahab',
     halal: 'Halal',
     haram: 'Haram',
-    mashbuh: 'Mashbuh'
+    mashbuh: 'Mashbuh',
+    makruh: 'Makruh'
   }
   return labels[status] || 'Non vérifié'
 }
@@ -567,7 +569,8 @@ const getHalalIcon = (status: string) => {
     mustahab: 'mdi-check-decagram',
     halal: 'mdi-check-circle',
     haram: 'mdi-close-circle',
-    mashbuh: 'mdi-alert-circle'
+    mashbuh: 'mdi-alert-circle',
+    makruh: 'mdi-alert-decagram'
   }
   return icons[status] || 'mdi-help-circle'
 }

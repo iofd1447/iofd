@@ -1,12 +1,17 @@
 import { ref } from 'vue'
 import { useSupabase } from './useSupabase'
+import { type Unit, getPortionDescription, UNITS } from '@/utils/portionManagement'
 
 export type EditableProductFields = {
   barcode: string
   name: string
   brand?: string | null
   category_id?: string | null
-  portion_description?: string | null
+  portion: {
+    amount: number | null
+    unit: Unit
+    extraInfo: string
+  }
   image_file?: File | null
   image_url?: string | null
   halal_status?: string
@@ -77,7 +82,7 @@ export function useProductEditor() {
           name: fields.name,
           brand: fields.brand ?? null,
           category_id: fields.category_id ?? null,
-          portion_description: fields.portion_description ?? null,
+          portion_description: getPortionDescription(fields.portion as { amount: number | null; unit: Unit; extraInfo: string }) ?? null,
           image_url: nextImageUrl,
         })
         .eq('id', productId)

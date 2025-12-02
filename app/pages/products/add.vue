@@ -74,7 +74,7 @@
 
           <v-row>
 
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="4">
               <v-text-field :model-value="displayBarcode" label="Code-barres" prepend-inner-icon="mdi-barcode"
                 placeholder="3017620422003" hint="Jusqu'à 32 caractères" persistent-hint :rules="[rules.barcode]"
                 maxlength="32">
@@ -90,38 +90,41 @@
               </v-text-field>
             </v-col>
 
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="4">
               <v-text-field v-model="form.name" label="Nom du produit *" prepend-inner-icon="mdi-tag"
                 placeholder="Coca-Cola Zero" :rules="[rules.required]" />
             </v-col>
 
-            <v-col cols="12" md="6">
+            <v-col cols="12" md="4">
               <v-text-field v-model="form.brand" label="Marque" prepend-inner-icon="mdi-store"
                 placeholder="Coca-Cola" />
             </v-col>
 
-            <v-col cols="12" md="6">
+            <v-col cols="12">
               <v-select v-model="form.category_id" :items="categories" item-title="name" item-value="id"
                 label="Catégorie *" prepend-inner-icon="mdi-shape" :rules="[rules.required]"
                 :loading="loadingCategories" />
             </v-col>
 
-            <v-row>
-              <v-col cols="12" md="4">
-                <v-text-field v-model="form.portion.amount" type="number" label="Quantité" placeholder="16"
-                  :rules="[rules.required]" />
-              </v-col>
+            <v-col cols="12">
+              <v-row>
 
-              <v-col cols="12" md="4">
-                <v-select v-model="form.portion.unit" :items="UNITS" item-title="label" item-value="value"
-                  label="Unité" />
-              </v-col>
+                <v-col cols="12" md="4">
+                  <v-text-field v-model="form.portion.amount" type="number" label="Quantité" placeholder="16"
+                    :rules="[rules.required]" />
+                </v-col>
 
-              <v-col cols="12" md="4">
-                <v-text-field v-model="form.portion.extraInfo" label="Info complémentaire" placeholder="2 biscuits" />
-              </v-col>
-            </v-row>
+                <v-col cols="12" md="4">
+                  <v-select v-model="form.portion.unit" :items="UNITS" item-title="label" item-value="value"
+                    label="Unité" />
+                </v-col>
 
+                <v-col cols="12" md="4">
+                  <v-text-field v-model="form.portion.extraInfo" label="Info complémentaire" placeholder="2 biscuits" />
+                </v-col>
+
+              </v-row>
+            </v-col>
 
             <v-col cols="12">
               <div class="text-subtitle-2 mb-2">Photo du produit</div>
@@ -353,7 +356,11 @@
             </v-avatar>
             <div>
               <h2 class="text-h5 font-weight-bold mb-1">Valeurs nutritionnelles</h2>
-              <p class="text-medium-emphasis mb-0">Pour {{ getPortionDescription() || '100g' }}</p>
+              <p class="text-medium-emphasis mb-0">Pour {{ getPortionDescription(form.portion as {
+                amount: number |
+                null;
+                unit: Unit; extraInfo: string
+              }) || '100g' }}</p>
             </div>
           </div>
 
@@ -565,6 +572,7 @@ import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import { rules } from '@/utils/rules'
 import BarcodeScanner from '@/components/BarcodeScanner.vue'
 import { step, steps, halalStatuses, certificationBodies, form, nutritionFields, additiveFilterStatuses } from '@/utils/ProductFunctions'
+import { getPortionDescription, UNITS, type Unit } from '@/utils/portionManagement'
 
 useHead({
   title: 'IOFD - Add a product to the database'
@@ -619,18 +627,6 @@ let mediaStream: MediaStream | null = null
 const isStep1Valid = computed(() => {
   return form.value.name && form.value.category_id
 })
-
-export type Unit = 'g' | 'ml' | 'oz' | 'lb' | 'cup' | 'cac' | 'cas';
-
-const UNITS: { label: string; value: Unit }[] = [
-  { label: 'Grammes (g)', value: 'g' },
-  { label: 'Millilitres (ml)', value: 'ml' },
-  { label: 'Once (oz)', value: 'oz' },
-  { label: 'Livre (lb)', value: 'lb' },
-  { label: 'Tasse (cup)', value: 'cup' },
-  { label: 'Cuillère à café (CaC)', value: 'cac' },
-  { label: 'Cuillère à soupe (CaS)', value: 'cas' },
-];
 
 const nextStep = () => {
   if (step.value < 4) {
@@ -904,13 +900,6 @@ const removeAdditive = (additive: any) => {
   }
 }
 
-const getPortionDescription = () => {
-  const { amount, unit, extraInfo } = form.value.portion;
-  if (!amount) return extraInfo || '';
-  return `${amount} ${unit}${extraInfo ? ` (${extraInfo})` : ''}`;
-}
-
-
 const submitProduct = async () => {
   loading.value = true
   try {
@@ -937,7 +926,7 @@ const submitProduct = async () => {
         name: form.value.name,
         brand: form.value.brand || null,
         category_id: form.value.category_id,
-        portion_description: getPortionDescription() || null,
+        portion_description: getPortionDescription(form.value.portion as { amount: number | null; unit: Unit; extraInfo: string }) || null,
         image_url: imageUrl,
       }], { onConflict: 'barcode', ignoreDuplicates: false })
       .select()
@@ -1251,69 +1240,6 @@ function closeCamera() {
   cameraReady.value = false
   imageToCrop.value = null
   showCropper.value = false
-}
-
-function onCropCancel() {
-  imageToCrop.value = null
-  openCamera()
-}
-
-function cleanIngredients(text: string) {
-  return text
-    .replace(/\n/g, ', ')
-    .replace(/\s+/g, ' ')
-    .replace(/,\s*,/g, ',')
-    .replace(/^[,\s]+|[,\s]+$/g, '')
-    .trim()
-}
-
-function preprocessImage(imgDataUrl: string): Promise<string> {
-  return new Promise((resolve) => {
-    const img = new Image()
-    img.onload = () => {
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')!
-
-      const scale = 2
-      canvas.width = img.width * scale
-      canvas.height = img.height * scale
-
-      ctx.imageSmoothingEnabled = false
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-      const data = imgData.data
-
-      let totalBrightness = 0
-      for (let i = 0; i < data.length; i += 4) {
-        // @ts-ignore
-        const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]
-        totalBrightness += gray
-      }
-      const avgBrightness = totalBrightness / (data.length / 4)
-
-      const threshold = avgBrightness < 128 ? avgBrightness * 0.8 : avgBrightness * 1.1
-
-      for (let i = 0; i < data.length; i += 4) {
-        // @ts-ignore
-        let gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]
-
-        gray = ((gray - avgBrightness) * 1.5) + avgBrightness
-        gray = Math.max(0, Math.min(255, gray))
-
-        const binary = gray > threshold ? 255 : 0
-
-        data[i] = binary
-        data[i + 1] = binary
-        data[i + 2] = binary
-      }
-
-      ctx.putImageData(imgData, 0, 0)
-
-      resolve(canvas.toDataURL('image/png'))
-    }
-    img.src = imgDataUrl
-  })
 }
 
 onUnmounted(() => {

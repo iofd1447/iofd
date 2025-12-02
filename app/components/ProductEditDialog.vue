@@ -48,20 +48,24 @@
           </div>
 
           <v-row :dense="$vuetify.display.xs">
+
             <v-col cols="12" md="4">
               <v-text-field v-model="form.barcode" label="Code-barres" prepend-inner-icon="mdi-barcode"
                 placeholder="3017620422003" hint="Jusqu'à 32 caractères" persistent-hint maxlength="32">
               </v-text-field>
             </v-col>
+
             <v-col cols="12" md="4">
               <v-text-field v-model="form.name" label="Nom du produit *" prepend-inner-icon="mdi-tag"
                 :rules="[v => !!v || 'Requis']" :density="$vuetify.display.xs ? 'comfortable' : 'default'" />
             </v-col>
+
             <v-col cols="12" md="4">
               <v-text-field v-model="form.brand" label="Marque" prepend-inner-icon="mdi-store"
                 :density="$vuetify.display.xs ? 'comfortable' : 'default'" />
             </v-col>
-            <v-col cols="12" md="4">
+
+            <v-col cols="12">
               <v-select v-model="form.category_id" :items="categories" item-title="name" item-value="id"
                 label="Catégorie *" prepend-inner-icon="mdi-shape" :rules="[v => !!v || 'Requis']"
                 :loading="loadingCategories" :density="$vuetify.display.xs ? 'comfortable' : 'default'">
@@ -70,11 +74,27 @@
                 </template>
               </v-select>
             </v-col>
-            <v-col cols="12" md="6">
-              <v-text-field v-model="form.portion_description" label="Description de la portion"
-                prepend-inner-icon="mdi-scale" placeholder="100g, 330ml, 1 pièce..."
-                :density="$vuetify.display.xs ? 'comfortable' : 'default'" />
+
+            <v-col cols="12">
+              <v-row>
+
+                <v-col cols="12" md="4">
+                  <v-text-field v-model="form.portion.amount" type="number" label="Quantité" placeholder="16"
+                    :rules="[rules.required]" />
+                </v-col>
+
+                <v-col cols="12" md="4">
+                  <v-select v-model="form.portion.unit" :items="UNITS" item-title="label" item-value="value"
+                    label="Unité" />
+                </v-col>
+
+                <v-col cols="12" md="4">
+                  <v-text-field v-model="form.portion.extraInfo" label="Info complémentaire" placeholder="2 biscuits" />
+                </v-col>
+
+              </v-row>
             </v-col>
+
             <v-col cols="12">
               <div class="text-subtitle-2 mb-2">Photo du produit</div>
               <v-card variant="outlined" class="image-upload" rounded="lg" :class="{ 'has-image': previewUrl }">
@@ -95,6 +115,7 @@
                 </v-card-text>
               </v-card>
             </v-col>
+
           </v-row>
         </div>
 
@@ -205,7 +226,11 @@
               </v-avatar>
               <div>
                 <h2 class="text-h5 font-weight-bold mb-1">Valeurs nutritionnelles</h2>
-                <p class="text-medium-emphasis mb-0">Pour {{ form.portion_description || '100g' }}</p>
+                <p class="text-medium-emphasis mb-0">Pour {{ getPortionDescription(form.portion as {
+                  amount: number |
+                  null;
+                  unit: Unit; extraInfo: string
+                }) || '100g' }}</p>
               </div>
             </div>
 
@@ -414,7 +439,11 @@ const form = ref<EditForm>({
   name: '',
   brand: '',
   category_id: undefined,
-  portion_description: '',
+  portion: {
+    amount: null,
+    unit: 'g',
+    extraInfo: '',
+  },
   image_file: null,
   image_url: null,
   halal_status: 'non_verifie',
@@ -472,7 +501,11 @@ watch(() => props.product, (p) => {
     name: p.name || '',
     brand: p.brand || '',
     category_id: p.category_id || undefined,
-    portion_description: p.portion_description || '',
+    portion: {
+      amount: p.portion_amount || null,
+      unit: p.portion_unit || 'g',
+      extraInfo: p.portion_extra_info || '',
+    },
     image_file: null,
     image_url: p.image_url || null,
     halal_status: p.halal_status || 'non_verifie',
