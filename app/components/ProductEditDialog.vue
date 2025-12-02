@@ -381,8 +381,9 @@
 import { useSupabase } from '#imports';
 import { useProductEditor, type EditableProductFields } from '@/composables/useProductEditor';
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth';
+import { type Unit } from '@/utils/PortionManagement';
+import { certificationBodies, halalStatuses, nutritionFields } from '@/utils/ProductFunctions';
 import { computed, ref, watch } from 'vue';
-import { halalStatuses, certificationBodies, nutritionFields } from '@/utils/ProductFunctions';
 
 type Category = { id: string; name: string }
 type Allergen = { id: string; name: string }
@@ -412,6 +413,23 @@ const steps = [
   { title: 'Nutrition', value: 4 },
 ]
 
+function parsePortionDescription(desc: string | null | undefined) {
+  const text = (desc ?? '').toString().trim()
+
+  const match = text.match(/^([\d.,]+)\s*(\w+)\s*\((.*?)\)$/)
+  if (!match) return { amount: null, unit: 'g' as Unit, extraInfo: '' }
+
+  const parsedUnit = match[2]
+  const validUnits: Unit[] = ['g', 'ml', 'oz', 'lb', 'cup', 'cac', 'cas']
+  const unit: Unit = validUnits.includes(parsedUnit as Unit) ? (parsedUnit as Unit) : 'g'
+
+  return {
+    // @ts-ignore
+    amount: parseFloat(match[1]),
+    unit,
+    extraInfo: match[3]
+  }
+}
 
 type EditForm = Omit<EditableProductFields, 'nutrition'> & {
   nutrition: Record<string, number | null>
@@ -496,15 +514,17 @@ watch(() => props.product, (p) => {
     return l.id || l.label_id
   }).filter(Boolean)
 
+  const portion = parsePortionDescription(p.portion_description)
+
   form.value = {
     barcode: p.barcode || '',
     name: p.name || '',
     brand: p.brand || '',
     category_id: p.category_id || undefined,
     portion: {
-      amount: p.portion_amount || null,
-      unit: p.portion_unit || 'g',
-      extraInfo: p.portion_extra_info || '',
+      amount: portion.amount || null,
+      unit: portion.unit || 'g',
+      extraInfo: portion.extraInfo || '',
     },
     image_file: null,
     image_url: p.image_url || null,
@@ -513,9 +533,16 @@ watch(() => props.product, (p) => {
     halal_notes: p.certification?.notes || '',
     nutrition: { ...defaultNutrition, ...((p.nutrition as any) || {}) },
     ingredients: (p.ingredients || []).map((i: any) => i.name),
-    additives: [],
-    allergens: [],
-    labels: [],
+    additives: (p.additives || []).map((a: any) => {
+      if (a.id) return { id: a.id, code: a.code }
+      if (a.code) return { id: a.code, code: a.code }
+      return null
+    }).filter(Boolean),
+    allergens: (p.allergens || []).map((a: any) => a.id || a.allergen_id).filter(Boolean),
+    labels: (p.labels || []).map((l: any) => {
+      if (typeof l === 'string') return null
+      return l.id || l.label_id
+    }).filter(Boolean),
   }
   ingredientsInput.value = ingredients
   selectedAdditives.value = additiveIds

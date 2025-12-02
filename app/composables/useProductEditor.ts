@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { useSupabase } from './useSupabase'
-import { type Unit, getPortionDescription, UNITS } from '@/utils/portionManagement'
+import { type Unit, getPortionDescription, UNITS } from '@/utils/PortionManagement'
 
 export type EditableProductFields = {
   barcode: string
@@ -118,31 +118,16 @@ export function useProductEditor() {
       }
 
       if (fields.ingredients !== undefined) {
+        await supabase.from('ingredients').delete().eq('product_id', productId)
+
         if (fields.ingredients.length > 0) {
-          await supabase.from('product_ingredients').delete().eq('product_id', productId)
+          const rows = fields.ingredients.map((name, index) => ({
+            product_id: productId,
+            name
+          }))
 
-          const ingredientMappings: any[] = []
-
-          for (let i = 0; i < fields.ingredients.length; i++) {
-            const ingredient = fields.ingredients[i]
-            let ingredientId: string
-            if (typeof ingredient === 'string') {
-              const { data: existing } = await supabase.from('ingredients').select('id').eq('name', ingredient).single()
-              if (existing) ingredientId = existing.id
-              else {
-                const { data: newIngredient, error } = await supabase.from('ingredients').insert([{ name: ingredient }]).select().single()
-                if (error) continue
-                ingredientId = newIngredient.id
-              }
-            } else {
-              continue
-            }
-            ingredientMappings.push({ product_id: productId, ingredient_id: ingredientId, position: i + 1 })
-          }
-
-          if (ingredientMappings.length) {
-            await supabase.from('product_ingredients').upsert(ingredientMappings, { ignoreDuplicates: true })
-          }
+          const { error: ingError } = await supabase.from('ingredients').insert(rows)
+          if (ingError) throw ingError
         }
       }
 

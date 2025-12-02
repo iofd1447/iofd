@@ -92,8 +92,10 @@
                                   <div v-if="!editingPortion"
                                     class="text-body-1 font-weight-medium d-flex align-center cursor-pointer text-on-surface"
                                     @click="startEditingPortion">
-                                    {{ portionSize }} {{ portionUnit }}
+                                    {{ portion.amount }} {{ portion.unit }}
                                     <v-icon icon="mdi-pencil" size="small" class="ml-2 text-primary opacity-50" />
+                                    <span v-if="portion.extraInfo" class="ml-2 text-medium-emphasis">({{
+                                      portion.extraInfo }})</span>
                                   </div>
                                   <v-text-field v-else v-model="portionInput" density="compact" hide-details
                                     variant="outlined" class="portion-input" @keyup.enter="commitPortion"
@@ -432,6 +434,7 @@ import {
   getIngredientColor
 } from '@/utils/function'
 import { computed, onMounted, ref } from 'vue'
+import { parsePortionDescription } from '@/utils/PortionManagement'
 
 const supabase = useSupabase()
 const { user, fetchUser } = useSupabaseAuth()
@@ -464,6 +467,8 @@ const newReview = ref({
   comment: ''
 })
 
+const portion = computed(() => parsePortionDescription(product.value?.portion_description))
+
 const fetchProduct = async () => {
   loading.value = true
   const productId = route.params.id as string
@@ -476,7 +481,6 @@ const fetchProduct = async () => {
         category:categories(name),
         nutrition:nutrition_facts!nutrition_facts_product_id_fkey(*),
         halal_certification:halal_certifications(*),
-        product_ingredients(ingredient:ingredients(name, description, halal_status)),
         product_additives(additive:additives(code, name, halal_status, origin_type, function)),
         product_allergens(allergen:allergens(name, description)),
         product_labels(label:labels(name)),
@@ -484,6 +488,13 @@ const fetchProduct = async () => {
       `)
       .eq('id', productId)
       .single()
+
+    const { data: ingredientsData, error: ingError } = await supabase
+      .from('ingredients')
+      .select('*')
+      .eq('product_id', productId);
+
+    if (ingError) throw ingError;
 
     if (error) throw error
     if (!data) throw new Error('Produit non trouvé')
@@ -514,7 +525,7 @@ const fetchProduct = async () => {
       category_id: data.category_id,
       category: data.category?.name || 'Autre',
       image_url: data.image_url || 'https://via.placeholder.com/600x400?text=Image+indisponible',
-      portion_description: data.portion_description || 'Non spécifiée',
+      portion_description: data.portion_description,
       halal_status: halalCert?.halal_status,
       certification: halalCert
         ? {
@@ -528,13 +539,11 @@ const fetchProduct = async () => {
         }
         : null,
       nutrition: data.nutrition?.[0] || data.nutrition || {},
-      ingredients: (data.product_ingredients || [])
-        .filter((i: any) => i.ingredient?.name)
-        .map((i: any) => ({
-          name: i.ingredient.name,
-          description: i.ingredient.description,
-          halal_status: i.ingredient.halal_status
-        })),
+      ingredients: (ingredientsData || []).map((i: any) => ({
+        name: i.name,
+        description: i.description,
+        halal_status: i.halal_status
+      })),
       additives: (data.product_additives || []).map((a: any) => ({
         id: a.additive?.id,
         code: a.additive?.code,

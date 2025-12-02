@@ -572,7 +572,7 @@ import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import { rules } from '@/utils/rules'
 import BarcodeScanner from '@/components/BarcodeScanner.vue'
 import { step, steps, halalStatuses, certificationBodies, form, nutritionFields, additiveFilterStatuses } from '@/utils/ProductFunctions'
-import { getPortionDescription, UNITS, type Unit } from '@/utils/portionManagement'
+import { getPortionDescription, UNITS, type Unit } from '@/utils/PortionManagement'
 
 useHead({
   title: 'IOFD - Add a product to the database'
@@ -966,24 +966,15 @@ const submitProduct = async () => {
       if (nutritionError) throw nutritionError
     }
 
+    if (selectedIngredients.value.length > 0) {
+      const ingredientsToSave = selectedIngredients.value.map((name: string, i: number) => ({
+        product_id: productId,
+        name
+      }));
+      const { data: ingredients, error: ingredientError } = await supabase.from('ingredients').insert(ingredientsToSave);
 
-    const ingredientMappings = []
-    for (let i = 0; i < selectedIngredients.value.length; i++) {
-      const ingredient = selectedIngredients.value[i]
-      let ingredientId: string
-      if (typeof ingredient === 'string') {
-        const { data: existing } = await supabase.from('ingredients').select('id').eq('name', ingredient).single()
-        if (existing) ingredientId = existing.id
-        else {
-          const { data: newIngredient, error } = await supabase.from('ingredients').insert([{ name: ingredient }]).select().single()
-          if (error) continue
-          ingredientId = newIngredient.id
-        }
-      } else ingredientId = ingredient.id
-      ingredientMappings.push({ product_id: productId, ingredient_id: ingredientId, position: i + 1 })
+      if (ingredientError) throw ingredientError
     }
-    if (ingredientMappings.length)
-      await supabase.from('product_ingredients').upsert(ingredientMappings, { ignoreDuplicates: true })
 
     const additiveMappings = []
     for (const additive of selectedAdditives.value) {

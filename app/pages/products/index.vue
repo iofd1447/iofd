@@ -88,7 +88,7 @@
             </v-list>
           </v-menu>
 
-          <div class="d-flex bg-surface-variant rounded-lg pa-1">
+          <div class="d-flex bg-surface-variant rounded-lg pa-1 gap-1">
             <v-btn :variant="viewMode === 'grid' ? 'flat' : 'text'" :color="viewMode === 'grid' ? 'white' : undefined"
               size="x-small" icon="mdi-view-grid" @click="viewMode = 'grid'" class="rounded" />
             <v-btn :variant="viewMode === 'list' ? 'flat' : 'text'" :color="viewMode === 'list' ? 'white' : undefined"
@@ -358,6 +358,7 @@ const quickFilters = [
   { label: 'Mustahab', value: 'mustahab', icon: 'mdi-check-decagram', color: 'mustahab' },
   { label: 'Halal', value: 'halal', icon: 'mdi-check-circle', color: 'success' },
   { label: 'Mashbuh', value: 'mashbuh', icon: 'mdi-alert-circle', color: 'warning' },
+  { label: 'Makruh', value: 'makruh', icon: 'mdi-alert-decagram', color: 'makruh' },
   { label: 'Haram', value: 'haram', icon: 'mdi-close-circle', color: 'error' },
 ]
 

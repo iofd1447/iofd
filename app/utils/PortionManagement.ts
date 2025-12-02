@@ -15,3 +15,36 @@ export const getPortionDescription = (portion: { amount: number | null; unit: Un
   if (!amount) return extraInfo || '';
   return `${amount} ${unit}${extraInfo ? ` (${extraInfo})` : ''}`;
 }
+
+export function parsePortionDescription(desc: any) {
+  const text = (desc ?? '').toString().trim()
+
+  if (!text) {
+    return { amount: 100, unit: 'g', extraInfo: '' }
+  }
+
+  const fullMatch = text.match(/^([\d.,]+)\s*(\w+)\s*\((.*?)\)$/)
+  if (fullMatch) {
+    const amount = parseFloat((fullMatch[1] || '0').replace(',', '.'))
+    const unit = (fullMatch[2] || '').toLowerCase()
+    return {
+      amount: isFinite(amount) && amount > 0 ? amount : 100,
+      unit,
+      extraInfo: fullMatch[3] || ''
+    }
+  }
+
+  const simpleMatch = text.match(/^([\d.,]+)\s*(\w+)?$/)
+  if (simpleMatch) {
+    const amount = parseFloat((simpleMatch[1] || '0').replace(',', '.'))
+    const unit = (simpleMatch[2] || '').toLowerCase()
+    return {
+      amount: isFinite(amount) && amount > 0 ? amount : 100,
+      unit,
+      extraInfo: ''
+    }
+  }
+
+  return { amount: 100, unit: 'g', extraInfo: '' }
+}
+
