@@ -106,11 +106,22 @@
                 :loading="loadingCategories" />
             </v-col>
 
-            <v-col cols="12">
-              <v-text-field v-model="form.portion_description" label="Description de la portion"
-                prepend-inner-icon="mdi-scale" placeholder="100g, 330ml, 1 pièce..."
-                hint="Précisez la taille de référence pour les valeurs nutritionnelles" persistent-hint />
-            </v-col>
+            <v-row>
+              <v-col cols="12" md="4">
+                <v-text-field v-model="form.portion.amount" type="number" label="Quantité" placeholder="16"
+                  :rules="[rules.required]" />
+              </v-col>
+
+              <v-col cols="12" md="4">
+                <v-select v-model="form.portion.unit" :items="UNITS" item-title="label" item-value="value"
+                  label="Unité" />
+              </v-col>
+
+              <v-col cols="12" md="4">
+                <v-text-field v-model="form.portion.extraInfo" label="Info complémentaire" placeholder="2 biscuits" />
+              </v-col>
+            </v-row>
+
 
             <v-col cols="12">
               <div class="text-subtitle-2 mb-2">Photo du produit</div>
@@ -342,7 +353,7 @@
             </v-avatar>
             <div>
               <h2 class="text-h5 font-weight-bold mb-1">Valeurs nutritionnelles</h2>
-              <p class="text-medium-emphasis mb-0">Pour {{ form.portion_description || '100g' }}</p>
+              <p class="text-medium-emphasis mb-0">Pour {{ getPortionDescription() || '100g' }}</p>
             </div>
           </div>
 
@@ -608,6 +619,18 @@ let mediaStream: MediaStream | null = null
 const isStep1Valid = computed(() => {
   return form.value.name && form.value.category_id
 })
+
+export type Unit = 'g' | 'ml' | 'oz' | 'lb' | 'cup' | 'cac' | 'cas';
+
+const UNITS: { label: string; value: Unit }[] = [
+  { label: 'Grammes (g)', value: 'g' },
+  { label: 'Millilitres (ml)', value: 'ml' },
+  { label: 'Once (oz)', value: 'oz' },
+  { label: 'Livre (lb)', value: 'lb' },
+  { label: 'Tasse (cup)', value: 'cup' },
+  { label: 'Cuillère à café (CaC)', value: 'cac' },
+  { label: 'Cuillère à soupe (CaS)', value: 'cas' },
+];
 
 const nextStep = () => {
   if (step.value < 4) {
@@ -881,6 +904,13 @@ const removeAdditive = (additive: any) => {
   }
 }
 
+const getPortionDescription = () => {
+  const { amount, unit, extraInfo } = form.value.portion;
+  if (!amount) return extraInfo || '';
+  return `${amount} ${unit}${extraInfo ? ` (${extraInfo})` : ''}`;
+}
+
+
 const submitProduct = async () => {
   loading.value = true
   try {
@@ -907,7 +937,7 @@ const submitProduct = async () => {
         name: form.value.name,
         brand: form.value.brand || null,
         category_id: form.value.category_id,
-        portion_description: form.value.portion_description || null,
+        portion_description: getPortionDescription() || null,
         image_url: imageUrl,
       }], { onConflict: 'barcode', ignoreDuplicates: false })
       .select()
@@ -1042,7 +1072,11 @@ const resetForm = () => {
     name: '',
     brand: '',
     category_id: null,
-    portion_description: '',
+    portion: {
+      amount: null,
+      unit: 'g',
+      extraInfo: '',
+    },
     image_url: '',
     halal_status: 'non_verifie',
     certification_body: '',

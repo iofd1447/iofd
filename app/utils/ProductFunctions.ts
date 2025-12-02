@@ -27,7 +27,11 @@ const form = ref({
   name: '',
   brand: '',
   category_id: null,
-  portion_description: '',
+  portion: {
+    amount: null,
+    unit: 'g',
+    extraInfo: '',
+  },
   image_url: '',
   halal_status: 'halal',
   certification_body: '',
