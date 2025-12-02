@@ -1014,9 +1014,20 @@ const submitProduct = async () => {
   }
 }
 
+const slugify = (text: string) =>
+  text.toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
+
 const goToProduct = () => {
-  navigateTo(`/products/${createdProductId.value}`)
+  if (!createdProductId.value || !form.value.name) return
+
+  const slug = slugify(form.value.name)
+  navigateTo(`/products/${createdProductId.value}/${slug}`)
 }
+
 
 const addAnother = () => {
   successDialog.value = false
