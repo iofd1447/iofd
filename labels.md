@@ -1,0 +1,14 @@
+| id                                   | name                 | description                                                                  | logo_url                                           |
+| ------------------------------------ | -------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------- |
+| 4c793e9d-d782-4d55-a2b9-0216719c735b | Bio                  | Produit issu de l’agriculture biologique, respectant les normes européennes. | https://example.com/logos/bio.png                  |
+| b403f2d3-2168-431d-a463-f842dd965e57 | Sans OGM             | Produit ne contenant pas d’organismes génétiquement modifiés.                | https://example.com/logos/sans-ogm.png             |
+| 35e73a8e-2891-47b4-a77f-a24c61d9991e | Commerce équitable   | Produit respectant les critères du commerce équitable.                       | https://example.com/logos/commerce-equitable.png   |
+| 2c61ee4a-d1f0-441b-8da4-206eeaa0fef3 | Vegan                | Produit sans ingrédients d’origine animale.                                  | https://example.com/logos/vegan.png                |
+| e3d8fc3a-9c09-45c0-9130-7aca567bd501 | Halal                | Produit certifié conforme aux règles alimentaires halal.                     | https://example.com/logos/halal.png                |
+| cf6e5eb3-59bd-41f4-b3da-ec296c0991e4 | Casher               | Produit certifié conforme aux règles alimentaires casher.                    | https://example.com/logos/casher.png               |
+| e54fffb6-4d96-4230-8aef-5be1fdabc044 | Sans lactose         | Produit ne contenant pas de lactose.                                         | https://example.com/logos/sans-lactose.png         |
+| 026a328c-ee6f-435e-8369-781a817da97f | Sans gluten          | Produit ne contenant pas de gluten.                                          | https://example.com/logos/sans-gluten.png          |
+| 3aeb62bd-7aaa-4a92-a71f-4a93be67ba84 | Label Rouge          | Produit de qualité supérieure selon le Label Rouge.                          | https://example.com/logos/label-rouge.png          |
+| 82ea8ef7-7f08-4bc3-b7fd-18f17148ed5f | AOP / AOC            | Produit bénéficiant d’une Appellation d’Origine Protégée ou Contrôlée.       | https://example.com/logos/aop-aoc.png              |
+| aae931ca-145e-425f-81cc-ad582ab4a8e3 | Médecine prophétique | Produit respectant les principes de la médecine prophétique.                 | https://example.com/logos/medecine-prophetique.png |
+| 7f91bd8b-2c77-4c1f-bc52-0eab12bb98f9 | Ultra sucré          | Produit contenant une quantité élevée de sucre. À consommer avec modération. | https://example.com/logos/ultra-sucre.png          |
