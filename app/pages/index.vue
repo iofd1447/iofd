@@ -432,7 +432,7 @@ const fetchStats = async () => {
     const { count: certifiedCount } = await supabase
       .from('halal_certifications')
       .select('*', { count: 'exact', head: true })
-      .in('halal_status', ['halal', 'mustahab'])
+      .in('halal_status', ['halal', 'mustahab', 'makruh'])
 
     const { data: contributors } = await supabase
       .from('product_contributors')
