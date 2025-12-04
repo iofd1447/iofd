@@ -329,6 +329,7 @@ import { onMounted, ref } from 'vue'
 // @ts-ignore
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import { getHalalColor, getHalalLabel, getHalalIcon } from '@/utils/color'
 
 useHead({
   title: 'IOFD – Islamic Open Food Database',
@@ -558,38 +559,24 @@ const fetchRecentProducts = async () => {
   }
 }
 
-const getHalalColor = (status: string) => {
-  const colors: Record<string, string> = {
-    halal: 'success',
-    haram: 'error',
-    douteux: 'warning',
-  }
-  return colors[status] || 'grey'
+function normalizeName(name: string) {
+  if (!name) return ''
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
-const getHalalLabel = (status: string) => {
-  const labels: Record<string, string> = {
-    halal: 'Halal',
-    haram: 'Haram',
-    douteux: 'Douteux',
-  }
-  return labels[status] || 'Non vérifié'
-}
+const goToProduct = (productOrId: any) => {
+  const product = typeof productOrId === 'object' ? productOrId : recentProducts.value.find(p => p.id === productOrId)
+  if (!product?.name || !product?.id) return
 
-const getHalalIcon = (status: string) => {
-  const icons: Record<string, string> = {
-    halal: 'mdi-check-circle',
-    haram: 'mdi-close-circle',
-    douteux: 'mdi-alert-circle'
-  }
-  return icons[status] || 'mdi-help-circle'
-}
+  const slug = normalizeName(product.name)
 
-const goToProduct = (id: string) => {
-  router.push({
-    name: 'products-id',
-    params: { id }
-  })
+  router.push(`/products/${product.id}/${slug}`)
 }
 
 const searchProducts = () => {

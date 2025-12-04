@@ -266,7 +266,7 @@
                           product.additives.length }})</h3>
                         <v-row dense>
                           <v-col v-for="additive in product.additives" :key="additive.code" cols="12" sm="6">
-                            <v-card elevation="0" rounded="lg" class="bg-surface border">
+                            <v-card elevation="0" rounded="lg" class="border">
                               <v-card-text class="d-flex align-center pa-3">
                                 <v-avatar :color="getIngredientColor(additive.halal_status)" size="40"
                                   class="mr-3 text-caption font-weight-bold">
