@@ -1,702 +1,1002 @@
 [
   {
-    "id": "de78c42a-72ab-4caf-9838-ae19d4d1774a",
-    "name": "eau",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "9827bcaf-d8b3-4221-86c7-55812e154d0f",
-    "name": "jus",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "830414fa-bc58-4253-a831-ed1e33e639ad",
-    "name": "peche",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "86a1b902-839c-4bcb-9ac3-0a1eba87203b",
-    "name": "pomme",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "66b2da6d-29ee-4a01-b1df-d3ce8b61750b",
-    "name": "Dattes",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "4a9b6f6b-ae95-4d79-a6bb-1ba215cf7115",
-    "name": "EAU",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "a2468998-2f75-482c-92cd-276fc4f07fa5",
-    "name": "jbhvghj",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "463fd926-d2f4-4849-be80-e6c0053b7956",
-    "name": "Dattes (origine: Algérie)",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "6462e525-6eed-45b0-a31a-253d87461bf4",
-    "name": "Lait demi-écrémé (origine: France) stérilisé UHT.",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "e5218863-5160-4981-8072-54c1cb2f626f",
-    "name": "Lait fermenté à 1.5%",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "6161349c-9392-45e2-aa60-2f170ec343bf",
-    "name": "Clémentines",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "5c3f6374-2131-4161-8760-cf48e0e5c6af",
-    "name": "Mie",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "c857cf1a-03e8-44f2-8afa-04be067b8084",
-    "name": "Graines de nigelle (origine : Syrie/Turquie)",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "5615efc9-81ff-4b59-8e80-efe20690c59a",
-    "name": "Emmental 98% (lait de vache pasteurisé",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "586e58d4-12b2-4ea7-b558-d7b3ba3964bc",
-    "name": "sel",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "6aa21fc0-89ef-41c1-86bd-788368d0e898",
-    "name": "ferments lactiques",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "142f96a0-0d1b-48b4-a4d1-5869e7ee31a0",
-    "name": "coagulant)",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "2d3255f0-b1d8-442e-a247-1a52f4f19bcd",
-    "name": "fécule de pomme de terre",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "de846052-b672-41e7-8f16-63d722e72f04",
-    "name": "Farine de blé",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "a87e5b4a-b067-45d5-9b86-c8a7876ee4f0",
-    "name": "Farine de blé 31 %",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "1198ba94-a964-4c3e-be5d-aadaec679082",
-    "name": "sucre 25 %",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "c82b5067-09fb-4d30-a899-dcf2be61c19c",
-    "name": "oeufs frais 16 %",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "63f3ad19-ecde-435d-9741-68c3fbb5563e",
-    "name": "huile de colza",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "c23c8f39-5d38-4f67-8935-af08fa4f831c",
-    "name": "stabilisant : sorbitols",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "7c6f0ba5-1415-402b-b97e-f02b32905a74",
-    "name": "sirop de glucose",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "03a2c590-300e-4d07-9c8c-710a9bb6ccef",
-    "name": "lactosérum",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "c2aacae1-53c4-4bc7-9280-11ba3a565f4c",
-    "name": "arôme",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "d1d4f96a-46a0-40e2-8f98-63d03e4c997f",
-    "name": "Thon listao",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "008a068e-1a1e-4b13-b99c-56c73d180fc7",
-    "name": "E202",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "9ade2da6-99df-4437-b576-ca847df4bf1a",
-    "name": "E450",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "c8509423-a894-4734-a22b-6027f8b7ea25",
-    "name": "500",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "f3033137-ec2a-42a6-ab57-ec1688841c5a",
-    "name": "Pommes",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "796d2a26-644c-4f52-94fc-95892fd88c75",
-    "name": "sucre",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "6e7007e5-b726-4289-91ad-9bca666cba0b",
-    "name": "poudre de cacao fortement dégraissé (21%)",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "ec42bc6c-f0e2-4abf-b605-f11e344fd285",
-    "name": "amidon",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "9922bd20-8175-4329-93eb-3326e64a8251",
-    "name": "fibre de bambou",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "9f888fc3-6873-49b0-86e2-d11a3b0f8a95",
-    "name": "vitamine B1",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "db91e1ba-46f2-476b-b361-14e200ee03e2",
-    "name": "Navets",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "7759b1fd-5b3d-484c-8e9b-77eaeb964cf0",
-    "name": "Oeuf",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "6e95c14d-90b7-4f1c-bc53-b0702fa5b9dc",
-    "name": "Bananes",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "8d994022-a5bb-4784-8dd5-f9597b691bfc",
-    "name": "Pêches",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "15ec61f6-3262-4ef6-81c0-4b46372b6b8f",
-    "name": "Abricots",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "8b6ba971-9011-4a1d-b326-c4131adc38d6",
-    "name": "Poires",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "04fdf2a9-161a-451b-9f37-b9bfcde02f2f",
-    "name": "Fraises",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "4def0a94-9285-454a-9f55-9fe1df076c23",
-    "name": "Framboises",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "654f241e-141c-49c9-ab10-3411414a357b",
-    "name": "Mangues",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "fe48c180-6516-443d-89b9-c244655d85cc",
-    "name": "Figues",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "b07720bd-5d7a-4987-9f1c-279a265aff24",
-    "name": "Litchis",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "ccff3484-12eb-4afd-a484-e4b76a472d42",
-    "name": "Myrtilles",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "5e5d0f4e-b238-4c98-834f-48dc2861eb17",
-    "name": "Mûres",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "63eeb374-8bdc-4f7e-a594-8fc6362eab50",
-    "name": "Fruit de la passion",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "c081ed3f-f909-41e7-b80f-570823e44990",
-    "name": "Oranges",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "e8c35974-31e3-4d4e-9b1a-5f085b8d6f06",
-    "name": "Citrons",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "c850ed40-40cc-47b8-8f66-68dbd5c70ce9",
-    "name": "Pamplemousses",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "5b3666ca-b1a9-4bd5-90ff-3eae60696956",
-    "name": "Grenade sans peau",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "a52472f7-d11e-47d3-bc23-39a7684da593",
-    "name": "Melons",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "2a983279-d22f-44b1-9f34-60cd742e7b9c",
-    "name": "Pastèques sans peau",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "c1884eef-e5d4-4b82-aee0-3acbdee820fd",
-    "name": "Ananas sans peau",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "730dbd0b-6ab2-49ad-8ea5-ba3ab6896abd",
-    "name": "Kiwi sans peau",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "5d701e3a-26e9-445f-817c-93b496bf2d41",
-    "name": "Raisins chasselas",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "a3f76ecc-18eb-4ef2-81ac-73f2932bf85d",
-    "name": "Nectarine",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "1b14ce45-3d5f-4141-ade9-3dd27634c7bc",
-    "name": "Cerises",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "e8d5acd0-b2b1-40ea-a29f-f0d16b1d21a7",
-    "name": "Kaki",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "133777aa-abc0-4cb6-b3d1-998a0babf8b6",
-    "name": "Tomates",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "8af4c2fc-76b0-4733-ad45-f554bcfeebb3",
-    "name": "Carottes cru",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "087c9fb3-ea5e-44f8-9f9e-8bae8110f803",
-    "name": "Pommes de terre cru",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "b484be47-2abb-4282-a4a4-1bcc6febf2de",
-    "name": "Oignons",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "2ea045c7-ae84-4ba1-8e97-d5cf6a7d416a",
-    "name": "Ail",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "d0100529-7e68-4aed-aeb1-32897f20e828",
-    "name": "Échalote",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "48ed460d-dda0-444c-9bbb-f89cae5494c1",
-    "name": "Poireau cru",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "d746b86c-185a-41f6-a328-03d52d9a5b60",
-    "name": "Concombres cru",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "53f02fa1-1f18-40a6-8f35-611acad5fe47",
-    "name": "Aubergines cru",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "9e5e63fb-91d8-490a-bdeb-4febfcf0cd6c",
-    "name": "Poivrons",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "7d28a0ce-fdf4-4ded-baa1-fe61f60c8a23",
-    "name": "Artichaut",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "f07e78e1-df7f-435e-9cc0-05dd7e774ae5",
-    "name": "Brocoli",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "dfe661e9-e6d5-4df6-b09d-f3a4fa2ee9dd",
-    "name": "radis",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "1573fb89-b341-41ab-bd30-5a4b638f6d41",
-    "name": "Laitue",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "e3ab0e23-ad08-4c45-a8d3-edd5cb95fa92",
-    "name": "Chou-fleur",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "c6e27ea8-71b1-45ae-b314-d234808e694b",
-    "name": "Céleri rave",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "2335f546-6b65-4876-881e-17c50c3cab6b",
-    "name": "Haricots blanc",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "746cf54c-7af6-4578-820d-a98acd6e53a0",
-    "name": "Haricots rouge",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "95513b90-b986-41dd-a491-9778e3090bb0",
-    "name": "Haricots vert",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "f55370db-8126-4133-b3a8-1c8d82311ee5",
-    "name": "Petits poids cuit",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "78791201-d64f-43ab-81a0-a3e864bded2b",
-    "name": "Épinards cuit",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "b2e5857a-1585-4bd7-abfb-8d3facaf9db1",
-    "name": "Maïs doux cru",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "8e38553d-83a0-4f40-b6a5-5145d671ce2e",
-    "name": "Betterave rouge",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "38cd3cb5-c08f-4ea9-914f-a4c3043581fb",
-    "name": "Fenouil",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "b8a4b560-e7bb-4163-a5ef-bc6bc80957aa",
-    "name": "Asperge",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "0fd8cb1a-de91-479d-81f4-b0d3862c5d23",
-    "name": "Patate douce",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "9dc1e01b-436b-4bd9-870f-af437347ec26",
-    "name": "Pois chiches (sec)",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "29770687-fcf8-44b0-bad4-74e9a43a53d9",
-    "name": "Lentilles vertes cuites",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "414799a8-c73e-4887-a0b8-07b6e4c9abc1",
-    "name": "Eau",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "e7a3865a-6899-4828-9d1a-2269c721fa7e",
-    "name": "Farine de blé 59%",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "522b5ea4-ea14-4340-ac5b-78d550afb4d1",
-    "name": "margarine (graisse de palme",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "3f93146d-0ba9-49df-9d27-98f4b91e6739",
-    "name": "émulsifiant : mono et diglycérides d'acides gras",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "89287a9b-97b5-48b1-bd5a-b31a3dbb9a0c",
-    "name": "correcteur d'acidité : acide citrique",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "83b65ed2-ea20-490e-badf-840cd97c3ba5",
-    "name": "colorant : caroténoïdes)",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "08eb469b-24a4-4706-8c2c-fd07fb09e8c9",
-    "name": "dextrose",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "aa691a97-9a8e-4500-b8b5-a7b7681a4285",
-    "name": "poudre à lever : carbonates de sodium",
-    "description": null,
-    "halal_status": null,
-    "category": null
-  },
-  {
-    "id": "865f1e0d-9a19-41d6-aa87-6b5916a4b5ad",
-    "name": "arôme.",
-    "description": null,
-    "halal_status": null,
-    "category": null
+    "id": "891b067a-ee5d-400a-926a-3b00926a2ed2",
+    "code": "E100",
+    "name": "Curcumine",
+    "description": "Colorant jaune extrait du curcuma",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "8f3333a0-70aa-426c-9678-3ee70bbe8e37",
+    "code": "E101",
+    "name": "Riboflavine",
+    "description": "Vitamine B2, colorant jaune",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal/animal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "5800d6fb-9254-4b9f-9658-4bdc2f60104a",
+    "code": "E102",
+    "name": "Tartrazine",
+    "description": "Colorant jaune synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "9b406eb9-7b35-4055-9d0f-20f92feb0266",
+    "code": "E104",
+    "name": "Jaune de quinoléine",
+    "description": "Colorant jaune synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "10432934-0dd7-4c5e-8e64-15301de147f3",
+    "code": "E110",
+    "name": "Jaune orangé S",
+    "description": "Colorant orange synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "5a6f6ac2-cec0-4ef9-bb9b-eff42f10982f",
+    "code": "E120",
+    "name": "Cochenille",
+    "description": "Colorant rouge extrait d'insectes",
+    "halal_status": "haram",
+    "origin_type": "animal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "ed4cd097-5e9e-41e0-ab32-1eef20f45820",
+    "code": "E122",
+    "name": "Carmoisine",
+    "description": "Colorant rouge synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "a67e458e-a721-48b9-83b5-d5bbf12fdcf9",
+    "code": "E123",
+    "name": "Amaranth",
+    "description": "Colorant rouge synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "ad3a44b0-b334-47dd-bc64-4717aa625b54",
+    "code": "E124",
+    "name": "Ponceau 4R",
+    "description": "Colorant rouge synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "e799d26c-2bc1-4d4f-8a7c-d42057e353b7",
+    "code": "E127",
+    "name": "Erythrosine",
+    "description": "Colorant rouge synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "4680f4e5-7dbc-4290-bc85-d2b7eccfb476",
+    "code": "E131",
+    "name": "Bleu patenté V",
+    "description": "Colorant bleu synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "6f37e6dd-4c35-4c95-91df-34cb39fbef42",
+    "code": "E132",
+    "name": "Indigotine",
+    "description": "Colorant bleu synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "4ded1c03-cb38-44ea-b8d9-58d3b1b96342",
+    "code": "E140",
+    "name": "Chlorophylle",
+    "description": "Colorant vert naturel",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "2c9bb528-2a19-4bd1-9c03-a41598701431",
+    "code": "E141",
+    "name": "Complexe cuivrique de chlorophylle",
+    "description": "Colorant vert dérivé",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "e8fe14cb-3933-4c15-971b-7448d266543a",
+    "code": "E142",
+    "name": "Vert S",
+    "description": "Colorant vert synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "7b357180-5f3a-4e70-b618-7a479d9e9137",
+    "code": "E150a",
+    "name": "Caramel nature",
+    "description": "Colorant brun",
+    "halal_status": "halal",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "8645a837-c2bd-4e8a-a7d9-831784d5f387",
+    "code": "E150b",
+    "name": "Caramel de sulfite caustique",
+    "description": "Colorant brun",
+    "halal_status": "halal",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "5d873877-22c5-48dc-8d23-d245f54c3b31",
+    "code": "E150c",
+    "name": "Caramel ammoniacal",
+    "description": "Colorant brun",
+    "halal_status": "halal",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "2688918d-e1c5-489f-afe1-4a2e3ff52352",
+    "code": "E150d",
+    "name": "Caramel au sulfite d'ammonium",
+    "description": "Colorant brun",
+    "halal_status": "halal",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "348c916b-9897-4e0b-8098-baaea3e4e657",
+    "code": "E151",
+    "name": "Noir brillant BN",
+    "description": "Colorant noir synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "6f431cd0-0803-43f9-967d-04682f5f4dc9",
+    "code": "E153",
+    "name": "Charbon végétal",
+    "description": "Colorant noir naturel",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "4daf926a-adb7-4cce-bc04-f9853c7a2f97",
+    "code": "E160a",
+    "name": "Carotènes",
+    "description": "Colorant orange naturel",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "f1c144ea-3ed6-4b32-b2ce-42b3a124312c",
+    "code": "E160b",
+    "name": "Rocou",
+    "description": "Colorant orange naturel",
+    "halal_status": "halal",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "2697d099-50e4-4398-b7ba-eae384a7dcb5",
+    "code": "E160c",
+    "name": "Capsanthine",
+    "description": "Colorant rouge naturel",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "ad534ec9-aba1-4126-bfef-18f4a66d5b2b",
+    "code": "E160d",
+    "name": "Lycopène",
+    "description": "Colorant rouge naturel",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "e2120da9-8a0d-4d09-88a9-9afbe7895e19",
+    "code": "E160e",
+    "name": "Beta-apo-8-caroténal",
+    "description": "Colorant orange",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "25fe685a-5eeb-445f-b675-51356e7f583d",
+    "code": "E160f",
+    "name": "Ester éthylique de l'acide beta-apo-8-caroténoïque",
+    "description": "Colorant orange",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "22049d22-a579-4a61-8ecb-5c15d1ae9df8",
+    "code": "E161a",
+    "name": "Flavoxanthine",
+    "description": "Colorant jaune naturel",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "e57d78d1-7391-4440-9874-25eb740e89dd",
+    "code": "E161b",
+    "name": "Lutéine",
+    "description": "Colorant jaune naturel",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "9d9d64da-58f0-4e8d-9a95-32c144ac0c5f",
+    "code": "E161c",
+    "name": "Cryptoxanthine",
+    "description": "Colorant jaune naturel",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "c850067f-1f6b-4d31-9db3-77574c4e47c5",
+    "code": "E161d",
+    "name": "Rubixanthine",
+    "description": "Colorant jaune naturel",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "0ba6bec5-a822-455a-9c5f-279bdd6afb11",
+    "code": "E161e",
+    "name": "Violaxanthine",
+    "description": "Colorant jaune naturel",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "38df9535-7dd4-406f-b738-554dc50e60fd",
+    "code": "E161f",
+    "name": "Rhodoxanthine",
+    "description": "Colorant rouge naturel",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "6bb8aa50-f8f3-4a3b-8ad6-93f555993827",
+    "code": "E161g",
+    "name": "Canthaxanthine",
+    "description": "Colorant orange naturel",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "f3bde2b3-cf4f-4fd1-a215-4f3eeb4dab87",
+    "code": "E162",
+    "name": "Rouge de betterave",
+    "description": "Colorant rouge naturel",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "913deb4b-4502-48f7-a0d3-1fe1eb91a273",
+    "code": "E163",
+    "name": "Anthocyanes",
+    "description": "Colorant rouge/bleu naturel",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "95506655-1b58-4852-887c-012d32b73f8d",
+    "code": "E170",
+    "name": "Carbonate de calcium",
+    "description": "Colorant blanc minéral",
+    "halal_status": "mashbuh",
+    "origin_type": "minéral",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "13693120-39a4-47f2-b5a7-8bbd9fce5e79",
+    "code": "E171",
+    "name": "Dioxyde de titane",
+    "description": "Colorant blanc minéral",
+    "halal_status": "halal",
+    "origin_type": "minéral",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "8afa0ca2-c390-4a44-bd23-0e1941d8f25d",
+    "code": "E172",
+    "name": "Oxydes et hydroxydes de fer",
+    "description": "Colorants minéraux",
+    "halal_status": "halal",
+    "origin_type": "minéral",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "7b0eebf3-0f75-4887-9a70-da322af5c8a5",
+    "code": "E173",
+    "name": "Aluminium",
+    "description": "Colorant métallique",
+    "halal_status": "halal",
+    "origin_type": "minéral",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "1a1a8f44-d2b1-4034-b0f4-f024bd8e214b",
+    "code": "E174",
+    "name": "Argent",
+    "description": "Colorant métallique",
+    "halal_status": "halal",
+    "origin_type": "minéral",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "e530770f-f4f6-4c09-af31-9702b0191609",
+    "code": "E175",
+    "name": "Or",
+    "description": "Colorant métallique",
+    "halal_status": "halal",
+    "origin_type": "minéral",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "a89aa26d-b5e9-4eaf-863c-2c766eace43e",
+    "code": "E180",
+    "name": "Pigment rubine",
+    "description": "Colorant rouge synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "colorant",
+    "health_concerns": null
+  },
+  {
+    "id": "623b696c-cc1f-4db0-8a18-56098b5321d3",
+    "code": "E200",
+    "name": "Acide sorbique",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "f853478a-6729-4c10-a54d-81886eea2722",
+    "code": "E201",
+    "name": "Sorbate de sodium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "00466f50-b435-47df-819b-379959be619c",
+    "code": "E202",
+    "name": "Sorbate de potassium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "987da875-1c6d-4439-beff-6c3af64355c1",
+    "code": "E203",
+    "name": "Sorbate de calcium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "d942dc8b-c19d-4aa8-a80b-3397dca8aac5",
+    "code": "E210",
+    "name": "Acide benzoïque",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "ff6000c8-c19e-46ef-b500-1a64efaab559",
+    "code": "E211",
+    "name": "Benzoate de sodium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "83b29f7c-bb6e-4770-a066-8ce34454123b",
+    "code": "E212",
+    "name": "Benzoate de potassium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "d166bee6-5f7a-4597-85a0-4fb48e14e29e",
+    "code": "E213",
+    "name": "Benzoate de calcium",
+    "description": "Conservateur",
+    "halal_status": "mashbuh",
+    "origin_type": "minéral",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "96fcb913-d0a0-459e-b103-f6914c243ca6",
+    "code": "E214",
+    "name": "Ethyl 4-hydroxybenzoate",
+    "description": "Conservateur",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "19e3aa76-2132-4d8a-8a8e-9824c46586c2",
+    "code": "E215",
+    "name": "Dérivé sodique de l'éthyl-4-hydroxybenzoate",
+    "description": "Conservateur",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "2c3e71a8-5b54-40b3-ba7d-3dae594dc4ee",
+    "code": "E216",
+    "name": "Propyl 4-hydroxybenzoate",
+    "description": "Conservateur",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "554502e0-015a-4205-9256-46d43a0a44e1",
+    "code": "E217",
+    "name": "Dérivé sodique du propyl-4-hydroxybenzoate",
+    "description": "Conservateur",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "45419b57-b8e1-43fc-b272-514e8a4f83d3",
+    "code": "E218",
+    "name": "Méthyl 4-hydroxybenzoate",
+    "description": "Conservateur",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "dc51e24b-4204-4284-acd2-698aa8174abc",
+    "code": "E219",
+    "name": "Dérivé sodique du méthyl-4-hydroxybenzoate",
+    "description": "Conservateur",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "a361a829-0850-45fd-a08c-fdd6b5d90d71",
+    "code": "E220",
+    "name": "Dioxyde de soufre",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "1cd3f581-4193-4d79-93c6-8f2a41730d72",
+    "code": "E221",
+    "name": "Sulfite de sodium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "4a4ea124-9c5f-448d-88ae-02bdedf53f04",
+    "code": "E222",
+    "name": "Bisulfite de sodium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "6942d567-949e-49a2-956a-94e5cb643d80",
+    "code": "E223",
+    "name": "Métabisulfite de sodium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "cfa85ce1-e528-404b-9ec7-eff1a2ec0ba0",
+    "code": "E224",
+    "name": "Métabisulfite de potassium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "7de5bc21-a411-4ded-940b-88a3816733a4",
+    "code": "E226",
+    "name": "Sulfite de calcium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "a46ecf1e-5b25-4daf-8fcf-3abd0f5f6577",
+    "code": "E227",
+    "name": "Bisulfite de calcium",
+    "description": "Conservateur",
+    "halal_status": "mashbuh",
+    "origin_type": "minéral",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "4a629870-d804-49ee-b561-c5281b35649f",
+    "code": "E230",
+    "name": "Biphényle",
+    "description": "Conservateur",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "277e4429-1d9e-4e96-8c9f-c40f678f51c3",
+    "code": "E231",
+    "name": "2-Hydroxybiphényle",
+    "description": "Conservateur",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "46719049-fcf7-4dbf-8df2-edb42c4e1401",
+    "code": "E232",
+    "name": "Orthophénylphénate de sodium",
+    "description": "Conservateur",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "cbf4a4d5-3c98-4af1-a4aa-5737c154a247",
+    "code": "E233",
+    "name": "Thiabendazole",
+    "description": "Conservateur",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "aa5656c8-66e5-4df3-a6f0-30644e8c1068",
+    "code": "E239",
+    "name": "Hexaméthylènetétramine",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "1a90770a-9593-4479-bbf1-27d6fdbd1d8a",
+    "code": "E249",
+    "name": "Nitrite de potassium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "7d1c7623-514a-4171-b977-89d26d460f22",
+    "code": "E250",
+    "name": "Nitrite de sodium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "b2aea645-f0fe-4dcc-9fad-dba374b9cc11",
+    "code": "E251",
+    "name": "Nitrate de sodium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "1eec854a-94fe-40df-91ee-cd81c1375d82",
+    "code": "E252",
+    "name": "Nitrate de potassium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "4c635417-12e8-404a-ad85-008e3b458323",
+    "code": "E260",
+    "name": "Acide acétique",
+    "description": "Acidifiant",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "acidifiant",
+    "health_concerns": null
+  },
+  {
+    "id": "26dca4c8-a100-4ee3-8af1-df741c951dd0",
+    "code": "E261",
+    "name": "Acétate de potassium",
+    "description": "Acidifiant",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "acidifiant",
+    "health_concerns": null
+  },
+  {
+    "id": "3021a4ce-3ff9-4886-8b87-a04b92d3d1c2",
+    "code": "E262",
+    "name": "Diacétate de potassium",
+    "description": "Acidifiant",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "acidifiant",
+    "health_concerns": null
+  },
+  {
+    "id": "3ace632f-fd03-4940-87c3-c3e3002a0857",
+    "code": "E263",
+    "name": "Acétate de calcium",
+    "description": "Acidifiant",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "acidifiant",
+    "health_concerns": null
+  },
+  {
+    "id": "56c456b1-7b75-492a-b752-5b71183fd7df",
+    "code": "E270",
+    "name": "Acide lactique",
+    "description": "Acidifiant",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "acidifiant",
+    "health_concerns": null
+  },
+  {
+    "id": "40fa109b-e842-4113-a5b4-7b131b8e856a",
+    "code": "E280",
+    "name": "Acide propionique",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "95a0c755-b987-48a8-b99a-366e0d220376",
+    "code": "E281",
+    "name": "Propionate de sodium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "e533976c-1119-4adb-85f5-0a73392d66f5",
+    "code": "E282",
+    "name": "Propionate de calcium",
+    "description": "Conservateur",
+    "halal_status": "mashbuh",
+    "origin_type": "minéral",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "e32b8351-60e9-4ab0-8ec8-83feefc8a308",
+    "code": "E283",
+    "name": "Propionate de potassium",
+    "description": "Conservateur",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "conservateur",
+    "health_concerns": null
+  },
+  {
+    "id": "d0b65c36-ee66-4366-b2a8-107c572e66d9",
+    "code": "E290",
+    "name": "Dioxyde de carbone",
+    "description": "Agent gazéifiant",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "divers",
+    "health_concerns": null
+  },
+  {
+    "id": "319b3fd2-c93b-4e7d-8855-3634efcec3d3",
+    "code": "E296",
+    "name": "Acide malique",
+    "description": "Acide organique",
+    "halal_status": "halal",
+    "origin_type": "végétal",
+    "function": "synthétique",
+    "health_concerns": null
+  },
+  {
+    "id": "ccbbeae1-8aff-4da5-a0b3-77e6e02ac498",
+    "code": "E300",
+    "name": "Acide ascorbique",
+    "description": "Vitamine C, antioxydant",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "antioxydant",
+    "health_concerns": null
+  },
+  {
+    "id": "b3a6343e-622d-47ec-9554-bf5ad1fa7a48",
+    "code": "E301",
+    "name": "Ascorbate de sodium",
+    "description": "Sel de vitamine C",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "antioxydant",
+    "health_concerns": null
+  },
+  {
+    "id": "266b05d5-4ddb-4420-8b1b-35a15c744efd",
+    "code": "E302",
+    "name": "Ascorbate de calcium",
+    "description": "Sel de vitamine C",
+    "halal_status": "mashbuh",
+    "origin_type": "minéral",
+    "function": "antioxydant",
+    "health_concerns": null
+  },
+  {
+    "id": "5d2498cb-0656-40b4-87cf-50744f8c5fc2",
+    "code": "E304",
+    "name": "Palmitate d'ascorbyle",
+    "description": "Dérivé de vitamine C",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal/animal",
+    "function": "antioxydant",
+    "health_concerns": null
+  },
+  {
+    "id": "511ecb92-3606-4b98-b71f-131fd2116245",
+    "code": "E306",
+    "name": "Extraits riches en tocophérols",
+    "description": "Vitamine E naturelle",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal/animal",
+    "function": "antioxydant",
+    "health_concerns": null
+  },
+  {
+    "id": "5b1b7176-5bf4-43b3-891d-bc84ee0efe56",
+    "code": "E307",
+    "name": "Alpha-tocophérol synthétique",
+    "description": "Vitamine E synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "antioxydant",
+    "health_concerns": null
+  },
+  {
+    "id": "877379ef-2db9-408c-b146-cb4ad250ebfc",
+    "code": "E308",
+    "name": "Gamma-tocophérol synthétique",
+    "description": "Vitamine E synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "antioxydant",
+    "health_concerns": null
+  },
+  {
+    "id": "0f682880-414b-41d9-8956-1d3c92978404",
+    "code": "E309",
+    "name": "Delta-tocophérol synthétique",
+    "description": "Vitamine E synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "antioxydant",
+    "health_concerns": null
+  },
+  {
+    "id": "4b070395-adfd-4b4e-8786-36a0f52aad04",
+    "code": "E310",
+    "name": "Gallate de propyle",
+    "description": "Antioxydant",
+    "halal_status": "halal",
+    "origin_type": "synthétique",
+    "function": "antioxydant",
+    "health_concerns": null
+  },
+  {
+    "id": "a241ff0f-eb8e-498f-89c6-25106ee6f1b8",
+    "code": "E311",
+    "name": "Gallate d'octyle",
+    "description": "Antioxydant",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "antioxydant",
+    "health_concerns": null
+  },
+  {
+    "id": "b746ad2a-5d5f-4af0-a96f-1f011fa8fbfd",
+    "code": "E312",
+    "name": "Gallate de dodécyle",
+    "description": "Antioxydant",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal",
+    "function": "antioxydant",
+    "health_concerns": null
+  },
+  {
+    "id": "476d8ec7-f123-4c3e-b0aa-b1b8ea5b080c",
+    "code": "E320",
+    "name": "BHA",
+    "description": "Antioxydant synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "antioxydant",
+    "health_concerns": null
+  },
+  {
+    "id": "82afbdcd-12ae-4b5c-83b3-d2f640f5fe1b",
+    "code": "E321",
+    "name": "BHT",
+    "description": "Antioxydant synthétique",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "antioxydant",
+    "health_concerns": null
+  },
+  {
+    "id": "8e095ca3-2033-4250-b75d-cc6dc3fe0cd6",
+    "code": "E322",
+    "name": "Lécithine",
+    "description": "Émulsifiant",
+    "halal_status": "mashbuh",
+    "origin_type": "végétal/animal",
+    "function": "émulsifiant",
+    "health_concerns": null
+  },
+  {
+    "id": "5c1e1531-6ee4-42da-847c-1745585c29ff",
+    "code": "E325",
+    "name": "Lactate de sodium",
+    "description": "Régulateur d'acidité",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "acidifiant",
+    "health_concerns": null
+  },
+  {
+    "id": "564cf023-fd5f-4d38-8980-0eb22efa4932",
+    "code": "E326",
+    "name": "Lactate de potassium",
+    "description": "Régulateur d'acidité",
+    "halal_status": "mashbuh",
+    "origin_type": "synthétique",
+    "function": "acidifiant",
+    "health_concerns": null
   }
 ]

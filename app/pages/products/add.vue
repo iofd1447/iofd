@@ -566,13 +566,13 @@
 </template>
 
 <script setup lang="ts">
+import BarcodeScanner from '@/components/BarcodeScanner.vue'
 import { useSupabase } from '@/composables/useSupabase'
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
-import { computed, onMounted, ref, watch, nextTick } from 'vue'
-import { rules } from '@/utils/rules'
-import BarcodeScanner from '@/components/BarcodeScanner.vue'
-import { step, steps, halalStatuses, certificationBodies, form, nutritionFields, additiveFilterStatuses } from '@/utils/ProductFunctions'
 import { getPortionDescription, UNITS, type Unit } from '@/utils/PortionManagement'
+import { additiveFilterStatuses, certificationBodies, form, halalStatuses, nutritionFields, step, steps } from '@/utils/ProductFunctions'
+import { rules } from '@/utils/rules'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 useHead({
   title: 'IOFD - Add a product to the database'
@@ -981,8 +981,17 @@ const submitProduct = async () => {
       let additiveId: string
       if (typeof additive === 'string') {
         const code = additive.toUpperCase()
-        const { data: existingAdditive } = await supabase.from('additives').select('id').eq('code', code).single()
-        if (existingAdditive) additiveId = existingAdditive.id
+        // Use maybeSingle() instead of single() to avoid errors when no additive is found
+        const { data: existingAdditive, error: searchError } = await supabase
+          .from('additives')
+          .select('id')
+          .eq('code', code)
+          .maybeSingle()
+
+        if (existingAdditive) {
+          // Additive already exists, use its ID
+          additiveId = existingAdditive.id
+        }
         else {
           const { data: newAdditive, error } = await supabase.from('additives').insert([{ code, name: code }]).select().single()
           if (error) continue

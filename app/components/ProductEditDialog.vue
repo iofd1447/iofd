@@ -658,7 +658,6 @@ async function loadCategories() {
       throw error
     }
     categories.value = (data || []) as Category[]
-    console.log('Categories loaded:', categories.value)
   } catch (error) {
     console.error('Error loading categories:', error)
   } finally {
@@ -757,6 +756,15 @@ function removeImage() {
 async function onSubmit() {
   if (!props.product?.id) return
   try {
+    form.value.additives = selectedAdditives.value.map((a: any) => {
+      if (typeof a === 'string') return a
+      if (a && typeof a === 'object') return a.id || a.code || a
+      return a
+    }).filter(Boolean)
+
+    form.value.allergens = selectedAllergens.value
+    form.value.labels = selectedLabels.value
+
     const payload: EditableProductFields = {
       ...form.value,
       image_file: imageFile.value,

@@ -1,6 +1,6 @@
+import { type Unit, getPortionDescription } from '@/utils/PortionManagement'
 import { ref } from 'vue'
 import { useSupabase } from './useSupabase'
-import { type Unit, getPortionDescription, UNITS } from '@/utils/PortionManagement'
 
 export type EditableProductFields = {
   barcode: string
@@ -138,20 +138,43 @@ export function useProductEditor() {
         const additiveMappings = []
         for (const additive of fields.additives) {
           let additiveId: string
-          if (typeof additive === 'string') {
-            const code = additive.toUpperCase()
-            const { data: existingAdditive } = await supabase.from('additives').select('id').eq('code', code).single()
-            if (existingAdditive) additiveId = existingAdditive.id
-            else {
-              const { data: newAdditive, error } = await supabase.from('additives').insert([{ code, name: code }]).select().single()
-              if (error) continue
-              additiveId = newAdditive.id
-            }
-          } else if (typeof additive === 'object' && additive.id) {
+
+          if (typeof additive === 'object' && additive.id) {
             additiveId = additive.id
+          }
+          else if (typeof additive === 'string') {
+            const isUUID = additive.length === 36 && additive.includes('-')
+
+            if (isUUID) {
+              additiveId = additive
+            } else {
+              const code = additive.toUpperCase()
+              const { data: existingAdditive, error: searchError } = await supabase
+                .from('additives')
+                .select('id')
+                .eq('code', code)
+                .maybeSingle()
+
+              if (existingAdditive) {
+                additiveId = existingAdditive.id
+              } else {
+                const { data: newAdditive, error: insertError } = await supabase
+                  .from('additives')
+                  .insert([{ code, name: code }])
+                  .select()
+                  .single()
+
+                if (insertError) {
+                  console.error(`Error creating additive ${code}:`, insertError)
+                  continue
+                }
+                additiveId = newAdditive.id
+              }
+            }
           } else {
             continue
           }
+
           additiveMappings.push({ product_id: productId, additive_id: additiveId })
         }
         if (additiveMappings.length) {
