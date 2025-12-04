@@ -75,7 +75,7 @@
           <v-row>
 
             <v-col cols="12" md="4">
-              <v-text-field :model-value="displayBarcode" label="Code-barres" prepend-inner-icon="mdi-barcode"
+              <v-text-field v-model="form.barcode" label="Code-barres" prepend-inner-icon="mdi-barcode"
                 placeholder="3017620422003" hint="Jusqu'à 32 caractères" persistent-hint :rules="[rules.barcode]"
                 maxlength="32">
                 <template #append-inner>
@@ -571,7 +571,6 @@ import { useSupabase } from '@/composables/useSupabase'
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
 import { getPortionDescription, UNITS, type Unit } from '@/utils/PortionManagement'
 import { additiveFilterStatuses, certificationBodies, form, halalStatuses, nutritionFields, step, steps } from '@/utils/ProductFunctions'
-import { rules } from '@/utils/rules'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 useHead({
