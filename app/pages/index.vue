@@ -9,6 +9,7 @@
 
     <v-btn variant="text" to="/products" class="nav-btn d-none d-sm-inline-flex" aria-label="Produits">Produits</v-btn>
     <v-btn variant="text" to="/additives" class="nav-btn d-none d-sm-inline-flex" aria-label="Additifs">Additifs</v-btn>
+    <v-btn variant="text" to="/labels-guide" class="nav-btn d-none d-sm-inline-flex" aria-label="Labels">Labels</v-btn>
     <v-btn variant="text" to="/about" class="nav-btn d-none d-md-inline-flex" aria-label="A propos">À propos</v-btn>
 
     <v-menu location="bottom end">
@@ -18,6 +19,7 @@
       <v-list>
         <v-list-item to="/products" title="Produits" prepend-icon="mdi-package-variant" />
         <v-list-item to="/additives" title="Additifs" prepend-icon="mdi-flask" />
+        <v-list-item to="/labels-guide" title="Labels" prepend-icon="mdi-flask" />
         <v-list-item to="/about" title="À propos" prepend-icon="mdi-information" />
       </v-list>
     </v-menu>
