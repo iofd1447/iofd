@@ -407,7 +407,7 @@ const socials = ref([
 const productLink = ref([
   { title: 'Produits', path: '/products' },
   { title: 'Additifs', path: '/additives' },
-  { title: 'Guide halal', path: '/halal-guide' }
+  { title: 'Guide des statuts', path: '/statut-guide' }
 ])
 
 const communityLink = ref([

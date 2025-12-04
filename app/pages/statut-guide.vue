@@ -54,7 +54,7 @@
 import { ref } from 'vue'
 
 useHead({
-  title: 'IFOD - statut guide'
+  title: 'IOFD - Guide des statuts'
 })
 
 const values = ref([
