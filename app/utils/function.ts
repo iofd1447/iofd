@@ -11,42 +11,6 @@ const formatHijriDate = (date: string): string => {
   return d.locale('fr').format('iD iMMMM iYYYY [à] HH:mm')
 }
 
-const getHalalColor = (status: string) => {
-  const colors: Record<string, string> = {
-    mustahab: 'mustahab',
-    halal: 'success',
-    haram: 'error',
-    mashbuh: 'warning',
-    makruh: 'makruh'
-  }
-  return colors[status] || 'grey'
-}
-
-const getHalalLabel = (status: string) => {
-  const labels: Record<string, string> = {
-    mustahab: 'Mustahab',
-    halal: 'Halal',
-    haram: 'Haram',
-    mashbuh: 'Douteux',
-    makruh: 'Makruh'
-  }
-  return labels[status] || 'Non vérifié'
-}
-
-const getHalalIcon = (status: string) => {
-  const icons: Record<string, string> = {
-    halal: 'mdi-check-circle',
-    haram: 'mdi-close-circle',
-    mashbuh: 'mdi-alert-circle',
-    makruh: 'mdi-alert-decagram'
-  }
-  return icons[status] || 'mdi-help-circle'
-}
-
-const getIngredientColor = (status: string) => {
-  return getHalalColor(status)
-}
-
 const getAllergenType = (presence: string): 'success' | 'warning' | 'error' | 'info' => {
   const types: Record<string, 'success' | 'warning' | 'error' | 'info'> = {
     contient: 'error',

@@ -31,4 +31,8 @@ const getHalalIcon = (status: string) => {
   return icons[status] || 'mdi-help-circle'
 }
 
-export { getHalalColor, getHalalLabel, getHalalIcon }
+const getIngredientColor = (status: string) => {
+  return getHalalColor(status)
+}
+
+export { getHalalColor, getHalalLabel, getHalalIcon, getIngredientColor }

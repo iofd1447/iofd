@@ -428,11 +428,11 @@ import { useSupabase } from '#imports'
 import ProductEditDialog from '@/components/ProductEditDialog.vue'
 import { useSupabaseAuth } from '@/composables/useSupabaseAuth'
 import {
-  formatHijriDate,
   getHalalColor,
   getHalalLabel,
   getIngredientColor
-} from '@/utils/function'
+} from '@/utils/color'
+import { formatHijriDate } from '@/utils/function'
 import { computed, onMounted, ref } from 'vue'
 import { parsePortionDescription } from '@/utils/PortionManagement'
 
