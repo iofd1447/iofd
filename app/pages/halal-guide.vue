@@ -58,9 +58,11 @@ useHead({
 })
 
 const values = ref([
+  { title: 'Mustahab', subtitle: 'Produit recommandé', icon: 'mdi-decagram-check', color: 'mustahab' },
   { title: 'Halal', subtitle: 'Produit conforme aux principes islamiques', icon: 'mdi-check-circle', color: 'success' },
   { title: 'Haram', subtitle: 'Produit interdit selon les principes islamiques', icon: 'mdi-alert-circle', color: 'error' },
-  { title: 'Mashbuh', subtitle: 'Le statut halal est incertain ou débattu', icon: 'mdi-alert', color: 'warning' }
+  { title: 'Mashbuh', subtitle: 'Le statut halal est incertain ou débattu', icon: 'mdi-alert', color: 'warning' },
+  { title: 'Makruh', subtitle: 'Produit non recommandé', icon: 'mdi-decagram-alert', color: 'makruh' },
 ])
 
 const halalCheckingCompany = ref([
