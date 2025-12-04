@@ -41,10 +41,6 @@
                 <v-fade-transition>
                   <v-btn v-if="searchQuery" icon="mdi-close" variant="text" size="small" @click="clearSearch" />
                 </v-fade-transition>
-                <v-divider vertical class="mx-2 my-3" />
-                <v-btn icon="mdi-barcode-scan" variant="text" color="primary" @click="openScanner">
-                  <v-tooltip activator="parent" location="top">Scanner un produit</v-tooltip>
-                </v-btn>
               </template>
             </v-text-field>
           </v-card>
@@ -615,10 +611,6 @@ const goToProduct = (productOrId: any) => {
   const slug = normalizeName(product.name)
 
   router.push(`/products/${product.id}/${slug}`)
-}
-
-const openScanner = () => {
-  router.push('/products/scan')
 }
 
 let searchTimeout: NodeJS.Timeout
