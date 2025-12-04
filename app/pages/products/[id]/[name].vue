@@ -284,7 +284,7 @@
                     </v-col>
 
                     <v-col cols="12" md="4">
-                      <v-card v-if="product.allergens?.length" elevation="0" rounded="xl" color="red-lighten-5"
+                      <v-card v-if="product.allergens?.length" elevation="0" rounded="xl"
                         class="border-red-lighten-4 border">
                         <v-card-title class="text-red-darken-2 font-weight-bold">
                           <v-icon color="red-darken-2" class="mr-2">mdi-alert-circle</v-icon>
