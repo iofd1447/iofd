@@ -3,7 +3,7 @@
     <v-btn icon="mdi-arrow-left" variant="text" @click="$router.push('/')" />
     <v-app-bar-title class="text-h6 font-weight-bold">
       <span class="text-primary">IOFD</span>
-      <span class="text-medium-emphasis ml-2">• Guide Halal</span>
+      <span class="text-medium-emphasis ml-2">• Guide des statuts</span>
     </v-app-bar-title>
     <v-spacer />
   </v-app-bar>
@@ -14,13 +14,13 @@
         <v-avatar size="100" color="success" class="mb-4">
           <v-icon size="50" color="white">mdi-book-open-variant</v-icon>
         </v-avatar>
-        <h1 class="text-h3 font-weight-bold mb-2">Guide Halal</h1>
-        <p class="text-subtitle-1 text-medium-emphasis">Comprendre les certifications et le statut halal</p>
+        <h1 class="text-h3 font-weight-bold mb-2">Guides des statuts </h1>
+        <p class="text-subtitle-1 text-medium-emphasis">Comprendre les différents statuts</p>
       </div>
 
       <v-card elevation="4" rounded="xl" class="mb-6">
         <v-card-text class="pa-8">
-          <h2 class="text-h5 font-weight-bold mb-4">Les statuts Halal</h2>
+          <h2 class="text-h5 font-weight-bold mb-4">Les statuts</h2>
           <v-list v-for="value in values">
             <v-list-item>
               <template #prepend>
@@ -54,7 +54,7 @@
 import { ref } from 'vue'
 
 useHead({
-  title: 'IFOD - halal guide'
+  title: 'IFOD - statut guide'
 })
 
 const values = ref([
