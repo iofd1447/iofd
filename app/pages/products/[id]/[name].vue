@@ -739,7 +739,7 @@ watch(product, (p) => {
   const category = p.category || ''
   const image = p.image_url || 'https://via.placeholder.com/600x400?text=Image+indisponible'
   const description = `${p.name}${brand ? ' de la marque ' + brand : ''}.`
-  const url = window.location.href
+  const canonicalUrl = `https://iofd.org/products/${p.slug || p.id}/${p.nameSlug}`;
   const keywords = [p.name, brand, category, p.halal_status].filter(Boolean).join(', ')
 
   useHead({
@@ -747,11 +747,12 @@ watch(product, (p) => {
     meta: [
       { name: 'description', content: description },
       { name: 'keywords', content: keywords },
+      { name: 'robots', content: 'index, follow' },
 
       { property: 'og:title', content: `${p.name}${brand ? ' - ' + brand : ''}` },
       { property: 'og:description', content: description },
       { property: 'og:image', content: image },
-      { property: 'og:url', content: url },
+      { property: 'og:url', content: canonicalUrl },
       { property: 'og:type', content: 'product' },
 
       { name: 'twitter:card', content: 'summary_large_image' },
@@ -760,7 +761,7 @@ watch(product, (p) => {
       { name: 'twitter:image', content: image },
     ],
     link: [
-      { rel: 'canonical', href: url }
+      { rel: 'canonical', href: canonicalUrl }
     ]
   })
 })
