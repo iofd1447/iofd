@@ -323,7 +323,8 @@ useHead({
   title: 'Produits - IOFD',
   meta: [
     { name: 'description', content: 'Découvrez les produits, leurs status, leurs valeur nutritionnelle et contribuez au besoin.' },
-    { name: 'keywords', content: 'produits, halal, haram, IOFD, Open Food Database' }
+    { name: 'keywords', content: 'produits, halal, haram, IOFD, Open Food Database' },
+    { name: 'robots', content: 'noindex, nofollow' }
   ]
 })
 
