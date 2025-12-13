@@ -11,7 +11,7 @@ const barcodeRule = (v: any) => {
   return 'Code-barres invalide'
 }
 
-// @ts-ignore
+// @ts-ignoree
 const rules = {
   required: (v: any) => !!v || 'Ce champ est requis',
   barcode: barcodeRule,
