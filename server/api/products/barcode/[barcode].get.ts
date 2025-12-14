@@ -13,20 +13,33 @@ export default defineEventHandler(async (event) => {
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY || ''
   const supabase = createClient(supabaseUrl, supabaseKey)
 
-  const { data, error } = await supabase
+  // On essaie d'abord l'égalité
+  const { data: exactData, error: exactError } = await supabase
     .from('products')
     .select('*, nutrition_facts(*)')
     .eq('barcode', barcode)
     .single()
 
-  if (error) {
-    if (error.code === 'PGRST116') { // JSON object requested, multiple (or no) rows returned
-      event.node.res.statusCode = 404
-      return { error: 'Product not found' }
-    }
-    event.node.res.statusCode = 500
-    return { error: error.message }
+  if (exactData) {
+    return { data: exactData }
   }
 
-  return { data }
+  // Si pas trouvé, on essaie ILIKE avec wildcard
+  const { data: ilikeData, error: ilikeError } = await supabase
+    .from('products')
+    .select('*, nutrition_facts(*)')
+    .ilike('barcode', `%${barcode}%`)
+    .limit(1)
+
+  if (ilikeError) {
+    event.node.res.statusCode = 500
+    return { error: ilikeError.message }
+  }
+
+  if (ilikeData?.length) {
+    return { data: ilikeData[0] }
+  }
+
+  event.node.res.statusCode = 404
+  return { error: 'Product not found' }
 })

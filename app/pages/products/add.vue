@@ -174,7 +174,7 @@
               <v-icon color="white" size="24">mdi-shield-check</v-icon>
             </v-avatar>
             <div>
-              <h2 class="text-h5 font-weight-bold mb-1">Statut Halal</h2>
+              <h2 class="text-h5 font-weight-bold mb-1">Statut</h2>
               <p class="text-medium-emphasis mb-0">Informations sur la certification halal</p>
             </div>
           </div>
@@ -291,27 +291,6 @@
                 </v-dialog>
               </div>
             -->
-            </v-col>
-
-            <v-col cols="12">
-              <div class="text-subtitle-2 mb-2">Additifs</div>
-              <v-btn variant="outlined" color="primary" prepend-icon="mdi-flask-outline" append-icon="mdi-chevron-right"
-                block size="large" @click="showAdditivesDialog = true" class="additives-select-btn">
-                <span v-if="selectedAdditives.length === 0">Sélectionner des additifs</span>
-                <span v-else>{{ selectedAdditives.length }} additif{{ selectedAdditives.length > 1 ? 's' : '' }}
-                  sélectionné{{
-                    selectedAdditives.length > 1 ? 's' : '' }}</span>
-              </v-btn>
-              <div v-if="selectedAdditives.length > 0" class="mt-3">
-                <v-chip-group>
-                  <v-chip v-for="additive in selectedAdditives"
-                    :key="typeof additive === 'string' ? additive : additive.id" :color="getAdditiveColor(additive)"
-                    closable @click:close="removeAdditive(additive)" size="small">
-                    <v-icon start size="16">{{ getAdditiveIcon(additive) }}</v-icon>
-                    {{ typeof additive === 'string' ? additive : additive.code }}
-                  </v-chip>
-                </v-chip-group>
-              </div>
             </v-col>
 
             <v-col cols="12">
