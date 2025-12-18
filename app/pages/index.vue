@@ -48,7 +48,7 @@
             </div>
 
             <h1 class="hero-title-enhanced mb-4 mb-sm-6" data-aos="fade-up" data-aos-delay="100">
-              L'alimentation en accord
+              L'alimentation simplifiée pour tous et
               <span class="gradient-text-animated">avec les principes de l'islam</span>
             </h1>
 

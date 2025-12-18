@@ -13,7 +13,6 @@ export default defineEventHandler(async (event) => {
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.NUXT_PUBLIC_SUPABASE_ANON_KEY || ''
   const supabase = createClient(supabaseUrl, supabaseKey)
 
-  // On essaie d'abord l'égalité
   const { data: exactData, error: exactError } = await supabase
     .from('products')
     .select('*, nutrition_facts(*)')
@@ -24,7 +23,6 @@ export default defineEventHandler(async (event) => {
     return { data: exactData }
   }
 
-  // Si pas trouvé, on essaie ILIKE avec wildcard
   const { data: ilikeData, error: ilikeError } = await supabase
     .from('products')
     .select('*, nutrition_facts(*)')

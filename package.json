@@ -1,5 +1,5 @@
 {
-  "name": "IOFDD",
+  "name": "IOFD",
   "type": "module",
   "private": true,
   "scripts": {
@@ -13,9 +13,11 @@
   "dependencies": {
     "@ericblade/quagga2": "^1.10.2",
     "@mdi/font": "^7.4.47",
+    "@nuxtjs/supabase": "^2.0.3",
     "@supabase/supabase-js": "^2.78.0",
     "@zxing/library": "^0.21.3",
     "aos": "^2.3.4",
+    "axios": "^1.13.2",
     "cropperjs": "^2.1.0",
     "hijri-date": "^0.2.2",
     "html2canvas": "^1.4.1",
